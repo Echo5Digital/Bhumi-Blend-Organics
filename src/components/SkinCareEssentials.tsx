@@ -157,13 +157,16 @@ function EssentialCard({ product, index }: { product: Product; index: number }) 
               <svg
                 aria-hidden="true"
                 viewBox="0 0 24 24"
-                className="h-5 w-5 fill-none stroke-current"
-                strokeWidth="1.6"
+                className="h-[22px] w-[22px] fill-none stroke-current"
+                strokeWidth="1.7"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <path d="M6 8h12l-1 12H7L6 8Z" />
-                <path d="M9 8V7a3 3 0 0 1 6 0v1" />
+                {/* Shopping cart (same glyph as the header's cart). The old
+                    shopping-bag shape read as a bin at this size. */}
+                <path d="M3 4h2.2l2.1 10.2a1.5 1.5 0 0 0 1.5 1.2h8.1a1.5 1.5 0 0 0 1.5-1.1L20 8H6.2" />
+                <circle cx="9.5" cy="19.5" r="1.3" />
+                <circle cx="17" cy="19.5" r="1.3" />
               </svg>
             </button>
           </div>
