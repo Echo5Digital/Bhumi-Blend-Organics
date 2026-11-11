@@ -1,15 +1,10 @@
 import { BestSellers } from "@/components/BestSellers";
+import { BrandDifference } from "@/components/BrandDifference";
 import { CurrentYear } from "@/components/CurrentYear";
 import { HeroSlider } from "@/components/HeroSlider";
 import { IngredientTicker } from "@/components/IngredientTicker";
 import { ShopByConcern } from "@/components/ShopByConcern";
 import { TrustBar } from "@/components/TrustBar";
-
-const features = [
-  { title: "100% Natural", detail: "No parabens, no sulphates, no synthetic fragrance." },
-  { title: "Kerala Ayurveda", detail: "Traditional formulations passed down for generations." },
-  { title: "Cruelty Free", detail: "Never tested on animals, always kind to the earth." },
-];
 
 export default function Home() {
   return (
@@ -35,18 +30,8 @@ export default function Home() {
       {/* Shop by Concern — next section on the live site (keeps id="categories" for the footer link) */}
       <ShopByConcern />
 
-      {/* Features strip */}
-      <section className="border-b border-gray-200 bg-white">
-        <div className="mx-auto grid max-w-7xl gap-8 px-6 py-12 sm:grid-cols-3">
-          {features.map((f) => (
-            <div key={f.title} className="text-center">
-              <h3 className="font-serif text-lg text-gray-900">{f.title}</h3>
-              <p className="mt-2 text-sm text-brand-muted">{f.detail}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
+      {/* The Bhumi Blend Difference — replaces the old placeholder features strip */}
+      <BrandDifference />
 
       {/* About / Story */}
       <section id="about" className="bg-white">
