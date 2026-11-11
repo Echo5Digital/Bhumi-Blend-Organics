@@ -9,6 +9,8 @@ export type Product = {
   price: number;
   /** Original price in INR — only set when the product is on offer. */
   regularPrice?: number;
+  /** Average star rating out of 5 — only set where the live site shows one. */
+  rating?: number;
 };
 
 // The 8 Best Sellers, in display order. Names, prices and offers are the ones
@@ -75,5 +77,60 @@ export const bestSellers: Product[] = [
     image: "/Bhumi-Blend-Brightening-Clarifying-Skin-Care-Range.jpg",
     hoverImage: "/Bhumi-Blend-Brightening-Clarifying-Skin-Care-Range-2-500x669.jpg",
     price: 2000,
+  },
+];
+
+// The Skin Care Essentials row, in display order. Names, prices and offers are
+// the ones on the live bhumiblend.com; the 500px photos are the pre-cropped
+// versions of the product shots. Slugs for the Gua Sha tool and the Under Eye
+// Cream are placeholders until their product pages exist.
+export const skinCareEssentials: Product[] = [
+  {
+    slug: "ayurvedic-anti-aging-cream",
+    name: "Anti Ageing Cream",
+    image: "/Anti-ageing-Cream-4_01-500x669.jpg",
+    hoverImage: "/Anti-ageing-Cream-4_02-1-500x668.jpg",
+    price: 599,
+    regularPrice: 1800,
+  },
+  {
+    slug: "gua-sha-face-tool",
+    name: "Gua Sha Face Tool",
+    image: "/Gua-Sha-Face-Tool-BB-500x669.jpg",
+    hoverImage: "/Gua-Sha-2_02-500x669.jpg",
+    price: 250,
+    regularPrice: 300,
+  },
+  {
+    slug: "saffron-face-cream-for-glowing-skin",
+    name: "Organic Saffron Gel",
+    image: "/Sffron-Gel-2_01-1-500x669.jpg",
+    hoverImage: "/Sffron-Gel-2_05-2-500x668.jpg",
+    price: 599,
+    regularPrice: 1200,
+  },
+  {
+    slug: "organic-under-eye-cream",
+    name: "Organic Under Eye Cream",
+    image: "/Under-Eye-Cream-3_01-1-500x669.jpg",
+    hoverImage: "/Under-Eye-Cream-3_02-2-500x669.jpg",
+    price: 599,
+    regularPrice: 800,
+  },
+  {
+    slug: "buy-pure-aloe-vera-gel",
+    name: "Original Aloe Vera Gel",
+    image: "/Aloevera-Gel-2_01-500x669.jpg",
+    hoverImage: "/Aloevera-Gel-2_02-1-500x668.jpg",
+    price: 250,
+    rating: 5,
+  },
+  {
+    slug: "natural-face-serum-for-dark-spots-india",
+    name: "Vitamin C Face Serum",
+    image: "/face-serum-2_01-500x669.jpg",
+    hoverImage: "/face-serum-2_03-1-500x667.jpg",
+    price: 599,
+    regularPrice: 1199,
   },
 ];

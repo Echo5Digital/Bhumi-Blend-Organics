@@ -36,6 +36,13 @@ html {
   scroll-padding-top: 76px;
 }
 
+/* Phones: the header is 129px tall again (full-size logo), same as desktop. */
+@media (max-width: 767px) {
+  html {
+    scroll-padding-top: 128px;
+  }
+}
+
 @media (min-width: 1024px) {
   html {
     scroll-padding-top: 129px;

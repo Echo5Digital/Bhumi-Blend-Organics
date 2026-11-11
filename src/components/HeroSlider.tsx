@@ -1,7 +1,8 @@
 "use client";
 
-import Image from "next/image";
+import { getImageProps } from "next/image";
 import Link from "next/link";
+import { preload } from "react-dom";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 // Settings and measurements below are taken from the live bhumiblend.com
@@ -11,23 +12,31 @@ const AUTOPLAY_MS = 6000;
 const TRANSITION_MS = 500;
 const SWIPE_THRESHOLD_PX = 50;
 
+// `src` is the wide banner (tablet and desktop); `mobileSrc` is the portrait
+// version of the same slide, shown below 768px.
 const slides = [
   {
     src: "/baner-3-copy.webp",
+    mobileSrc: "/Baner-1-Resize-copy-1-scaled.webp",
     alt: "Deep Hydration for Summer Days – restore moisture the Ayurvedic way",
     buttonColor: "#C98A1D",
   },
   {
     src: "/banner-4-1-scaled.webp",
+    mobileSrc: "/Baner-3-Resize-copy-scaled.webp",
     alt: "Buy 6 Essentials at just ₹599",
     buttonColor: "#E8A40D",
   },
   {
     src: "/banner-5-1-scaled.webp",
+    mobileSrc: "/Baner-2-Resize-copy-scaled.webp",
     alt: "Nature's Most Potent Vitamin C Serum, powered by Billy Goat Plum and Chamomile – exclusive price ₹599",
     buttonColor: "#683A04",
   },
 ];
+
+// The portrait mobile banners are all 1974×2560.
+const MOBILE_ASPECT = "aspect-[1974/2560]";
 
 const SHOP_HREF = "/#categories";
 const count = slides.length;
@@ -52,6 +61,57 @@ function Chevron({ direction }: { direction: "left" | "right" }) {
     >
       <path d={d} />
     </svg>
+  );
+}
+
+// Art direction: below 768px the browser loads only the portrait mobile image,
+// from 768px up only the wide one (the desktop/tablet markup is the same
+// <Image fill sizes="100vw"> output as before, just wrapped in a <picture>).
+function SlidePicture({
+  slide,
+  alt,
+  highPriority,
+}: {
+  slide: (typeof slides)[number];
+  alt: string;
+  highPriority: boolean;
+}) {
+  const common = {
+    alt,
+    fill: true,
+    sizes: "100vw",
+    loading: "eager" as const,
+    fetchPriority: highPriority ? ("high" as const) : ("low" as const),
+    className: "object-cover object-center",
+  };
+  const { props: wideProps } = getImageProps({ ...common, src: slide.src });
+  const { props: mobileProps } = getImageProps({ ...common, src: slide.mobileSrc });
+
+  // React preloads a high-priority <img>, but not one inside a <picture>, so
+  // do it by hand for the first slide — one hint per screen size, so each
+  // visitor only preloads the image they will actually see.
+  if (highPriority) {
+    preload(wideProps.src, {
+      as: "image",
+      imageSrcSet: wideProps.srcSet,
+      imageSizes: "100vw",
+      fetchPriority: "high",
+      media: "(min-width: 768px)",
+    });
+    preload(mobileProps.src, {
+      as: "image",
+      imageSrcSet: mobileProps.srcSet,
+      imageSizes: "100vw",
+      fetchPriority: "high",
+      media: "(max-width: 767px)",
+    });
+  }
+
+  return (
+    <picture>
+      <source media="(min-width: 768px)" srcSet={wideProps.srcSet} sizes="100vw" />
+      <img {...mobileProps} alt={alt} />
+    </picture>
   );
 }
 
@@ -151,21 +211,17 @@ export function HeroSlider() {
               role="group"
               aria-roledescription="slide"
               aria-hidden={!isActive}
-              // Mobile: show the whole banner. Tablet: 188px. Desktop: 465px,
+              // Mobile: the whole portrait banner. Tablet: 188px. Desktop: 465px,
               // image covers the box and is centred (same as the live site).
-              className="relative aspect-[1920/510] w-full shrink-0 overflow-hidden min-[768px]:aspect-auto min-[768px]:h-[188px] min-[1025px]:h-[465px]"
+              className={`relative ${MOBILE_ASPECT} w-full shrink-0 overflow-hidden min-[768px]:aspect-auto min-[768px]:h-[188px] min-[1025px]:h-[465px]`}
             >
-              <Image
-                src={slide.src}
+              <SlidePicture
+                slide={slide}
                 alt={isActive ? slide.alt : ""}
-                fill
-                sizes="100vw"
-                loading="eager"
-                fetchPriority={i === 1 ? "high" : "low"}
-                className="object-cover object-center"
+                highPriority={i === 1}
               />
-              {/* Button sits in the same spot on every slide (desktop only; the
-                  live site hides it below 1025px where the slide is too short). */}
+              {/* Desktop button: same spot on every slide. Hidden on tablet,
+                  where the live site's slide is too short for it. */}
               <div className="absolute top-[375px] right-[355px] left-[122px] hidden justify-center min-[1025px]:flex">
                 <Link
                   href={SHOP_HREF}
@@ -176,6 +232,18 @@ export function HeroSlider() {
                   Shop Now
                 </Link>
               </div>
+
+              {/* Mobile button (portrait banners): a filled amber button low on
+                  the banner, right of centre, in the same spot on every slide.
+                  Placed by percentage so it keeps its position as the banner
+                  scales with the screen width. */}
+              <Link
+                href={SHOP_HREF}
+                tabIndex={isActive ? 0 : -1}
+                className="absolute bottom-[6.8%] left-[67.6%] inline-block -translate-x-1/2 rounded-[3px] bg-[#f4a940] px-7 py-[13px] font-system text-[14.5px] leading-none text-white active:opacity-90 min-[768px]:hidden"
+              >
+                Shop Now
+              </Link>
             </div>
           );
         })}
@@ -185,7 +253,7 @@ export function HeroSlider() {
         type="button"
         aria-label="Previous slide"
         onClick={() => go(-1)}
-        className="absolute top-1/2 left-[10px] z-10 inline-flex -translate-y-1/2 cursor-pointer text-[25px] text-[hsla(0,0%,93%,.9)]"
+        className="absolute top-1/2 left-[10px] z-10 inline-flex -translate-y-1/2 cursor-pointer text-[25px] text-[hsla(0,0%,93%,.9)] max-md:hidden"
       >
         <Chevron direction="left" />
       </button>
@@ -193,7 +261,7 @@ export function HeroSlider() {
         type="button"
         aria-label="Next slide"
         onClick={() => go(1)}
-        className="absolute top-1/2 right-[10px] z-10 inline-flex -translate-y-1/2 cursor-pointer text-[25px] text-[hsla(0,0%,93%,.9)]"
+        className="absolute top-1/2 right-[10px] z-10 inline-flex -translate-y-1/2 cursor-pointer text-[25px] text-[hsla(0,0%,93%,.9)] max-md:hidden"
       >
         <Chevron direction="right" />
       </button>
