@@ -3,7 +3,14 @@
 import { useState } from "react";
 
 // Heart toggle. State is local for now — there is no wishlist backend yet.
-export function WishlistButton({ productName }: { productName: string }) {
+export function WishlistButton({
+  productName,
+  className = "top-3 right-3",
+}: {
+  productName: string;
+  /** Position classes; defaults to the top-right corner of the photo. */
+  className?: string;
+}) {
   const [saved, setSaved] = useState(false);
 
   return (
@@ -12,7 +19,7 @@ export function WishlistButton({ productName }: { productName: string }) {
       aria-pressed={saved}
       aria-label={`${saved ? "Remove from" : "Add to"} wishlist: ${productName}`}
       onClick={() => setSaved((value) => !value)}
-      className="absolute top-3 right-3 z-10 grid h-9 w-9 place-items-center rounded-full bg-white/90 shadow-sm backdrop-blur transition-transform duration-300 hover:scale-110 active:scale-95"
+      className={`absolute ${className} z-10 grid h-9 w-9 place-items-center rounded-full bg-white/90 shadow-sm backdrop-blur transition-transform duration-300 hover:scale-110 active:scale-95`}
     >
       <svg
         aria-hidden="true"

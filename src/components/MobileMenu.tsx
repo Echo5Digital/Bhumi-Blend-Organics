@@ -7,7 +7,7 @@ import { useEffect, useId, useState } from "react";
 // into its three categories). Phones only: from 768px up the navbar shows.
 const links = [
   { label: "Home", href: "/" },
-  { label: "Shop", href: "/#best-sellers" },
+  { label: "Shop", href: "/shop" },
   { label: "Haircare", href: "/product-category/hair" },
   { label: "Skincare", href: "/product-category/face" },
   { label: "Bodycare", href: "/product-category/body" },

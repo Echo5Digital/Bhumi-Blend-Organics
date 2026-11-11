@@ -80,6 +80,83 @@ export const bestSellers: Product[] = [
   },
 ];
 
+// The /shop page, in display order (first page of the live shop). Names and
+// prices are the ones on the live bhumiblend.com/shop. Slugs are placeholders
+// until the product pages exist. Where a "(1)" copy of a photo was supplied it
+// is byte-identical to the clean-named file already in /public, so that one is
+// used (no spaces or brackets in the URL).
+export const shopProducts: Product[] = [
+  {
+    slug: "almond-butter-hydrating-body-lotion",
+    name: "Almond Butter Hydrating Body Lotion",
+    image: "/Body-Lotion-3_01-1.jpg",
+    hoverImage: "/Body-Lotion-3_02-2.jpg",
+    price: 699,
+    regularPrice: 899,
+  },
+  {
+    slug: "aloe-pure-shampoo",
+    name: "Aloe Pure Shampoo",
+    image: "/Aloe-Pure-Shampoo.webp",
+    hoverImage: "/Aloe-pure-shampoo-4.webp",
+    price: 599,
+  },
+  {
+    slug: "ayurvedic-anti-aging-cream",
+    name: "Anti Ageing Cream",
+    image: "/Anti-ageing-Cream-4_01.jpg",
+    hoverImage: "/Anti-ageing-Cream-4_02-1.jpg",
+    price: 599,
+    regularPrice: 1800,
+  },
+  {
+    slug: "ayurvedic-exfoliation-glow-kit",
+    name: "Ayurvedic Exfoliation & Glow Kit",
+    image: "/Ayurvedic-Exfoliation-Glow-Kit.jpg",
+    // No second photo was supplied for this one.
+    hoverImage: "/Ayurvedic-Exfoliation-Glow-Kit.jpg",
+    price: 1048,
+    regularPrice: 1698,
+  },
+  {
+    slug: "ayurvedic-youth-revival-kit",
+    name: "Ayurvedic Youth Revival Kit",
+    image: "/Ayurvedic-Youth-Revival-Kit-new.webp",
+    // The supplied hover file is identical to the main photo.
+    hoverImage: "/Ayurvedic-Youth-Revival-Kit-new.webp",
+    price: 1999,
+  },
+  {
+    slug: "bhumi-blend-mens-combo",
+    name: "Bhumi Blend Men’s Combo",
+    image: "/mens-care-2_01.jpg",
+    hoverImage: "/mens-care-2_02.jpg",
+    price: 2999,
+  },
+  {
+    slug: "premium-soap-set-of-3",
+    name: "Bhumi Blend Organics Premium Soap Set of 3",
+    image: "/3-Combo-Soap-Set.jpg",
+    hoverImage: "/Soap-Combo-Box_02.jpg",
+    price: 699,
+  },
+  {
+    slug: "premium-soap-set-of-6",
+    name: "Bhumi Blend Organics Premium Soap Set of 6",
+    image: "/6-Combo-Soap-Set.jpg",
+    // Identical to the Set of 3 hover photo (the supplied "(1)" copy).
+    hoverImage: "/Soap-Combo-Box_02.jpg",
+    price: 1349,
+  },
+  {
+    slug: "premium-combo-box",
+    name: "Bhumi Blend Premium Combo Box",
+    image: "/woman-care-2_01.jpg",
+    hoverImage: "/women-care-3_04-1.jpg",
+    price: 4999,
+  },
+];
+
 // The Skin Care Essentials row, in display order. Names, prices and offers are
 // the ones on the live bhumiblend.com; the 500px photos are the pre-cropped
 // versions of the product shots. Slugs for the Gua Sha tool and the Under Eye

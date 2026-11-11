@@ -7,7 +7,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 // Settings and measurements below are taken from the live bhumiblend.com
 // (Elementor slides widget): 6s autoplay, 500ms slide transition, infinite
-// loop, pause on hover, arrows + dots, 465px tall on desktop / 188px on tablet.
+// loop, pause on hover, arrows + dots, 188px tall on tablet (desktop is 475px, 10px more than live).
 const AUTOPLAY_MS = 6000;
 const TRANSITION_MS = 500;
 const SWIPE_THRESHOLD_PX = 50;
@@ -211,9 +211,10 @@ export function HeroSlider() {
               role="group"
               aria-roledescription="slide"
               aria-hidden={!isActive}
-              // Mobile: the whole portrait banner. Tablet: 188px. Desktop: 465px,
-              // image covers the box and is centred (same as the live site).
-              className={`relative ${MOBILE_ASPECT} w-full shrink-0 overflow-hidden min-[768px]:aspect-auto min-[768px]:h-[188px] min-[1025px]:h-[465px]`}
+              // Mobile: the whole portrait banner. Tablet: 188px. Desktop: 475px
+              // (10px taller than the live site's 465px), image covers the box
+              // and is centred.
+              className={`relative ${MOBILE_ASPECT} w-full shrink-0 overflow-hidden min-[768px]:aspect-auto min-[768px]:h-[188px] min-[1025px]:h-[475px]`}
             >
               <SlidePicture
                 slide={slide}
@@ -222,7 +223,7 @@ export function HeroSlider() {
               />
               {/* Desktop button: same spot on every slide. Hidden on tablet,
                   where the live site's slide is too short for it. */}
-              <div className="absolute top-[375px] right-[355px] left-[122px] hidden justify-center min-[1025px]:flex">
+              <div className="absolute top-[380px] right-[355px] left-[122px] hidden justify-center min-[1025px]:flex">
                 <Link
                   href={SHOP_HREF}
                   tabIndex={isActive ? 0 : -1}

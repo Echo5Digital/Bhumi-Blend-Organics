@@ -94,7 +94,7 @@ export function ProductCard({ product }: { product: Product }) {
           <button
             type="button"
             aria-label={`Add ${name} to cart`}
-            className="w-full rounded-full border border-[#222] px-4 py-2.5 text-[12px] font-semibold tracking-[0.14em] text-[#222] uppercase transition-colors duration-300 active:bg-[#222] active:text-white"
+            className="w-full rounded-full border border-brand-gold bg-brand-gold px-4 py-2.5 text-[12px] font-semibold tracking-[0.14em] text-white uppercase shadow-[0_8px_16px_-8px_rgba(184,121,31,0.7)] transition-colors duration-300 active:border-brand-gold-dark active:bg-brand-gold-dark"
           >
             Add to Cart
           </button>

@@ -20,8 +20,8 @@ export default function Home() {
         <HeroSlider />
       </section>
 
-      {/* Trust strip + moving ingredient ticker (20px gap above, none between) */}
-      <div className="mt-5">
+      {/* Trust strip + moving ingredient ticker, flush against the banner */}
+      <div>
         <TrustBar />
         <IngredientTicker />
       </div>

@@ -6,6 +6,7 @@ const columns = [
   {
     title: "Shop",
     links: [
+      { label: "All Products", href: "/shop" },
       { label: "Best Sellers", href: "/#best-sellers" },
       { label: "Skin Care", href: "/product-category/face" },
       { label: "Hair Care", href: "/product-category/hair" },
@@ -41,10 +42,12 @@ export function Footer() {
     // Orange frame (the brand footer colour) around a dark panel.
     <footer id="contact" className="bg-brand-footer px-3 py-8 sm:px-6">
       <div className="mx-auto max-w-[1240px] bg-[#1f1d19] px-5 pt-14 pb-7 text-center lg:pt-[60px]">
-        {/* 5 equal columns on desktop; brand on its own row, then a 2×2 / 4-up
-            grid of link columns below that. */}
-        <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4 lg:grid-cols-5">
-          <div className="col-span-2 sm:col-span-4 lg:col-span-1">
+        {/* 5 equal columns from 1024px. Below that the brand has its own row and
+            the link columns sit two to a row (Shop | About Us, Support | Connect
+            from 640px). On phones Support and Connect take a full row each: a
+            half-width column is only ~130px, too narrow for the email address. */}
+        <div className="grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-5">
+          <div className="col-span-2 lg:col-span-1">
             <p className="font-serif text-[28px] leading-tight text-[#f3ead6]">Bhumi Blend</p>
             {/* Short gold rule, left-aligned under the name like the live site. */}
             <span
@@ -57,7 +60,11 @@ export function Footer() {
           </div>
 
           {columns.map((column) => (
-            <nav key={column.title} aria-label={column.title}>
+            <nav
+              key={column.title}
+              aria-label={column.title}
+              className={column.title === "Support" ? "col-span-2 sm:col-span-1" : undefined}
+            >
               <h3 className={headingClass}>{column.title}</h3>
               <ul className="mt-4">
                 {column.links.map((link) => (
@@ -71,11 +78,16 @@ export function Footer() {
             </nav>
           ))}
 
-          <div>
+          <div className="col-span-2 sm:col-span-1">
             <h3 className={headingClass}>Connect</h3>
             <ul className="mt-4">
               <li>
-                <a href="mailto:support@bhumiblend.com" className={linkClass}>
+                {/* overflow-wrap:anywhere is the safety net: if a column is ever
+                    too narrow the address wraps instead of spilling out. */}
+                <a
+                  href="mailto:support@bhumiblend.com"
+                  className={`${linkClass} [overflow-wrap:anywhere]`}
+                >
                   support@bhumiblend.com
                 </a>
               </li>

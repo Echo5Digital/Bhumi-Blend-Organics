@@ -38,7 +38,7 @@ export function Header() {
           <Link href="/" className={navLinkClass}>
             Home
           </Link>
-          <Link href="/#best-sellers" className={navLinkClass}>
+          <Link href="/shop" className={navLinkClass}>
             Shop
           </Link>
           <CategoryMenu />
