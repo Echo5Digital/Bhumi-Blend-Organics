@@ -80,8 +80,8 @@ export const bestSellers: Product[] = [
   },
 ];
 
-// The /shop page, in display order (first page of the live shop). Names and
-// prices are the ones on the live bhumiblend.com/shop. Slugs are placeholders
+// The /shop page, in display order (all 3 pages of the live shop, 9 per
+// page). Names and prices are the ones on the live bhumiblend.com/shop. Slugs are placeholders
 // until the product pages exist. Where a "(1)" copy of a photo was supplied it
 // is byte-identical to the clean-named file already in /public, so that one is
 // used (no spaces or brackets in the URL).
@@ -154,6 +154,133 @@ export const shopProducts: Product[] = [
     image: "/woman-care-2_01.jpg",
     hoverImage: "/women-care-3_04-1.jpg",
     price: 4999,
+  },
+  // --- Page 2 of the live shop (items 10–18). ---
+  {
+    slug: "best-ayurvedic-hair-oil",
+    name: "Bhumi Blend Pure Ayurvedic Hair Oil",
+    image: "/Hair-Oil-Organic.jpg",
+    hoverImage: "/Hair-Oil-2_05-1-500x669.jpg",
+    price: 399,
+    regularPrice: 499,
+  },
+  {
+    slug: "bhumi-blend-starter-combo-box",
+    name: "Bhumi Blend Starter Combo Box",
+    image: "/woman-care-2_01.jpg",
+    hoverImage: "/women-care-3_03-2-500x668.jpg",
+    price: 1999,
+  },
+  {
+    slug: "brightening-clarifying-skin-care-range",
+    name: "Brightening & Clarifying Skin Care Range",
+    image: "/Bhumi-Blend-Brightening-Clarifying-Skin-Care-Range-800x1070.jpg",
+    hoverImage: "/Bhumi-Blend-Brightening-Clarifying-Skin-Care-Range-2-500x669.jpg",
+    price: 2000,
+  },
+  {
+    slug: "essential-skin-repair-range",
+    name: "Essential Skin Repair Range",
+    image: "/Essential-Skin-Repair-Range-500x669.webp",
+    hoverImage: "/combo-1-feb-6-500x669.webp",
+    price: 2000,
+  },
+  {
+    slug: "gua-sha-face-tool",
+    name: "Gua Sha Face Tool",
+    image: "/Gua-Sha-Face-Tool-BB-500x669.jpg",
+    hoverImage: "/Gua-Sha-2_02-500x669.jpg",
+    price: 250,
+    regularPrice: 300,
+  },
+  {
+    slug: "luxury-shea-butter-soap",
+    name: "Luxury Shea Butter Soap",
+    image: "/shea-butter-soap-2_01-1-500x669.jpg",
+    hoverImage: "/shea-butter-soap-2_02-3-500x668.jpg",
+    price: 250,
+    regularPrice: 289,
+  },
+  {
+    slug: "nalpamaram-soap",
+    name: "Nalpamaram Soap",
+    image: "/Naalpamaram-Soap-2_01-1-500x669.jpg",
+    // Square (500×500) poster; the 3:4 tile crops a little off the sides.
+    hoverImage: "/soap_poster-500x500.webp",
+    price: 199,
+    regularPrice: 249,
+  },
+  {
+    slug: "organic-rosemary-water",
+    name: "Organic Rosemary Water",
+    image: "/carousel-poster_01-2-500x669.jpg",
+    hoverImage: "/carousel-poster_02-1-500x669.jpg",
+    price: 250,
+    regularPrice: 350,
+  },
+  {
+    slug: "saffron-face-cream-for-glowing-skin",
+    name: "Organic Saffron Gel",
+    image: "/Sffron-Gel-2_01-1-500x669.jpg",
+    hoverImage: "/Sffron-Gel-2_05-2-500x668.jpg",
+    price: 599,
+    regularPrice: 1200,
+  },
+  // --- Page 3 of the live shop (items 19–25). ---
+  {
+    slug: "organic-under-eye-cream",
+    name: "Organic Under Eye Cream",
+    image: "/Under-Eye-Cream-3_01-1.jpg",
+    hoverImage: "/Under-Eye-Cream-3_02-2.jpg",
+    price: 599,
+    regularPrice: 800,
+  },
+  {
+    slug: "buy-pure-aloe-vera-gel",
+    name: "Original Aloe Vera Gel",
+    image: "/Aloevera-Gel-2_01.jpg",
+    hoverImage: "/Aloevera-Gel-2_02-1.jpg",
+    price: 250,
+  },
+  {
+    slug: "pure-leaf-aloe-conditioner",
+    name: "Pure Leaf Aloe Conditioner",
+    image: "/pure-leaf-aloe-conditioner.webp",
+    hoverImage: "/conditioner-4.webp",
+    price: 599,
+    regularPrice: 699,
+  },
+  {
+    slug: "root-vitality-ayurvedic-shampoo",
+    name: "Root Vitality Ayurvedic Shampoo",
+    image: "/anti_hairfall_shampoo.jpg",
+    hoverImage: "/anti-hairfall-Shampoo_03.jpg",
+    price: 499,
+    regularPrice: 799,
+  },
+  {
+    slug: "sandalwood-soap",
+    name: "Sandalwood Soap",
+    image: "/Sandal-Soap-2_01-1.jpg",
+    hoverImage: "/Sandal-Soap-2_02-2-1532x2048.jpg",
+    price: 249,
+  },
+  {
+    slug: "summer-essentials-luxury-kit",
+    name: "Summer Essentials Luxury Kit",
+    image: "/Summer-Essentials-Luxury-Kit-500x669.jpg",
+    // Same photo on hover on the live site.
+    hoverImage: "/Summer-Essentials-Luxury-Kit-500x669.jpg",
+    price: 1099,
+    regularPrice: 1799,
+  },
+  {
+    slug: "natural-face-serum-for-dark-spots-india",
+    name: "Vitamin C Face Serum",
+    image: "/face-serum-2_01-500x669.jpg",
+    hoverImage: "/face-serum-2_03-1-500x667.jpg",
+    price: 599,
+    regularPrice: 1199,
   },
 ];
 
