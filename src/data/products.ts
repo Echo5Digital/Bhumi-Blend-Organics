@@ -338,3 +338,15 @@ export const skinCareEssentials: Product[] = [
     regularPrice: 1199,
   },
 ];
+
+// Every product that can carry a heart or an "Add to cart" button, once each.
+// The three lists above overlap, so they are merged by slug; the shop list is
+// last so its entry wins. The wishlist and the cart look products up here.
+export const catalogue: Product[] = [
+  ...new Map(
+    [...skinCareEssentials, ...bestSellers, ...shopProducts].map((product) => [
+      product.slug,
+      product,
+    ]),
+  ).values(),
+];

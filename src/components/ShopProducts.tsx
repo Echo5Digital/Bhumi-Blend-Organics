@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import type { Product } from "@/data/products";
+import { AddToCartButton } from "@/components/AddToCartButton";
 import { WishlistButton } from "@/components/WishlistButton";
 
 const PER_PAGE = 9;
@@ -76,7 +77,11 @@ function ProductTile({ product, view }: { product: Product; view: View }) {
           )}
         </Link>
 
-        <WishlistButton productName={name} className="top-2.5 left-2.5 sm:top-3 sm:left-3" />
+        <WishlistButton
+          slug={slug}
+          productName={name}
+          className="top-2.5 left-2.5 sm:top-3 sm:left-3"
+        />
 
         {onOffer && (
           <span className="absolute top-3 right-0 z-10 bg-brand-gold px-2.5 py-0.5 font-system text-[12px] font-bold text-white sm:text-[13px]">
@@ -119,9 +124,9 @@ function ProductTile({ product, view }: { product: Product; view: View }) {
             the button fades in on hover / keyboard focus. Touch screens have no
             hover and list view has room, so there it is always visible. */}
         <div className="mt-3.5">
-          <button
-            type="button"
-            aria-label={`Add ${name} to cart`}
+          <AddToCartButton
+            slug={slug}
+            productName={name}
             className={`max-sm:w-full rounded-sm bg-brand-gold px-4 py-2.5 font-system text-[12px] font-bold tracking-[0.1em] text-white uppercase transition-[opacity,transform,background-color] duration-300 hover:bg-brand-gold-dark ${
               isList
                 ? ""
@@ -129,7 +134,7 @@ function ProductTile({ product, view }: { product: Product; view: View }) {
             }`}
           >
             Add to Cart
-          </button>
+          </AddToCartButton>
         </div>
       </div>
     </article>

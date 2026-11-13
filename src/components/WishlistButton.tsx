@@ -1,30 +1,43 @@
 "use client";
 
 import { useState } from "react";
+import { toggleWishlist, useIsWishlisted } from "@/lib/wishlist";
 
-// Heart toggle. State is local for now — there is no wishlist backend yet.
+// Heart toggle. Saves / removes the product in the shared wishlist (see
+// lib/wishlist.ts), which is what the header's Wishlist badge and the
+// /wishlist page show.
 export function WishlistButton({
+  slug,
   productName,
   className = "top-3 right-3",
 }: {
+  /** The product's slug: the wishlist stores these. */
+  slug: string;
   productName: string;
   /** Position classes; defaults to the top-right corner of the photo. */
   className?: string;
 }) {
-  const [saved, setSaved] = useState(false);
+  const saved = useIsWishlisted(slug);
+  // The heart bounces when it is switched on by a click — not on page load
+  // for hearts that were already saved.
+  const [pop, setPop] = useState(false);
 
   return (
     <button
       type="button"
       aria-pressed={saved}
       aria-label={`${saved ? "Remove from" : "Add to"} wishlist: ${productName}`}
-      onClick={() => setSaved((value) => !value)}
+      onClick={() => {
+        if (!saved) setPop(true);
+        toggleWishlist(slug);
+      }}
       className={`absolute ${className} z-10 grid h-9 w-9 place-items-center rounded-full bg-white/90 shadow-sm backdrop-blur transition-transform duration-300 hover:scale-110 active:scale-95`}
     >
       <svg
         aria-hidden="true"
         viewBox="0 0 24 24"
-        className={`h-5 w-5 transition-all duration-300 ${
+        onAnimationEnd={() => setPop(false)}
+        className={`h-5 w-5 transition-all duration-300 ${pop ? "heart-pop" : ""} ${
           saved
             ? "scale-110 fill-[#e0245e] stroke-[#e0245e]"
             : "fill-transparent stroke-[#222]"

@@ -1,16 +1,15 @@
 "use client";
 
 import { useState } from "react";
-
-const MAX_QTY = 10;
+import { addToCart, MAX_QTY } from "@/lib/cart";
 
 const stepperButton =
   "grid h-full w-11 cursor-pointer place-items-center text-[#444] transition-colors duration-300 hover:bg-[#fbf3e0] hover:text-brand-gold-dark disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-[#444] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-gold";
 
-// Quantity + "Add to cart" + "Buy It Now". There is no cart or checkout
-// backend yet (the header cart and every other "Add to Cart" button are the
-// same), so the buttons are in place but don't submit anything.
-export function PurchasePanel({ productName }: { productName: string }) {
+// Quantity + "Add to cart" + "Buy It Now". "Add to cart" puts the chosen
+// quantity in the cart (lib/cart.ts) and stays on the page. There is no
+// checkout yet, so "Buy It Now" is in place but doesn't do anything.
+export function PurchasePanel({ slug, productName }: { slug: string; productName: string }) {
   const [qty, setQty] = useState(1);
 
   const clamp = (value: number) => Math.min(MAX_QTY, Math.max(1, value));
@@ -70,6 +69,7 @@ export function PurchasePanel({ productName }: { productName: string }) {
 
       <button
         type="button"
+        onClick={() => addToCart({ slug, name: productName }, qty)}
         className="h-[52px] cursor-pointer rounded-full bg-brand-gold px-4 font-system text-[13px] font-bold tracking-[0.12em] whitespace-nowrap text-white uppercase shadow-[0_14px_24px_-12px_rgba(184,121,31,0.8)] transition-[background-color,transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:bg-brand-gold-dark hover:shadow-[0_18px_28px_-12px_rgba(184,121,31,0.9)] active:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-gold"
       >
         Add to cart

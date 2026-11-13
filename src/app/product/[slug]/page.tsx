@@ -166,7 +166,7 @@ async function ProductContent({
             </p>
 
             <div className="mt-7">
-              <PurchasePanel productName={name} />
+              <PurchasePanel slug={slug} productName={name} />
             </div>
 
             <div className="relative mt-8 overflow-hidden rounded-2xl border border-[#eadcb6] bg-white p-6 pl-7 shadow-[0_18px_36px_-28px_rgba(120,85,20,0.5)]">

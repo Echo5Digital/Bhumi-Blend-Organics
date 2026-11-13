@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { skinCareEssentials, type Product } from "@/data/products";
 import { Reveal } from "@/components/Reveal";
+import { AddToCartButton } from "@/components/AddToCartButton";
 import { WishlistButton } from "@/components/WishlistButton";
 
 const rupees = new Intl.NumberFormat("en-IN", {
@@ -103,7 +104,7 @@ function EssentialCard({ product, index }: { product: Product; index: number }) 
           </span>
         )}
 
-        <WishlistButton productName={name} />
+        <WishlistButton slug={slug} productName={name} />
       </div>
 
       <div className="flex flex-1 flex-col px-1.5 pt-4 pb-1.5 sm:px-2">
@@ -149,9 +150,9 @@ function EssentialCard({ product, index }: { product: Product; index: number }) 
             </p>
 
             {/* Sits above the stretched card link so it stays clickable. */}
-            <button
-              type="button"
-              aria-label={`Add ${name} to cart`}
+            <AddToCartButton
+              slug={slug}
+              productName={name}
               className="relative z-10 grid h-10 w-10 shrink-0 place-items-center rounded-full border border-[#C89B3C]/70 text-brand-gold-dark transition-[background-color,color,transform] duration-300 hover:bg-brand-gold hover:text-white active:scale-95 sm:h-11 sm:w-11"
             >
               <svg
@@ -168,7 +169,7 @@ function EssentialCard({ product, index }: { product: Product; index: number }) 
                 <circle cx="9.5" cy="19.5" r="1.3" />
                 <circle cx="17" cy="19.5" r="1.3" />
               </svg>
-            </button>
+            </AddToCartButton>
           </div>
         </div>
       </div>

@@ -70,6 +70,18 @@ export function MobileMenu() {
               </Link>
             </li>
           ))}
+          {/* Under 360px the header drops its Login icon to leave room for the
+              logo, so Login lives here instead. */}
+          <li className="min-[360px]:hidden">
+            <Link
+              href="/my-account"
+              prefetch={false}
+              onClick={() => setOpen(false)}
+              className="block py-3 font-system text-[16px] tracking-[0.5px] text-black uppercase transition-colors duration-300 hover:text-[#C89B3C]"
+            >
+              Login
+            </Link>
+          </li>
         </ul>
       </nav>
     </>

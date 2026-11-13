@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/data/products";
+import { AddToCartButton } from "@/components/AddToCartButton";
 import { WishlistButton } from "@/components/WishlistButton";
 
 const rupees = new Intl.NumberFormat("en-IN", {
@@ -48,16 +49,16 @@ export function ProductCard({ product }: { product: Product }) {
           </span>
         )}
 
-        <WishlistButton productName={name} />
+        <WishlistButton slug={slug} productName={name} />
 
         {/* Mouse users: slides up over the photo on hover / keyboard focus. */}
-        <button
-          type="button"
-          aria-label={`Add ${name} to cart`}
+        <AddToCartButton
+          slug={slug}
+          productName={name}
           className="absolute inset-x-3 bottom-3 z-10 translate-y-[170%] rounded-full bg-[#222] px-4 py-3 text-[12px] font-semibold tracking-[0.14em] text-white uppercase transition-[transform,background-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-focus-within:translate-y-0 hover:bg-brand-gold-dark group-hover:translate-y-0 [@media(hover:none)]:hidden"
         >
           Add to Cart
-        </button>
+        </AddToCartButton>
       </div>
 
       <div className="flex flex-1 flex-col px-1 pt-5 text-center">
@@ -91,13 +92,13 @@ export function ProductCard({ product }: { product: Product }) {
         {/* Touch screens have no hover, and an overlay would hide the product,
             so the button sits under the price instead. */}
         <div className="mt-auto hidden pt-4 [@media(hover:none)]:block">
-          <button
-            type="button"
-            aria-label={`Add ${name} to cart`}
+          <AddToCartButton
+            slug={slug}
+            productName={name}
             className="w-full rounded-full border border-brand-gold bg-brand-gold px-4 py-2.5 text-[12px] font-semibold tracking-[0.14em] text-white uppercase shadow-[0_8px_16px_-8px_rgba(184,121,31,0.7)] transition-colors duration-300 active:border-brand-gold-dark active:bg-brand-gold-dark"
           >
             Add to Cart
-          </button>
+          </AddToCartButton>
         </div>
       </div>
     </article>
