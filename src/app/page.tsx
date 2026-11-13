@@ -7,6 +7,7 @@ import { SerumVideoBanner } from "@/components/SerumVideoBanner";
 import { ShopByConcern } from "@/components/ShopByConcern";
 import { SkinCareEssentials } from "@/components/SkinCareEssentials";
 import { TrustBar } from "@/components/TrustBar";
+import { WhyChoose } from "@/components/WhyChoose";
 
 export default function Home() {
   return (
@@ -34,6 +35,9 @@ export default function Home() {
 
       {/* The Bhumi Blend Difference — replaces the old placeholder features strip */}
       <BrandDifference />
+
+      {/* Why Choose Bhumi Blend — hands-and-bottle photo with the four promises around it */}
+      <WhyChoose />
 
       {/* Skin Care Essentials — next section after Nature, Ritual, Results */}
       <SkinCareEssentials />

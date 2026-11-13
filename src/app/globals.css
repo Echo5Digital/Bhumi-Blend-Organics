@@ -74,6 +74,261 @@ body {
   }
 }
 
+/* ---- Why Choose Bhumi Blend (WhyChoose + InViewStage) -------------------
+   No `data-inview` attribute = everything simply visible (server HTML, no JS,
+   reduced motion). InViewStage sets "pending" while the stage is below the
+   fold (contents tucked away) and "in" when it scrolls into view, which
+   starts the staggered entrance; --d is each element's delay. The looping
+   animations (float, rings, twinkle, ping) run regardless. */
+
+.why-image,
+.why-callout,
+.why-dot,
+.why-spark {
+  --d: 0ms;
+}
+
+.why-callout {
+  --from: -36px;
+}
+
+.why-callout.why-from-right {
+  --from: 36px;
+}
+
+.why-line {
+  stroke-dasharray: 1 1;
+}
+
+.why-check {
+  stroke-dasharray: 1 1;
+}
+
+.why-dot {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+[data-inview="pending"] .why-image {
+  opacity: 0;
+}
+[data-inview="pending"] .why-callout {
+  opacity: 0;
+}
+[data-inview="pending"] .why-line,
+[data-inview="pending"] .why-check {
+  stroke-dashoffset: 1;
+}
+[data-inview="pending"] .why-dot,
+[data-inview="pending"] .why-spark {
+  opacity: 0;
+}
+
+[data-inview="in"] .why-image {
+  animation: why-rise 1.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+[data-inview="in"] .why-callout {
+  animation: why-pop 0.95s cubic-bezier(0.22, 1, 0.36, 1) var(--d) both;
+}
+[data-inview="in"] .why-line {
+  animation: why-draw 1.3s cubic-bezier(0.4, 0, 0.2, 1) var(--d) both;
+}
+[data-inview="in"] .why-check {
+  animation: why-draw 0.6s ease-out var(--d) both;
+}
+[data-inview="in"] .why-dot {
+  animation: why-dot-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) var(--d) both;
+}
+[data-inview="in"] .why-spark {
+  animation: why-fade 1s ease-out 2s both;
+}
+
+@keyframes why-rise {
+  from {
+    opacity: 0;
+    transform: translateY(44px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes why-pop {
+  from {
+    opacity: 0;
+    transform: translateX(var(--from)) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes why-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes why-dot-in {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes why-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Looping motion. */
+.why-float {
+  animation: why-float 7s ease-in-out infinite;
+}
+@keyframes why-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(0.5deg);
+  }
+}
+
+.why-spin,
+.why-spin-rev {
+  transform-origin: 550px 320px;
+  transform-box: view-box;
+}
+/* The phone ring is an HTML element, so it spins around its own centre. */
+div.why-spin {
+  transform-origin: center;
+  transform-box: border-box;
+}
+.why-spin {
+  animation: why-spin 60s linear infinite;
+}
+.why-spin-rev {
+  animation: why-spin 80s linear infinite reverse;
+}
+@keyframes why-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.why-breathe {
+  transform-origin: 550px 320px;
+  transform-box: view-box;
+  animation: why-breathe 6s ease-in-out infinite;
+}
+@keyframes why-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.07);
+    opacity: 1;
+  }
+}
+
+.why-twinkle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: why-twinkle 3.2s ease-in-out infinite;
+}
+@keyframes why-twinkle {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: scale(0.6) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15) rotate(45deg);
+  }
+}
+
+.why-ping {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: why-ping 2.6s ease-out infinite;
+}
+@keyframes why-ping {
+  0% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  80%,
+  100% {
+    opacity: 0;
+    transform: scale(3.2);
+  }
+}
+
+/* Heading accent: a band of light sweeps across "Bhumi Blend". */
+.why-shimmer {
+  background: linear-gradient(
+    100deg,
+    #a96a12 0%,
+    #c58a1d 35%,
+    #f0cf7a 50%,
+    #c58a1d 65%,
+    #a96a12 100%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: why-shimmer 5.5s ease-in-out infinite;
+}
+@keyframes why-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  60%,
+  100% {
+    background-position: 0 0;
+  }
+}
+
+/* The wrists are cut off at the bottom of the PNG: let just the last stretch
+   dissolve so they melt into the next section instead of ending in a hard
+   line. Kept short so the arms stay visible almost to the edge. */
+.why-fade-bottom {
+  -webkit-mask-image: linear-gradient(to bottom, #000 86%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 86%, transparent 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .why-float,
+  .why-spin,
+  .why-spin-rev,
+  .why-breathe,
+  .why-twinkle,
+  .why-ping,
+  .why-shimmer {
+    animation: none;
+  }
+  .why-spark {
+    display: none;
+  }
+  .why-shimmer {
+    background-position: 0 0;
+  }
+}
+
 @layer base {
   h1,
   h2,
