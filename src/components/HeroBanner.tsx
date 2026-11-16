@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { preload } from "react-dom";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-// Homepage banner: two photos that cross-fade every 5 seconds, each with its
+// Homepage banner: three photos that cross-fade every 5 seconds, each with its
 // own headline, tagline and link(s) on top (gold eyebrow + white serif heading).
 //
 // Slides are stacked in one grid cell, so the banner is as tall as the taller
@@ -13,8 +14,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 //    photo (16:9) is shown whole at full height on the right, and the dark
 //    left side carries the text.
 //  - Below 1024px the text sits under the photo on the same dark tone (the
-//    photo box is 16:9 on tablets, 4:3.4 on phones; both photos are cropped
-//    around their subject).
+//    photo box is 16:9 on tablets; the 4:3.4 phone crop is unused now that the
+//    homepage shows the original HeroSlider below 768px).
+//
+// The homepage hides this banner below 768px (display: none), so its images
+// are lazy there (never fetched) and the first one is preloaded only from 768px
+// up, below.
 
 const AUTOPLAY_MS = 5000;
 const SWIPE_PX = 50;
@@ -27,6 +32,11 @@ type Slide = {
   photo: string;
   /** Desktop-only darkening on the left so the white text reads. */
   scrim: string;
+  /** Let Next resize/re-encode the file. Leave off for small JPEGs (served
+      as-is); turn on for big files like the 1.8 MB PNG. */
+  optimize?: boolean;
+  /** Only used when `optimize` is on: how wide the photo really displays. */
+  sizes?: string;
   heading: string;
   text: string;
   primary: { label: string; href: string };
@@ -57,6 +67,21 @@ const slides: Slide[] = [
     text: "Plant-based formulas inspired by Ayurvedic traditions.",
     primary: { label: "Shop all products", href: "/shop" },
   },
+  {
+    id: "skin",
+    src: encodeURI("/Warm Skincare Beauty Portrait.png"),
+    alt: "A woman holding a jar of Bhumi Blend Anti-Ageing Cream beside her face, a smear of cream on her cheek",
+    photo: "object-cover object-[60%_50%] lg:object-contain lg:object-right",
+    scrim:
+      "bg-[linear-gradient(90deg,#1c140b_0%,#1c140b_34%,rgba(28,20,11,0)_58%)]",
+    optimize: true,
+    // Phones show it cropped to ~1.5× the screen width, tablets whole, and
+    // desktop whole at 8:3-box height (about two thirds of the width).
+    sizes: "(max-width: 767px) 155vw, (max-width: 1023px) 100vw, 67vw",
+    heading: "Radiant skin, the Ayurvedic way.",
+    text: "Gentle, plant-based skin care for your daily ritual.",
+    primary: { label: "Explore skin care", href: "/#skin-care-essentials" },
+  },
 ];
 
 function PlayIcon() {
@@ -72,22 +97,15 @@ function PlayIcon() {
   );
 }
 
-function Chevron({ direction }: { direction: "left" | "right" }) {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      className="h-5 w-5 fill-none stroke-current"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d={direction === "left" ? "M15 5l-7 7 7 7" : "M9 5l7 7-7 7"} />
-    </svg>
-  );
-}
-
 export function HeroBanner() {
+  // First slide is the one that matters for load speed; hint it for the
+  // screens that actually show this banner (768px and up) so phones skip it.
+  preload(slides[0].src, {
+    as: "image",
+    fetchPriority: "high",
+    media: "(min-width: 768px)",
+  });
+
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -156,11 +174,10 @@ export function HeroBanner() {
                   src={slide.src}
                   alt={slide.alt}
                   fill
-                  sizes="100vw"
-                  // Served as-is so the photos aren't re-compressed.
-                  unoptimized
-                  loading={index === 0 ? "eager" : undefined}
-                  fetchPriority={index === 0 ? "high" : undefined}
+                  sizes={slide.optimize ? slide.sizes : "100vw"}
+                  // Small JPEGs are served as-is so they aren't re-compressed;
+                  // the big PNG goes through Next's optimizer.
+                  unoptimized={!slide.optimize}
                   className={slide.photo}
                 />
                 {/* Desktop: darken the left so the white text reads. */}
@@ -211,23 +228,6 @@ export function HeroBanner() {
           );
         })}
       </div>
-
-      <button
-        type="button"
-        aria-label="Previous slide"
-        onClick={() => go(-1)}
-        className="absolute top-1/2 left-3 z-20 hidden h-11 w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-black/25 text-white transition-colors duration-300 hover:bg-black/45 lg:inline-flex"
-      >
-        <Chevron direction="left" />
-      </button>
-      <button
-        type="button"
-        aria-label="Next slide"
-        onClick={() => go(1)}
-        className="absolute top-1/2 right-3 z-20 hidden h-11 w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-black/25 text-white transition-colors duration-300 hover:bg-black/45 lg:inline-flex"
-      >
-        <Chevron direction="right" />
-      </button>
 
       <div className="absolute bottom-4 left-0 z-20 flex w-full justify-center">
         {slides.map((slide, index) => (

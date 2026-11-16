@@ -67,14 +67,22 @@ function Chevron({ direction }: { direction: "left" | "right" }) {
 // Art direction: below 768px the browser loads only the portrait mobile image,
 // from 768px up only the wide one (the desktop/tablet markup is the same
 // <Image fill sizes="100vw"> output as before, just wrapped in a <picture>).
+// 1×1 transparent GIF: with `mobileOnly` the wide <source> points here, so
+// screens that match it (768px and up, where this slider is hidden) download
+// nothing instead of the real wide banners.
+const BLANK_PIXEL =
+  "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+
 function SlidePicture({
   slide,
   alt,
   highPriority,
+  mobileOnly,
 }: {
   slide: (typeof slides)[number];
   alt: string;
   highPriority: boolean;
+  mobileOnly: boolean;
 }) {
   const common = {
     alt,
@@ -91,13 +99,15 @@ function SlidePicture({
   // do it by hand for the first slide — one hint per screen size, so each
   // visitor only preloads the image they will actually see.
   if (highPriority) {
-    preload(wideProps.src, {
-      as: "image",
-      imageSrcSet: wideProps.srcSet,
-      imageSizes: "100vw",
-      fetchPriority: "high",
-      media: "(min-width: 768px)",
-    });
+    if (!mobileOnly) {
+      preload(wideProps.src, {
+        as: "image",
+        imageSrcSet: wideProps.srcSet,
+        imageSizes: "100vw",
+        fetchPriority: "high",
+        media: "(min-width: 768px)",
+      });
+    }
     preload(mobileProps.src, {
       as: "image",
       imageSrcSet: mobileProps.srcSet,
@@ -109,13 +119,19 @@ function SlidePicture({
 
   return (
     <picture>
-      <source media="(min-width: 768px)" srcSet={wideProps.srcSet} sizes="100vw" />
+      <source
+        media="(min-width: 768px)"
+        srcSet={mobileOnly ? BLANK_PIXEL : wideProps.srcSet}
+        sizes="100vw"
+      />
       <img {...mobileProps} alt={alt} />
     </picture>
   );
 }
 
-export function HeroSlider() {
+/** `mobileOnly`: the slider is only shown below 768px (the homepage hides it
+    from there up), so skip the wide banners entirely. */
+export function HeroSlider({ mobileOnly = false }: { mobileOnly?: boolean }) {
   const [position, setPosition] = useState(1);
   const [animate, setAnimate] = useState(true);
   const [paused, setPaused] = useState(false);
@@ -220,6 +236,7 @@ export function HeroSlider() {
                 slide={slide}
                 alt={isActive ? slide.alt : ""}
                 highPriority={i === 1}
+                mobileOnly={mobileOnly}
               />
               {/* Desktop button: same spot on every slide. Hidden on tablet,
                   where the live site's slide is too short for it. */}
