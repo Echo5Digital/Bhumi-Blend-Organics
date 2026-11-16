@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense, type CSSProperties } from "react";
 import { CategoryIngredients } from "@/components/CategoryIngredients";
+import { CategoryWhyChoose } from "@/components/CategoryWhyChoose";
 import { Footer } from "@/components/Footer";
 import { ShopProducts } from "@/components/ShopProducts";
 import { TrustBar } from "@/components/TrustBar";
@@ -139,6 +140,7 @@ async function CategoryContent({
         <ShopProducts products={category.products} heading={category.listHeading} />
       </div>
       {category.ingredients && <CategoryIngredients section={category.ingredients} />}
+      {category.whyChoose && <CategoryWhyChoose section={category.whyChoose} />}
     </>
   );
 }

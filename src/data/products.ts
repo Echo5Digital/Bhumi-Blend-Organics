@@ -284,6 +284,29 @@ export const shopProducts: Product[] = [
   },
 ];
 
+// The Combo category page (/product-category/combo): these ten shop products,
+// in the order of the live bhumiblend.com combo page (nine on page 1, the
+// Summer Essentials Luxury Kit alone on page 2). Taken from `shopProducts` so
+// photos and prices are the shop's.
+const comboSlugs = [
+  "ayurvedic-exfoliation-glow-kit",
+  "ayurvedic-youth-revival-kit",
+  "bhumi-blend-mens-combo",
+  "premium-soap-set-of-3",
+  "premium-soap-set-of-6",
+  "premium-combo-box",
+  "bhumi-blend-starter-combo-box",
+  "brightening-clarifying-skin-care-range",
+  "essential-skin-repair-range",
+  "summer-essentials-luxury-kit",
+];
+
+export const comboProducts: Product[] = comboSlugs.map((slug) => {
+  const product = shopProducts.find((item) => item.slug === slug);
+  if (!product) throw new Error(`Combo product "${slug}" is missing from shopProducts`);
+  return product;
+});
+
 // The Hair Care category page (/product-category/hair), in display order.
 // Names, prices and offers are the ones on the live bhumiblend.com category
 // page. Every slug also exists in `shopProducts`, so cart and wishlist find

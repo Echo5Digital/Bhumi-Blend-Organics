@@ -1,5 +1,6 @@
 import {
   bodyCareProducts,
+  comboProducts,
   hairCareProducts,
   skinCareProducts,
   type Product,
@@ -10,6 +11,17 @@ export type IngredientsSection = {
   heading: string;
   intro: string;
   items: { name: string; text: string; image: string }[];
+  ctaLabel: string;
+  ctaHref: string;
+};
+
+export type WhyChooseSection = {
+  eyebrow: string;
+  /** Heading = `heading` + a line break + `headingAccent` (set in gold). */
+  heading: string;
+  headingAccent: string;
+  intro: string;
+  items: { title: string; text: string; icon: "leaf" | "sprout" | "shield" | "sparkle" }[];
   ctaLabel: string;
   ctaHref: string;
 };
@@ -46,10 +58,13 @@ export type Category = {
   products: Product[];
   /** "Ingredients & Benefits" section under the product grid. */
   ingredients?: IngredientsSection;
+  /** "Why Choose Bhumi Blend" section under the product grid (and so under
+      every page of the pagination, since it sits outside the grid). */
+  whyChoose?: WhyChooseSection;
 };
 
-// Only the categories that have a page. The one still missing from the header
-// menu (combo) is added here when its page is ready.
+// The categories that have a page: hair, face (skin), body and combo, the four
+// in the header menu.
 export const categories: Category[] = [
   {
     slug: "hair",
@@ -197,6 +212,59 @@ export const categories: Category[] = [
           name: "Sandalwood",
           text: "Traditionally used to help soothe and refresh the skin while supporting an even-looking appearance.",
           image: "/sandalwood.webp",
+        },
+      ],
+      ctaLabel: "Explore More Products",
+      ctaHref: "/shop",
+    },
+  },
+  {
+    slug: "combo",
+    metaTitle: "Combo Sets | Bhumi Blend Organics",
+    metaDescription:
+      "Complete Ayurvedic routines in curated bundles: skin care kits, soap sets and gift boxes from Bhumi Blend Organics, designed for visible results and better value.",
+    eyebrow: "Complete Care Solutions",
+    heading: "Your Daily Self-Care,",
+    headingAccent: "Simplified",
+    intro:
+      "Experience the power of complete routines with thoughtfully curated bundles designed to deliver visible results and better value.",
+    ctaLabel: "Shop Combos",
+    // No banner image was named for this page, so it uses the range shot from
+    // the home banner (1500x844): the products fill the middle of the frame,
+    // so the photo takes the right 60% of the banner.
+    bannerImage: encodeURI("/Bhumi Blend Organics Product Collection-100kb.jpeg"),
+    bannerAlt:
+      "The Bhumi Blend range: hair oil, shampoo, rosemary water, aloe vera and saffron gels, soaps, body lotion and creams around a gift box",
+    bannerFocus: "50% 50%",
+    bannerPhotoLeft: 40,
+    listHeading: "Combo Products",
+    products: comboProducts,
+    whyChoose: {
+      eyebrow: "Why Choose Bhumi Blend",
+      heading: "Crafted with Purpose,",
+      headingAccent: "Backed by Nature",
+      intro:
+        "At Bhumi Blend, every formulation is thoughtfully created using time-tested Ayurvedic wisdom and carefully selected natural ingredients to deliver safe, effective, and visible results.",
+      items: [
+        {
+          title: "Rooted in Authentic Ayurvedic Principles",
+          text: "Formulations inspired by time-tested Ayurvedic traditions, focusing on balance, natural healing, and holistic wellness.",
+          icon: "leaf",
+        },
+        {
+          title: "Made with High-Quality Plant-Based Ingredients",
+          text: "Carefully crafted using premium natural ingredients known for their purity, effectiveness, and skin-friendly properties.",
+          icon: "sprout",
+        },
+        {
+          title: "Free from Harmful Chemicals",
+          text: "Created without parabens, sulfates, or harsh additives to ensure gentle, safe, and toxin-free care.",
+          icon: "shield",
+        },
+        {
+          title: "Designed for Real, Visible Results",
+          text: "Developed to deliver noticeable improvements with consistent use, supporting healthier skin and hair over time.",
+          icon: "sparkle",
         },
       ],
       ctaLabel: "Explore More Products",
