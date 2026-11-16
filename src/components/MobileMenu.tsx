@@ -13,7 +13,7 @@ const links = [
   { label: "Bodycare", href: "/product-category/body" },
   { label: "Combo", href: "/product-category/combo" },
   { label: "Our Story", href: "/#about" },
-  { label: "Contact Us", href: "/#contact" },
+  { label: "Contact Us", href: "/contact-us" },
 ];
 
 // Renders the hamburger button (a cell of the header grid) and the dropdown

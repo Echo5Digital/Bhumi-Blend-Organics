@@ -49,7 +49,7 @@ export function Header() {
           <Link href="/#about" className={navLinkClass}>
             Our Story
           </Link>
-          <Link href="/#contact" className={navLinkClass}>
+          <Link href="/contact-us" className={navLinkClass}>
             Contact Us
           </Link>
         </nav>

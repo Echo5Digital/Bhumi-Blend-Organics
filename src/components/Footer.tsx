@@ -18,13 +18,13 @@ const columns = [
     links: [
       { label: "Our Story", href: "#" },
       { label: "Our Formula", href: "#" },
-      { label: "Ingredients", href: "#" },
+      { label: "Ingredients", href: "/ingredients-benefits" },
     ],
   },
   {
     title: "Support",
     links: [
-      { label: "Contact Us", href: "/#contact" },
+      { label: "Contact Us", href: "/contact-us" },
       { label: "Shipping Policy", href: "#" },
       { label: "Refund Policy", href: "#" },
       { label: "Privacy Policy", href: "#" },
