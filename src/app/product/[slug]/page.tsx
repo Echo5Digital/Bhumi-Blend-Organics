@@ -7,6 +7,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { Reveal } from "@/components/Reveal";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { CheckIcon, StarIcon } from "@/components/product/ProductIcons";
+import { ProductTabs } from "@/components/product/ProductTabs";
 import { PurchasePanel } from "@/components/product/PurchasePanel";
 import {
   getCatalogueProduct,
@@ -93,7 +94,9 @@ async function ProductContent({
       {/* ───────── Gallery + product summary ───────── */}
       <section>
         <div className="mx-auto grid max-w-[1290px] gap-10 px-5 py-8 sm:px-6 md:py-12 lg:grid-cols-2 lg:gap-16 lg:py-16">
-          <div className="mx-auto w-full max-w-[520px] lg:mx-0">
+          {/* min-w-0: lets this grid column shrink to the screen, so a long
+              scrolling thumbnail strip can't widen the whole page. */}
+          <div className="mx-auto w-full max-w-[520px] min-w-0 lg:mx-0">
             <ProductGallery images={detail.gallery} productName={name} />
           </div>
 
@@ -144,22 +147,26 @@ async function ProductContent({
             <p className="mt-6 w-fit rounded-full border border-[#e2d5b6] px-4 py-1 font-system text-[14px] font-bold text-[#222]">
               {detail.weight}
             </p>
-            <p className="mt-4 font-serif text-[21px] text-brand-gold-dark italic sm:text-[23px]">
-              {detail.tagline}
-            </p>
+            {detail.tagline && (
+              <p className="mt-4 font-serif text-[21px] text-brand-gold-dark italic sm:text-[23px]">
+                {detail.tagline}
+              </p>
+            )}
 
             {/* One line with "|" dividers wherever it fits (tablet, wide desktop);
                 a tidy 2×2 grid on phones and in the narrow column at ~1024px. */}
-            <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 font-system text-[15px] font-bold text-[#222] sm:flex sm:flex-wrap sm:gap-x-3 sm:gap-y-1 lg:grid lg:gap-x-4 lg:gap-y-2 xl:flex xl:gap-x-3 xl:gap-y-1">
-              {detail.highlights.map((item) => (
-                <li
-                  key={item}
-                  className="sm:not-last:after:ml-3 sm:not-last:after:font-normal sm:not-last:after:text-brand-gold sm:not-last:after:content-['|'] lg:not-last:after:content-none xl:not-last:after:content-['|']"
-                >
-                  {item}
-                </li>
-              ))}
-            </ul>
+            {detail.highlights && (
+              <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 font-system text-[15px] font-bold text-[#222] sm:flex sm:flex-wrap sm:gap-x-3 sm:gap-y-1 lg:grid lg:gap-x-4 lg:gap-y-2 xl:flex xl:gap-x-3 xl:gap-y-1">
+                {detail.highlights.map((item) => (
+                  <li
+                    key={item}
+                    className="sm:not-last:after:ml-3 sm:not-last:after:font-normal sm:not-last:after:text-brand-gold sm:not-last:after:content-['|'] lg:not-last:after:content-none xl:not-last:after:content-['|']"
+                  >
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            )}
 
             <p className="mt-4 font-system text-[16px] leading-[1.7] text-[#555]">
               {detail.summary}
@@ -202,82 +209,271 @@ async function ProductContent({
         </div>
       </section>
 
-      {/* ───────── Description ───────── */}
-      <section id="description" className="border-t border-[#efe5c9]">
-        <div className="mx-auto max-w-[1290px] px-5 py-14 sm:px-6 md:py-20">
-          <Reveal>
-            <SectionTitle>Description</SectionTitle>
-            <div className="mt-7 max-w-[980px] space-y-5 font-system text-[16px] leading-[1.85] text-[#555]">
-              {detail.description.map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
-            </div>
-          </Reveal>
+      {/* ───────── Tabs: Description · Usage Instructions · Reviews · FAQ ───────── */}
+      <section id="product-details" className="border-t border-[#efe5c9]">
+        <div className="mx-auto max-w-[1290px] px-5 pt-10 pb-14 sm:px-6 md:pt-14 md:pb-20">
+          <ProductTabs
+            tabs={[
+              {
+                id: "description",
+                label: "Description",
+                content: (
+                  <>
+                    <Reveal>
+                      <SectionTitle>Description</SectionTitle>
+                      <div className="mt-7 max-w-[980px] space-y-5 font-system text-[16px] leading-[1.85] text-[#555]">
+                        {detail.description.map((paragraph) => (
+                          <p key={paragraph}>{paragraph}</p>
+                        ))}
+                      </div>
+                    </Reveal>
 
-          <div className="mt-12 space-y-5 sm:space-y-6">
-            {detail.ingredients.map((ingredient, index) => (
-              <Reveal key={ingredient.name} delay={index * 120}>
-                <article className="flex flex-col gap-5 rounded-[22px] bg-white p-4 shadow-[0_22px_44px_-30px_rgba(120,85,20,0.55)] ring-1 ring-[#eadcb6] sm:flex-row sm:items-center sm:gap-8 sm:p-6">
-                  {/* Source photo is 228×152: full width on phones, native size from sm up. */}
-                  <div className="relative aspect-[3/2] w-full shrink-0 overflow-hidden rounded-2xl sm:h-[152px] sm:w-[228px]">
-                    <Image
-                      src={ingredient.image}
-                      alt={ingredient.name}
-                      fill
-                      sizes="(min-width: 640px) 228px, 100vw"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="font-serif text-[21px] leading-snug text-[#222] sm:text-[24px]">
-                      {ingredient.name}{" "}
-                      <span className="text-brand-gold-dark">({ingredient.origin})</span>
-                    </h3>
-                    <p className="mt-2.5 font-system text-[15px] leading-[1.75] text-[#555] sm:text-[16px]">
-                      {ingredient.text}
-                    </p>
-                  </div>
-                </article>
-              </Reveal>
-            ))}
-          </div>
+                    {detail.ingredientsHeading && (
+                      <div className="mt-14 md:mt-16">
+                        <p className="font-sans text-[12px] font-semibold tracking-[3px] text-brand-gold-dark uppercase sm:text-[13px]">
+                          {detail.ingredientsHeading.eyebrow}
+                        </p>
+                        <h2 className="mt-3 font-serif text-[28px] leading-tight font-medium text-[#222] sm:text-[36px]">
+                          {detail.ingredientsHeading.title}
+                        </h2>
+                        <span aria-hidden="true" className="mt-3 block h-[3px] w-14 rounded-full bg-brand-gold" />
+                      </div>
+                    )}
 
-          {/* Organic badge sits directly above this line. */}
-          <Reveal className="mt-16 flex flex-col items-center text-center md:mt-20">
-            <Image
-              src="/orgnc_icon.png"
-              alt="100% Organic"
-              width={250}
-              height={212}
-              className="h-auto w-[104px] drop-shadow-[0_8px_12px_rgba(90,60,10,0.25)] sm:w-[124px]"
-            />
-            <p className="mt-5 max-w-[640px] font-serif text-[22px] leading-snug text-[#222] sm:text-[30px]">
-              {detail.calmingLine}
-            </p>
-          </Reveal>
+                    <div
+                      className={`space-y-5 sm:space-y-6 ${detail.ingredientsHeading ? "mt-8" : "mt-12"}`}
+                    >
+                      {detail.ingredients.map((ingredient, index) => (
+                        <Reveal key={ingredient.name} delay={index * 120}>
+                          <article className="flex flex-col gap-5 rounded-[22px] bg-white p-4 shadow-[0_22px_44px_-30px_rgba(120,85,20,0.55)] ring-1 ring-[#eadcb6] sm:flex-row sm:items-center sm:gap-8 sm:p-6">
+                            {/* Source photo is 228×152: full width on phones, native size from sm up. */}
+                            <div className="relative aspect-[3/2] w-full shrink-0 overflow-hidden rounded-2xl sm:h-[152px] sm:w-[228px]">
+                              <Image
+                                src={ingredient.image}
+                                alt={ingredient.name}
+                                fill
+                                sizes="(min-width: 640px) 228px, 100vw"
+                                className="object-cover"
+                              />
+                            </div>
+                            <div className="min-w-0">
+                              {ingredient.tag && (
+                                <p className="mb-1.5 flex items-center gap-3 font-sans text-[12px] font-semibold tracking-[2.5px] text-brand-gold-dark uppercase">
+                                  <span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+                                  <span aria-hidden="true" className="h-px w-6 bg-brand-gold/60" />
+                                  {ingredient.tag}
+                                </p>
+                              )}
+                              <h3 className="font-serif text-[21px] leading-snug text-[#222] sm:text-[24px]">
+                                {ingredient.name}
+                                {ingredient.origin && (
+                                  <>
+                                    {" "}
+                                    <span className="text-brand-gold-dark">({ingredient.origin})</span>
+                                  </>
+                                )}
+                              </h3>
+                              <p className="mt-2.5 font-system text-[15px] leading-[1.75] text-[#555] sm:text-[16px]">
+                                {ingredient.text}
+                              </p>
+                            </div>
+                          </article>
+                        </Reveal>
+                      ))}
+                    </div>
 
-          {/* The five badges are 100×100 PNGs, so they're capped near that size to stay sharp. */}
-          <ul className="mt-12 flex flex-wrap justify-center gap-y-9 md:mt-16">
-            {detail.trust.map((item, index) => (
-              <li key={item.label} className="basis-1/2 px-2 sm:basis-1/3 lg:basis-1/5">
-                <Reveal
-                  delay={index * 90}
-                  className="flex flex-col items-center gap-3 text-center"
-                >
-                  <Image
-                    src={item.image}
-                    alt=""
-                    width={100}
-                    height={100}
-                    className="h-[80px] w-[80px] sm:h-[92px] sm:w-[92px]"
-                  />
-                  <span className="max-w-[150px] font-system text-[14px] leading-snug font-semibold text-[#3b3226] sm:text-[15px]">
-                    {item.label}
-                  </span>
-                </Reveal>
-              </li>
-            ))}
-          </ul>
+                    {/* Organic badge sits directly above this line. */}
+                    <Reveal className="mt-16 flex flex-col items-center text-center md:mt-20">
+                      <Image
+                        src="/orgnc_icon.png"
+                        alt="100% Organic"
+                        width={250}
+                        height={212}
+                        className="h-auto w-[104px] drop-shadow-[0_8px_12px_rgba(90,60,10,0.25)] sm:w-[124px]"
+                      />
+                      <p className="mt-5 max-w-[640px] font-serif text-[22px] leading-snug text-[#222] sm:text-[30px]">
+                        {detail.calmingLine}
+                      </p>
+                    </Reveal>
+
+                    {/* The five badges are 100×100 PNGs, so they're capped near that size to stay sharp. */}
+                    <ul className="mt-12 flex flex-wrap justify-center gap-y-9 md:mt-16">
+                      {detail.trust.map((item, index) => (
+                        <li key={item.label} className="basis-1/2 px-2 sm:basis-1/3 lg:basis-1/5">
+                          <Reveal
+                            delay={index * 90}
+                            className="flex flex-col items-center gap-3 text-center"
+                          >
+                            <Image
+                              src={item.image}
+                              alt=""
+                              width={100}
+                              height={100}
+                              className="h-[80px] w-[80px] sm:h-[92px] sm:w-[92px]"
+                            />
+                            <span className="max-w-[150px] font-system text-[14px] leading-snug font-semibold text-[#3b3226] sm:text-[15px]">
+                              {item.label}
+                            </span>
+                          </Reveal>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                ),
+              },
+              // How to use: only for products that have steps.
+              ...(detail.usage
+                ? [
+                    {
+                      id: "usage",
+                      label: "Usage Instructions",
+                      content: (
+                        <>
+                          <p className="font-sans text-[12px] font-semibold tracking-[3px] text-brand-gold-dark uppercase sm:text-[13px]">
+                            {detail.usage.eyebrow}
+                          </p>
+                          <h2 className="mt-3 font-serif text-[28px] leading-tight font-medium text-[#222] sm:text-[36px]">
+                            {detail.usage.title}
+                          </h2>
+                          <span aria-hidden="true" className="mt-3 block h-[3px] w-14 rounded-full bg-brand-gold" />
+
+                          <ol className="mt-9 max-w-[760px]">
+                            {detail.usage.steps.map((step, index) => (
+                              <li
+                                key={step.label}
+                                className="grid grid-cols-[auto_1fr] gap-x-5 border-b border-[#efe5c9] py-5 first:pt-0 last:border-b-0"
+                              >
+                                <span
+                                  aria-hidden="true"
+                                  className="grid h-10 w-10 place-items-center rounded-full bg-[#fbf4df] font-sans text-[13px] font-semibold text-brand-gold-dark ring-1 ring-[#C89B3C]/50"
+                                >
+                                  {String(index + 1).padStart(2, "0")}
+                                </span>
+                                <div>
+                                  <h3 className="font-sans text-[12px] font-semibold tracking-[2.5px] text-brand-gold-dark uppercase">
+                                    {step.label}
+                                  </h3>
+                                  <p className="mt-1.5 font-system text-[16px] leading-[1.7] text-[#444] sm:text-[17px]">
+                                    {step.text}
+                                  </p>
+                                </div>
+                              </li>
+                            ))}
+                          </ol>
+
+                          {detail.usage.tip && (
+                            <div className="relative mt-8 max-w-[760px] overflow-hidden rounded-2xl border border-[#eadcb6] bg-[#fbf8ef] py-5 pr-6 pl-7">
+                              <span
+                                aria-hidden="true"
+                                className="absolute inset-y-4 left-0 w-[3px] rounded-full bg-brand-gold"
+                              />
+                              <p className="font-sans text-[12px] font-semibold tracking-[2.5px] text-brand-gold-dark uppercase">
+                                Tip
+                              </p>
+                              <p className="mt-1.5 font-system text-[16px] leading-[1.7] text-[#444] sm:text-[17px]">
+                                {detail.usage.tip}
+                              </p>
+                            </div>
+                          )}
+
+                          {detail.usage.suitableFor && (
+                            <div className="mt-12 max-w-[760px] md:mt-14">
+                              <h2 className="font-serif text-[24px] leading-tight font-medium text-[#222] sm:text-[30px]">
+                                {detail.usage.suitableFor.title}
+                              </h2>
+                              <p className="mt-3 font-system text-[16px] leading-[1.75] text-[#555]">
+                                {detail.usage.suitableFor.intro}
+                              </p>
+                              <ul className="mt-5 grid gap-x-8 gap-y-3 sm:grid-cols-2">
+                                {detail.usage.suitableFor.points.map((point) => (
+                                  <li
+                                    key={point}
+                                    className="flex items-start gap-3 font-system text-[15px] leading-snug text-[#3b3226] sm:text-[16px]"
+                                  >
+                                    <span className="mt-0.5 shrink-0 text-brand-gold-dark">
+                                      <CheckIcon className="h-4 w-4" />
+                                    </span>
+                                    {point}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </>
+                      ),
+                    },
+                  ]
+                : []),
+              {
+                id: "reviews",
+                label: `Reviews (${rating.count})`,
+                content: (
+                  <>
+                    <SectionTitle>Reviews</SectionTitle>
+                    <div className="mt-8 flex max-w-[760px] flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-[#eadcb6] bg-[#fbf8ef] px-6 py-6">
+                      <span
+                        role="img"
+                        aria-label={`Rated ${rating.value} out of 5`}
+                        className="flex gap-0.5 text-[#C89B3C]"
+                      >
+                        {[1, 2, 3, 4, 5].map((n) => (
+                          <span key={n} className={n <= rating.value ? "" : "text-[#e6dcc5]"}>
+                            <StarIcon />
+                          </span>
+                        ))}
+                      </span>
+                      <p className="font-system text-[16px] text-[#444]">
+                        {rating.count === 0
+                          ? "There are no reviews yet."
+                          : `Rated ${rating.value} out of 5 based on ${reviewLabel}.`}
+                      </p>
+                    </div>
+                  </>
+                ),
+              },
+              // FAQ: only for products that have questions.
+              ...(detail.faqs
+                ? [
+                    {
+                      id: "faq",
+                      label: "FAQ",
+                      content: (
+                        <>
+                          <SectionTitle>Frequently asked questions</SectionTitle>
+
+                          {/* Native <details>: opens and closes without any script. */}
+                          <div className="mt-9 max-w-[880px] space-y-3">
+                            {detail.faqs.map((faq) => (
+                              <details
+                                key={faq.question}
+                                className="group rounded-2xl bg-white shadow-[0_14px_30px_-24px_rgba(120,85,20,0.5)] ring-1 ring-[#eadcb6] open:ring-[#C89B3C]/60"
+                              >
+                                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-2xl px-5 py-4 font-serif text-[17px] leading-snug text-[#222] marker:content-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-gold sm:px-6 sm:py-5 sm:text-[19px] [&::-webkit-details-marker]:hidden">
+                                  {faq.question}
+                                  <svg
+                                    aria-hidden="true"
+                                    viewBox="0 0 24 24"
+                                    className="h-5 w-5 shrink-0 fill-none stroke-brand-gold-dark group-open:rotate-180"
+                                    strokeWidth="2.2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  >
+                                    <path d="m6 9 6 6 6-6" />
+                                  </svg>
+                                </summary>
+                                <p className="px-5 pb-5 font-system text-[15px] leading-[1.8] text-[#555] sm:px-6 sm:pb-6 sm:text-[16px]">
+                                  {faq.answer}
+                                </p>
+                              </details>
+                            ))}
+                          </div>
+                        </>
+                      ),
+                    },
+                  ]
+                : []),
+            ]}
+          />
         </div>
       </section>
 
@@ -287,8 +483,17 @@ async function ProductContent({
           <div className="mx-auto max-w-[1290px] px-5 py-14 sm:px-6 md:py-20">
             <SectionTitle>Related products</SectionTitle>
 
-            {/* Phones/tablets: swipe sideways. Desktop: all five in one row. */}
-            <ul className="-mx-5 mt-10 flex snap-x snap-mandatory scroll-pl-5 gap-4 overflow-x-auto px-5 pb-4 [scrollbar-width:none] sm:-mx-6 sm:scroll-pl-6 sm:gap-6 sm:px-6 lg:mx-0 lg:grid lg:grid-cols-5 lg:overflow-visible lg:px-0 lg:pb-0">
+            {/* Phones/tablets: swipe sideways. Desktop: one row in five equal
+                columns; with three or fewer products the row is as wide as
+                three of those columns, so the cards keep the same size. */}
+            <ul
+              // `relative`: the cards' sr-only price text is absolutely
+              // positioned, and a scroll container only clips it (instead of
+              // letting it widen the page) if it is also its positioning parent.
+              className={`relative -mx-5 mt-10 flex snap-x snap-mandatory scroll-pl-5 gap-4 overflow-x-auto px-5 pb-4 [scrollbar-width:none] sm:-mx-6 sm:scroll-pl-6 sm:gap-6 sm:px-6 lg:mx-0 lg:grid lg:overflow-visible lg:px-0 lg:pb-0 ${
+                related.length > 3 ? "lg:grid-cols-5" : "lg:w-[60%] lg:grid-cols-3"
+              }`}
+            >
               {related.map((item) => (
                 <li
                   key={item.slug}

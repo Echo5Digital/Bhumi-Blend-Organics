@@ -87,7 +87,7 @@ export const bestSellers: Product[] = [
 // used (no spaces or brackets in the URL).
 export const shopProducts: Product[] = [
   {
-    slug: "almond-butter-hydrating-body-lotion",
+    slug: "best-organic-body-lotion-for-dry-skin",
     name: "Almond Butter Hydrating Body Lotion",
     image: "/Body-Lotion-3_01-1.jpg",
     hoverImage: "/Body-Lotion-3_02-2.jpg",
@@ -416,7 +416,7 @@ export const skinCareProducts: Product[] = [
 // page; every slug also exists in `shopProducts`.
 export const bodyCareProducts: Product[] = [
   {
-    slug: "almond-butter-hydrating-body-lotion",
+    slug: "best-organic-body-lotion-for-dry-skin",
     name: "Almond Butter Hydrating Body Lotion",
     image: "/Body-Lotion-3_01-1.jpg",
     hoverImage: "/Body-Lotion-3_02-2.jpg",

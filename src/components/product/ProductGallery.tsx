@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type GalleryImage = { src: string; alt: string };
 
@@ -36,17 +36,36 @@ export function ProductGallery({
 }) {
   const [active, setActive] = useState(0);
   const touchStartX = useRef<number | null>(null);
+  const thumbsRef = useRef<HTMLUListElement>(null);
   const count = images.length;
 
   const go = (index: number) => setActive((index + count) % count);
 
+  // With more photos than fit in one row, the thumbnails scroll sideways;
+  // keep the selected one centred in view. Only the strip scrolls (not the page).
+  useEffect(() => {
+    const list = thumbsRef.current;
+    const thumb = list?.children[active] as HTMLElement | undefined;
+    if (!list || !thumb || list.scrollWidth <= list.clientWidth) return;
+    list.scrollTo({
+      left: thumb.offsetLeft - (list.clientWidth - thumb.clientWidth) / 2,
+      behavior: "smooth",
+    });
+  }, [active]);
+
   return (
-    <div className="flex w-full flex-col">
+    <div className="flex w-full min-w-0 flex-col">
       {/* The thumbnails come first in the markup but are shown below the photo
           (flex `order`). Next's dev-only LCP check keys images by URL and the
           last one rendered wins; the first thumbnail shares its URL with the
           main photo, so the main photo has to render after it. */}
-      <ul className="order-2 mt-4 grid grid-cols-6 gap-2 sm:gap-3">
+      {/* Six thumbnails fill the row; any more scroll sideways at the same
+          size. The padding (with matching negative margins) keeps the active
+          ring from being clipped by the scroll area. */}
+      <ul
+        ref={thumbsRef}
+        className="relative order-2 -mx-1 mt-3 grid auto-cols-[calc((100%-2.5rem)/6)] grid-flow-col gap-2 overflow-x-auto px-1 py-1.5 [scrollbar-width:none] sm:auto-cols-[calc((100%-3.75rem)/6)] sm:gap-3"
+      >
         {images.map((image, index) => (
           <li key={image.src}>
             <button
