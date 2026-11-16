@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import type { Product } from "@/data/products";
 import { AddToCartButton } from "@/components/AddToCartButton";
+import { Stars } from "@/components/Stars";
 import { WishlistButton } from "@/components/WishlistButton";
 
 const PER_PAGE = 9;
@@ -41,7 +42,7 @@ function ListIcon() {
 }
 
 function ProductTile({ product, view }: { product: Product; view: View }) {
-  const { slug, name, image, hoverImage, price, regularPrice } = product;
+  const { slug, name, image, hoverImage, price, regularPrice, rating } = product;
   const href = `/product/${slug}`;
   const onOffer = regularPrice !== undefined && regularPrice > price;
   const isList = view === "list";
@@ -103,6 +104,7 @@ function ProductTile({ product, view }: { product: Product; view: View }) {
             {name}
           </Link>
         </h3>
+        {rating !== undefined && <Stars rating={rating} />}
         <p className="mt-1.5 flex flex-wrap items-baseline gap-x-2.5 font-system text-[14px] sm:text-[15px]">
           {onOffer ? (
             <>
@@ -141,7 +143,14 @@ function ProductTile({ product, view }: { product: Product; view: View }) {
   );
 }
 
-export function ShopProducts({ products }: { products: Product[] }) {
+export function ShopProducts({
+  products,
+  heading,
+}: {
+  products: Product[];
+  /** Optional centred section title above the toolbar (the category pages use it). */
+  heading?: string;
+}) {
   const [sort, setSort] = useState<Sort>("default");
   const [view, setView] = useState<View>("grid");
   const [page, setPage] = useState(1);
@@ -167,6 +176,18 @@ export function ShopProducts({ products }: { products: Product[] }) {
   return (
     <section className="bg-brand-cream pb-16 md:pb-24">
       <div className="mx-auto max-w-[1330px] px-4 sm:px-6">
+        {heading && (
+          <div className="pt-12 text-center md:pt-16">
+            <h2 className="font-serif text-[30px] leading-tight font-medium text-[#222] md:text-[40px]">
+              {heading}
+            </h2>
+            <span
+              aria-hidden="true"
+              className="mx-auto mt-4 block h-[3px] w-14 rounded-full bg-brand-gold"
+            />
+          </div>
+        )}
+
         <div
           ref={topRef}
           className="flex scroll-mt-32 flex-wrap items-center justify-between gap-x-4 gap-y-3 py-6 md:py-8"
@@ -174,7 +195,9 @@ export function ShopProducts({ products }: { products: Product[] }) {
           <p className="font-system text-[15px] text-[#444] sm:text-[16px]" aria-live="polite">
             {total === 0
               ? "No products found"
-              : `Showing ${first + 1}–${first + visible.length} of ${total} ${total === 1 ? "result" : "results"}`}
+              : pages === 1
+                ? `Showing all ${total} ${total === 1 ? "result" : "results"}`
+                : `Showing ${first + 1}–${first + visible.length} of ${total} results`}
           </p>
 
           <div className="flex items-center gap-3 sm:gap-4">

@@ -284,6 +284,148 @@ export const shopProducts: Product[] = [
   },
 ];
 
+// The Hair Care category page (/product-category/hair), in display order.
+// Names, prices and offers are the ones on the live bhumiblend.com category
+// page. Every slug also exists in `shopProducts`, so cart and wishlist find
+// these products there. The Aloe Pure Shampoo keeps the second photo it has on
+// the shop page; the other four use the hover photos supplied for this page.
+export const hairCareProducts: Product[] = [
+  {
+    slug: "aloe-pure-shampoo",
+    name: "Aloe Pure Shampoo",
+    image: "/Aloe-Pure-Shampoo.webp",
+    hoverImage: "/Aloe-pure-shampoo-4.webp",
+    price: 599,
+  },
+  {
+    slug: "best-ayurvedic-hair-oil",
+    name: "Bhumi Blend Pure Ayurvedic Hair Oil",
+    image: "/Hair-Oil-Organic.jpg",
+    hoverImage: "/Hair-Oil-2_05-1.jpg",
+    price: 399,
+    regularPrice: 499,
+    rating: 4,
+  },
+  {
+    slug: "organic-rosemary-water",
+    name: "Organic Rosemary Water",
+    image: "/carousel-poster_01-2-500x669.jpg",
+    hoverImage: "/carousel-poster_02-1-500x669.jpg",
+    price: 250,
+    regularPrice: 350,
+  },
+  {
+    slug: "pure-leaf-aloe-conditioner",
+    name: "Pure Leaf Aloe Conditioner",
+    image: "/pure-leaf-aloe-conditioner.webp",
+    hoverImage: "/conditioner-4.webp",
+    price: 599,
+    regularPrice: 699,
+  },
+  {
+    slug: "root-vitality-ayurvedic-shampoo",
+    name: "Root Vitality Ayurvedic Shampoo",
+    image: "/anti_hairfall_shampoo.jpg",
+    hoverImage: "/anti-hairfall-Shampoo_03.jpg",
+    price: 499,
+    regularPrice: 799,
+  },
+];
+
+// The Skin Care category page (/product-category/face), in display order.
+// Names, prices, offers and the aloe gel's 5 stars are the ones on the live
+// bhumiblend.com category page. Every slug also exists in `shopProducts`. The
+// "(1)" copies of the hover photos that were supplied are byte-identical to the
+// clean-named files used here (no spaces in the URL).
+export const skinCareProducts: Product[] = [
+  {
+    slug: "ayurvedic-anti-aging-cream",
+    name: "Anti Ageing Cream",
+    image: "/Anti-ageing-Cream-4_01.jpg",
+    hoverImage: "/Anti-ageing-Cream-4_02-1.jpg",
+    price: 599,
+    regularPrice: 1800,
+  },
+  {
+    slug: "gua-sha-face-tool",
+    name: "Gua Sha Face Tool",
+    image: "/Gua-Sha-Face-Tool-BB-500x669.jpg",
+    hoverImage: "/Gua-Sha-2_02-500x669.jpg",
+    price: 250,
+    regularPrice: 300,
+  },
+  {
+    slug: "saffron-face-cream-for-glowing-skin",
+    name: "Organic Saffron Gel",
+    image: "/Sffron-Gel-2_01-1.jpg",
+    hoverImage: "/Sffron-Gel-2_05-2-500x668.jpg",
+    price: 599,
+    regularPrice: 1200,
+  },
+  {
+    slug: "organic-under-eye-cream",
+    name: "Organic Under Eye Cream",
+    image: "/Under-Eye-Cream-3_01-1.jpg",
+    hoverImage: "/Under-Eye-Cream-3_02-2-500x669.jpg",
+    price: 599,
+    regularPrice: 800,
+  },
+  {
+    slug: "buy-pure-aloe-vera-gel",
+    name: "Original Aloe Vera Gel",
+    image: "/Aloevera-Gel-2_01.jpg",
+    hoverImage: "/Aloevera-Gel-2_02-1.jpg",
+    price: 250,
+    rating: 5,
+  },
+  {
+    slug: "natural-face-serum-for-dark-spots-india",
+    name: "Vitamin C Face Serum",
+    image: "/face-serum-2_01.jpg",
+    hoverImage: "/face-serum-2_03-1-500x667.jpg",
+    price: 599,
+    regularPrice: 1199,
+  },
+];
+
+// The Body Care category page (/product-category/body), in display order.
+// Names, prices and offers are the ones on the live bhumiblend.com category
+// page; every slug also exists in `shopProducts`.
+export const bodyCareProducts: Product[] = [
+  {
+    slug: "almond-butter-hydrating-body-lotion",
+    name: "Almond Butter Hydrating Body Lotion",
+    image: "/Body-Lotion-3_01-1.jpg",
+    hoverImage: "/Body-Lotion-3_02-2.jpg",
+    price: 699,
+    regularPrice: 899,
+  },
+  {
+    slug: "luxury-shea-butter-soap",
+    name: "Luxury Shea Butter Soap",
+    image: "/shea-butter-soap-2_01-1-500x669.jpg",
+    hoverImage: "/shea-butter-soap-2_02-3-500x668.jpg",
+    price: 250,
+    regularPrice: 289,
+  },
+  {
+    slug: "nalpamaram-soap",
+    name: "Nalpamaram Soap",
+    image: "/Naalpamaram-Soap-2_01-1-500x669.jpg",
+    // Square (500×500) poster; the 3:4 tile crops a little off the sides.
+    hoverImage: "/soap_poster-500x500.webp",
+    price: 199,
+    regularPrice: 249,
+  },
+  {
+    slug: "sandalwood-soap",
+    name: "Sandalwood Soap",
+    image: "/Sandal-Soap-2_01-1.jpg",
+    hoverImage: "/Sandal-Soap-2_02-2-1532x2048.jpg",
+    price: 249,
+  },
+];
+
 // The Skin Care Essentials row, in display order. Names, prices and offers are
 // the ones on the live bhumiblend.com; the 500px photos are the pre-cropped
 // versions of the product shots. Slugs for the Gua Sha tool and the Under Eye
