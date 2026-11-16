@@ -43,16 +43,16 @@ const items = [
     x: 60,
     cy: 475,
     side: "left",
-    line: "M340 475 C 385 475, 400 400, 440 400",
-    dot: [440, 400],
+    line: "M340 475 C 420 475, 440 396, 507 396",
+    dot: [507, 396],
   },
   {
     text: "Crafted for real results",
     x: 790,
     cy: 495,
     side: "right",
-    line: "M790 495 C 740 495, 710 452, 668 452",
-    dot: [668, 452],
+    line: "M790 495 C 715 495, 690 440, 619 440",
+    dot: [619, 440],
   },
 ] as const;
 
@@ -117,17 +117,21 @@ export function WhyChoose() {
       aria-labelledby="why-choose-title"
       className="relative isolate overflow-hidden bg-white"
     >
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_62%_52%_at_50%_58%,#fbf3de,rgba(255,255,255,0)_72%)]"
-      />
-      {/* Bottom edge: the next section (Skin Care Essentials) opens on a faint
-          cream glow, so end this one on the same tone — the fading wrists then
-          melt into it with no visible seam. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[200px] bg-[radial-gradient(ellipse_55%_100%_at_50%_100%,#f9f5ec_0%,rgba(249,245,236,0.6)_45%,rgba(249,245,236,0)_100%)]"
-      />
+      {/* Background photo (gold silk, oil ribbons, podium) — decorative, so no
+          alt text, and nothing laid over it so it stays at full clarity. Served
+          as-is (unoptimized) so it isn't re-compressed. On phones the section
+          is much taller than the photo is wide, so it is cropped around its
+          centre there. */}
+      <div aria-hidden="true" className="absolute inset-0 -z-10">
+        <Image
+          src={encodeURI("/bhumiblend haicare.jpeg")}
+          alt=""
+          fill
+          sizes="100vw"
+          unoptimized
+          className="object-cover object-center"
+        />
+      </div>
 
       {/* No bottom padding from md up: the stage ends with the photo, so the
           hands run right down to the edge of the section (no empty band). */}
@@ -149,20 +153,13 @@ export function WhyChoose() {
         </Reveal>
 
         <InViewStage className="relative mx-auto mt-12 max-w-[1100px] md:mt-14 md:aspect-[1100/640]">
-          {/* Backdrop: soft glow, slow-turning gold rings, twinkling sparkles. */}
+          {/* Backdrop: slow-turning gold rings and twinkling sparkles (line art
+              only — no tinted glow over the background photo). */}
           <svg
             aria-hidden="true"
             viewBox={`0 0 ${STAGE_W} ${STAGE_H}`}
             className="pointer-events-none absolute inset-0 hidden h-full w-full md:block"
           >
-            <defs>
-              <radialGradient id="why-glow" cx="50%" cy="50%" r="50%">
-                <stop offset="0" stopColor="#f1d58f" stopOpacity="0.55" />
-                <stop offset="0.55" stopColor="#f6e6bd" stopOpacity="0.25" />
-                <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
-              </radialGradient>
-            </defs>
-            <circle className="why-breathe" cx="550" cy="320" r="330" fill="url(#why-glow)" />
             <g className="why-spin">
               <circle
                 cx="550"
