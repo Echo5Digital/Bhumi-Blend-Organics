@@ -1,7 +1,7 @@
 import { BestSellers } from "@/components/BestSellers";
 import { BrandDifference } from "@/components/BrandDifference";
 import { Footer } from "@/components/Footer";
-import { HeroSlider } from "@/components/HeroSlider";
+import { HeroBanner } from "@/components/HeroBanner";
 import { IngredientTicker } from "@/components/IngredientTicker";
 import { SerumVideoBanner } from "@/components/SerumVideoBanner";
 import { ShopByConcern } from "@/components/ShopByConcern";
@@ -12,13 +12,15 @@ import { WhyChoose } from "@/components/WhyChoose";
 export default function Home() {
   return (
     <div className="flex flex-col">
-      {/* Hero banner slider */}
+      {/* Hero banner: the cover photo with the headline over it. (The previous
+          slider is still in components/HeroSlider.tsx — swap it back in here to
+          restore it.) */}
       <section>
         {/* The live site keeps this h1 in the page but hidden; keep it for SEO/screen readers. */}
         <h1 className="sr-only">
           Discover Natural Ayurvedic Beauty for Skin, Hair &amp; Body
         </h1>
-        <HeroSlider />
+        <HeroBanner />
       </section>
 
       {/* Trust strip + moving ingredient ticker, flush against the banner */}
