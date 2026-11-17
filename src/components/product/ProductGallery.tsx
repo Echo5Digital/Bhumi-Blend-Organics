@@ -3,7 +3,9 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
-type GalleryImage = { src: string; alt: string };
+// `fit: "contain"` shows a photo whole (for a square or wide picture whose text
+// would otherwise be cropped by the tall frame); the default fills the frame.
+type GalleryImage = { src: string; alt: string; fit?: "contain" };
 
 function Chevron({ direction }: { direction: "left" | "right" }) {
   return (
@@ -85,7 +87,7 @@ export function ProductGallery({
                 alt=""
                 fill
                 sizes="80px"
-                className="object-cover"
+                className={image.fit === "contain" ? "object-contain" : "object-cover"}
               />
             </button>
           </li>
@@ -127,7 +129,7 @@ export function ProductGallery({
                 fill
                 preload={index === 0}
                 sizes="(min-width: 1024px) 600px, (min-width: 640px) 80vw, 100vw"
-                className="object-cover"
+                className={image.fit === "contain" ? "object-contain" : "object-cover"}
               />
             </div>
           ))}

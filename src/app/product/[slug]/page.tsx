@@ -208,9 +208,11 @@ async function ProductContent({
 
             {!detail.offer?.afterSummary && offerBox}
 
-            <p className="mt-4 font-system text-[16px] leading-[1.7] text-[#555]">
-              {detail.summary}
-            </p>
+            {detail.summary && (
+              <p className="mt-4 font-system text-[16px] leading-[1.7] text-[#555]">
+                {detail.summary}
+              </p>
+            )}
 
             {detail.offer?.afterSummary && offerBox}
 
@@ -337,10 +339,14 @@ async function ProductContent({
 
                     {detail.keyBenefits && (
                       <Reveal className="mt-12 md:mt-14">
-                        <h2 className="font-serif text-[24px] leading-tight font-medium text-[#222] sm:text-[30px]">
-                          {detail.keyBenefits.title}
-                        </h2>
-                        <ul className="mt-5 grid max-w-[980px] gap-x-8 gap-y-3 sm:grid-cols-2">
+                        {detail.keyBenefits.title && (
+                          <h2 className="font-serif text-[24px] leading-tight font-medium text-[#222] sm:text-[30px]">
+                            {detail.keyBenefits.title}
+                          </h2>
+                        )}
+                        <ul
+                          className={`grid max-w-[980px] gap-x-8 gap-y-3 sm:grid-cols-2 ${detail.keyBenefits.title ? "mt-5" : ""}`}
+                        >
                           {detail.keyBenefits.points.map((point) => (
                             <li
                               key={point}
@@ -353,6 +359,11 @@ async function ProductContent({
                             </li>
                           ))}
                         </ul>
+                        {detail.keyBenefits.outro && (
+                          <p className="mt-6 max-w-[980px] font-system text-[16px] leading-[1.85] text-[#555]">
+                            {detail.keyBenefits.outro}
+                          </p>
+                        )}
                       </Reveal>
                     )}
 
@@ -584,6 +595,11 @@ async function ProductContent({
                                   </li>
                                 ))}
                               </ul>
+                              {detail.usage.suitableFor.outro && (
+                                <p className="mt-5 font-system text-[16px] leading-[1.75] text-[#555]">
+                                  {detail.usage.suitableFor.outro}
+                                </p>
+                              )}
                             </div>
                           )}
                         </>

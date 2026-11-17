@@ -202,7 +202,7 @@ export const shopProducts: Product[] = [
     regularPrice: 289,
   },
   {
-    slug: "nalpamaram-soap",
+    slug: "ayurvedic-clarifying-soap",
     name: "Nalpamaram Soap",
     image: "/Naalpamaram-Soap-2_01-1-500x669.jpg",
     // Square (500×500) poster; the 3:4 tile crops a little off the sides.
@@ -211,7 +211,7 @@ export const shopProducts: Product[] = [
     regularPrice: 249,
   },
   {
-    slug: "organic-rosemary-water",
+    slug: "ayurvedic-hair-tonic-for-hair-growth",
     name: "Organic Rosemary Water",
     image: "/carousel-poster_01-2-500x669.jpg",
     hoverImage: "/carousel-poster_02-1-500x669.jpg",
@@ -228,7 +228,7 @@ export const shopProducts: Product[] = [
   },
   // --- Page 3 of the live shop (items 19–25). ---
   {
-    slug: "organic-under-eye-cream",
+    slug: "revive-under-eye-corrector",
     name: "Organic Under Eye Cream",
     image: "/Under-Eye-Cream-3_01-1.jpg",
     hoverImage: "/Under-Eye-Cream-3_02-2.jpg",
@@ -251,7 +251,7 @@ export const shopProducts: Product[] = [
     regularPrice: 699,
   },
   {
-    slug: "root-vitality-ayurvedic-shampoo",
+    slug: "best-ayurvedic-shampoo-for-hair-fall",
     name: "Root Vitality Ayurvedic Shampoo",
     image: "/anti_hairfall_shampoo.jpg",
     hoverImage: "/anti-hairfall-Shampoo_03.jpg",
@@ -259,7 +259,7 @@ export const shopProducts: Product[] = [
     regularPrice: 799,
   },
   {
-    slug: "sandalwood-soap",
+    slug: "sacred-glow-sandalwood-soap",
     name: "Sandalwood Soap",
     image: "/Sandal-Soap-2_01-1.jpg",
     hoverImage: "/Sandal-Soap-2_02-2-1532x2048.jpg",
@@ -330,7 +330,7 @@ export const hairCareProducts: Product[] = [
     rating: 4,
   },
   {
-    slug: "organic-rosemary-water",
+    slug: "ayurvedic-hair-tonic-for-hair-growth",
     name: "Organic Rosemary Water",
     image: "/carousel-poster_01-2-500x669.jpg",
     hoverImage: "/carousel-poster_02-1-500x669.jpg",
@@ -346,7 +346,7 @@ export const hairCareProducts: Product[] = [
     regularPrice: 699,
   },
   {
-    slug: "root-vitality-ayurvedic-shampoo",
+    slug: "best-ayurvedic-shampoo-for-hair-fall",
     name: "Root Vitality Ayurvedic Shampoo",
     image: "/anti_hairfall_shampoo.jpg",
     hoverImage: "/anti-hairfall-Shampoo_03.jpg",
@@ -386,7 +386,7 @@ export const skinCareProducts: Product[] = [
     regularPrice: 1200,
   },
   {
-    slug: "organic-under-eye-cream",
+    slug: "revive-under-eye-corrector",
     name: "Organic Under Eye Cream",
     image: "/Under-Eye-Cream-3_01-1.jpg",
     hoverImage: "/Under-Eye-Cream-3_02-2-500x669.jpg",
@@ -432,7 +432,7 @@ export const bodyCareProducts: Product[] = [
     regularPrice: 289,
   },
   {
-    slug: "nalpamaram-soap",
+    slug: "ayurvedic-clarifying-soap",
     name: "Nalpamaram Soap",
     image: "/Naalpamaram-Soap-2_01-1-500x669.jpg",
     // Square (500×500) poster; the 3:4 tile crops a little off the sides.
@@ -441,7 +441,7 @@ export const bodyCareProducts: Product[] = [
     regularPrice: 249,
   },
   {
-    slug: "sandalwood-soap",
+    slug: "sacred-glow-sandalwood-soap",
     name: "Sandalwood Soap",
     image: "/Sandal-Soap-2_01-1.jpg",
     hoverImage: "/Sandal-Soap-2_02-2-1532x2048.jpg",
@@ -479,7 +479,7 @@ export const skinCareEssentials: Product[] = [
     regularPrice: 1200,
   },
   {
-    slug: "organic-under-eye-cream",
+    slug: "revive-under-eye-corrector",
     name: "Organic Under Eye Cream",
     image: "/Under-Eye-Cream-3_01-1-500x669.jpg",
     hoverImage: "/Under-Eye-Cream-3_02-2-500x669.jpg",

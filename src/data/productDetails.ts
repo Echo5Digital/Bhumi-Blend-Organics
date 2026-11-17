@@ -21,13 +21,13 @@ export type ProductDetail = {
   /** A highlighted offer box, above the pitch by default (or under it with `afterSummary`).
       `code`, when set, is a coupon picked out inside `detail`. */
   offer?: { headline: string; detail: string; code?: string; afterSummary?: boolean };
-  /** The one-line pitch above the quantity / buy buttons. */
-  summary: string;
+  /** The one-line pitch above the quantity / buy buttons (left out when the live page has none). */
+  summary?: string;
   /** For a kit: the products it is made of (from the catalogue), shown under the pitch. */
   bundle?: { slug: string; quantity: number }[];
   rating: { value: number; count: number };
   /** Product photo and hover photo first, then the four extra photos. */
-  gallery: { src: string; alt: string }[];
+  gallery: { src: string; alt: string; fit?: "contain" }[];
   whyChoose: string[];
   /** The "Description" section. */
   description: string[];
@@ -36,7 +36,7 @@ export type ProductDetail = {
   /** A wide photo shown under the description text (optional). */
   descriptionImage?: { src: string; alt: string };
   /** A checklist of key benefits after the description (optional). */
-  keyBenefits?: { title: string; points: string[] };
+  keyBenefits?: { title?: string; points: string[]; outro?: string };
   /** A short statement card after the description (optional). */
   philosophy?: { title: string; paragraphs: string[] };
   /** Optional "What's inside" heading shown above the ingredient cards. */
@@ -66,7 +66,7 @@ export type ProductDetail = {
     /** A short guide to each product, shown under the steps (optional). */
     guide?: { title: string; items: { name: string; text: string }[] };
     /** A "who is it for" checklist under the steps. */
-    suitableFor?: { title: string; intro: string; points: string[] };
+    suitableFor?: { title: string; intro: string; points: string[]; outro?: string };
   };
   /** Optional FAQ, shown after the usage steps. */
   faqs?: { question: string; answer: string }[];
@@ -154,7 +154,7 @@ export const productDetails: ProductDetail[] = [
       "natural-face-serum-for-dark-spots-india",
       "ayurvedic-anti-aging-cream",
       "gua-sha-face-tool",
-      "organic-under-eye-cream",
+      "revive-under-eye-corrector",
     ],
   },
   {
@@ -274,7 +274,7 @@ export const productDetails: ProductDetail[] = [
           "Absolutely. Bhumi Blend Organic Body Lotion for Dry Skin is suitable for both men and women looking for effective daily moisturization and skin care.",
       },
     ],
-    relatedSlugs: ["sandalwood-soap", "luxury-shea-butter-soap", "nalpamaram-soap"],
+    relatedSlugs: ["sacred-glow-sandalwood-soap", "luxury-shea-butter-soap", "ayurvedic-clarifying-soap"],
   },
   {
     // Same slug the shop, the hair care page and the cards already used.
@@ -445,10 +445,10 @@ export const productDetails: ProductDetail[] = [
       "bhumi-blend-organics-premium-combo-6-soap-set",
       "bhumi-blend-organics-premium-combo-3-soap-set",
       "summer-essentials-luxury-kit",
-      "organic-rosemary-water",
+      "ayurvedic-hair-tonic-for-hair-growth",
       "best-ayurvedic-hair-oil",
-      "root-vitality-ayurvedic-shampoo",
-      "organic-under-eye-cream",
+      "best-ayurvedic-shampoo-for-hair-fall",
+      "revive-under-eye-corrector",
     ],
   },
   {
@@ -618,7 +618,7 @@ export const productDetails: ProductDetail[] = [
       "buy-pure-aloe-vera-gel",
       "natural-face-serum-for-dark-spots-india",
       "gua-sha-face-tool",
-      "organic-under-eye-cream",
+      "revive-under-eye-corrector",
     ],
   },
   {
@@ -635,7 +635,7 @@ export const productDetails: ProductDetail[] = [
     // The three products in the kit, in the live page's order.
     bundle: [
       { slug: "natural-face-serum-for-dark-spots-india", quantity: 1 },
-      { slug: "nalpamaram-soap", quantity: 1 },
+      { slug: "ayurvedic-clarifying-soap", quantity: 1 },
       { slug: "buy-pure-aloe-vera-gel", quantity: 1 },
     ],
     // No reviews yet on the live site (the "Reviews (0)" tab).
@@ -724,7 +724,7 @@ export const productDetails: ProductDetail[] = [
       "bhumi-blend-premium-combo-box",
       "bhumi-blend-starter-combo-box",
       "best-ayurvedic-hair-oil",
-      "organic-under-eye-cream",
+      "revive-under-eye-corrector",
     ],
   },
   {
@@ -736,7 +736,7 @@ export const productDetails: ProductDetail[] = [
     // The three products in the kit, in the live page's order.
     bundle: [
       { slug: "ayurvedic-anti-aging-cream", quantity: 1 },
-      { slug: "organic-under-eye-cream", quantity: 1 },
+      { slug: "revive-under-eye-corrector", quantity: 1 },
       { slug: "gua-sha-face-tool", quantity: 1 },
     ],
     // No reviews yet on the live site (the "Reviews (0)" tab).
@@ -848,7 +848,7 @@ export const productDetails: ProductDetail[] = [
       "bhumi-blend-mens-combo",
       "bhumi-blend-premium-combo-box",
       "bhumi-blend-starter-combo-box",
-      "organic-under-eye-cream",
+      "revive-under-eye-corrector",
     ],
   },
   {
@@ -871,7 +871,7 @@ export const productDetails: ProductDetail[] = [
       { slug: "natural-face-serum-for-dark-spots-india", quantity: 1 },
       { slug: "saffron-face-cream-for-glowing-skin", quantity: 1 },
       { slug: "buy-pure-aloe-vera-gel", quantity: 1 },
-      { slug: "organic-rosemary-water", quantity: 1 },
+      { slug: "ayurvedic-hair-tonic-for-hair-growth", quantity: 1 },
       { slug: "gua-sha-face-tool", quantity: 1 },
     ],
     // No reviews yet on the live site (the "Reviews (0)" tab).
@@ -929,9 +929,9 @@ export const productDetails: ProductDetail[] = [
       "✨A perfect blend of tradition and skincare—because your skin deserves the best!",
     // The three soaps in the set, in the live page's order.
     bundle: [
-      { slug: "sandalwood-soap", quantity: 1 },
+      { slug: "sacred-glow-sandalwood-soap", quantity: 1 },
       { slug: "luxury-shea-butter-soap", quantity: 1 },
-      { slug: "nalpamaram-soap", quantity: 1 },
+      { slug: "ayurvedic-clarifying-soap", quantity: 1 },
     ],
     // No reviews yet on the live site (the "Reviews (0)" tab).
     rating: { value: 0, count: 0 },
@@ -979,7 +979,7 @@ export const productDetails: ProductDetail[] = [
       "bhumi-blend-mens-combo",
       "bhumi-blend-premium-combo-box",
       "best-ayurvedic-hair-oil",
-      "organic-under-eye-cream",
+      "revive-under-eye-corrector",
     ],
   },
   {
@@ -992,9 +992,9 @@ export const productDetails: ProductDetail[] = [
       "✨A perfect blend of tradition and skincare—because your skin deserves the best!",
     // Two of each soap, in the live page's order.
     bundle: [
-      { slug: "sandalwood-soap", quantity: 2 },
+      { slug: "sacred-glow-sandalwood-soap", quantity: 2 },
       { slug: "luxury-shea-butter-soap", quantity: 2 },
-      { slug: "nalpamaram-soap", quantity: 2 },
+      { slug: "ayurvedic-clarifying-soap", quantity: 2 },
     ],
     // No reviews yet on the live site (the "Reviews (0)" tab).
     rating: { value: 0, count: 0 },
@@ -1113,7 +1113,7 @@ export const productDetails: ProductDetail[] = [
       "bhumi-blend-mens-combo",
       "bhumi-blend-premium-combo-box",
       "best-ayurvedic-hair-oil",
-      "organic-under-eye-cream",
+      "revive-under-eye-corrector",
     ],
   },
   {
@@ -1133,14 +1133,14 @@ export const productDetails: ProductDetail[] = [
     },
     // The nine products in the box, in the live page's order.
     bundle: [
-      { slug: "sandalwood-soap", quantity: 1 },
+      { slug: "sacred-glow-sandalwood-soap", quantity: 1 },
       { slug: "luxury-shea-butter-soap", quantity: 1 },
-      { slug: "nalpamaram-soap", quantity: 1 },
+      { slug: "ayurvedic-clarifying-soap", quantity: 1 },
       { slug: "natural-face-serum-for-dark-spots-india", quantity: 1 },
       { slug: "saffron-face-cream-for-glowing-skin", quantity: 1 },
-      { slug: "root-vitality-ayurvedic-shampoo", quantity: 1 },
+      { slug: "best-ayurvedic-shampoo-for-hair-fall", quantity: 1 },
       { slug: "best-ayurvedic-hair-oil", quantity: 1 },
-      { slug: "organic-rosemary-water", quantity: 1 },
+      { slug: "ayurvedic-hair-tonic-for-hair-growth", quantity: 1 },
       { slug: "gua-sha-face-tool", quantity: 1 },
     ],
     // No reviews yet on the live site (the "Reviews (0)" tab).
@@ -1373,8 +1373,1889 @@ export const productDetails: ProductDetail[] = [
       "bhumi-blend-organics-premium-combo-6-soap-set",
       "summer-essentials-luxury-kit",
       "ayurvedic-exfoliation-glow-kit",
-      "root-vitality-ayurvedic-shampoo",
-      "organic-under-eye-cream",
+      "best-ayurvedic-shampoo-for-hair-fall",
+      "revive-under-eye-corrector",
+    ],
+  },
+  {
+    // Same slug the shop, the combo page and the cards already used.
+    slug: "bhumi-blend-starter-combo-box",
+    sku: "BB-WC-ST-1999",
+    categories: ["Combo", "Woman"],
+    // The live page shows no size for this box, so `weight` is not set.
+    tagline: "Pure Kerala Beauty, Perfectly Crafted for You",
+    summary: "Gift the Best of Kerala’s Beauty – Only with Bhumi Blend",
+    // On the live page the bonus comes after the "Gift the best…" line.
+    offer: {
+      headline: "Bonus",
+      detail: "Unlock Radiant Skin with a FREE Original Gua Sha Face Tool",
+      afterSummary: true,
+    },
+    // The six products in the box, in the live page's order.
+    bundle: [
+      { slug: "buy-pure-aloe-vera-gel", quantity: 1 },
+      { slug: "ayurvedic-hair-tonic-for-hair-growth", quantity: 1 },
+      { slug: "best-ayurvedic-hair-oil", quantity: 1 },
+      { slug: "best-organic-body-lotion-for-dry-skin", quantity: 1 },
+      { slug: "luxury-shea-butter-soap", quantity: 1 },
+      { slug: "gua-sha-face-tool", quantity: 1 },
+    ],
+    // No reviews yet on the live site (the "Reviews (0)" tab).
+    rating: { value: 0, count: 0 },
+    // The two photos from the shop first, then the two supplied ones.
+    gallery: [
+      {
+        src: "/woman-care-2_01.jpg",
+        alt: "Bhumi Blend Starter Combo Box: a pink gift box with a gold ring and gold leaf lines",
+      },
+      {
+        src: "/women-care-3_03-2-500x668.jpg",
+        alt: "Starter Combo Box, ₹1999 after 15% discount: Pure Aloe Healing Gel, Luxury Shea Butter Cleansing Bar, Botanical Hair Tonic, Root Revival Hair Oil and Nourish + Almond Butter Hydrating Body Lotion",
+      },
+      {
+        src: "/women-care-3_02.jpg",
+        alt: "Unveil the wisdom of ancient Kerala with our Bhumi Blend Women’s Combo Boxes: a woman with curly hair resting her chin on her hands",
+      },
+      {
+        src: "/women-care-3_05.jpg",
+        alt: "Gift the best of Kerala’s beauty, only with Bhumi Blend: a pink Premium Skin Care Set box and a free Original Gua Sha Face Tool",
+      },
+    ],
+    whyChoose: [
+      "Inspired by Ayurvedic traditions",
+      "Made with plant-based ingredients",
+      "Gentle for daily use",
+      "Crafted for real results",
+    ],
+    description: [
+      "Unveil the wisdom of ancient Kerala with our Bhumi Blend Women’s Combo Boxes—beautifully packaged in a premium box with exquisite decoration, designed to elevate your beauty ritual. These thoughtfully curated boxes bring together skincare and haircare essentials that nourish and pamper your skin and hair, perfect as a luxurious gift for your loved ones. Each product is crafted using plant-based, Ayurvedic ingredients, inspired by Kerala’s timeless beauty secrets.",
+    ],
+    // Only the description was supplied for this box: no ingredient cards,
+    // organic line, badges, usage steps or FAQ text.
+    ingredients: [],
+    relatedSlugs: [
+      "essential-skin-repair-range",
+      "ayurvedic-youth-revival-kit",
+      "brightening-clarifying-skin-care-range",
+      "bhumi-blend-organics-premium-combo-6-soap-set",
+      "bhumi-blend-organics-premium-combo-3-soap-set",
+      "summer-essentials-luxury-kit",
+      "ayurvedic-exfoliation-glow-kit",
+      "bhumi-blend-mens-combo",
+      "bhumi-blend-premium-combo-box",
+    ],
+  },
+  {
+    // Same slug the shop, the combo page and the cards already used.
+    slug: "brightening-clarifying-skin-care-range",
+    // The live page shows no SKU and no size for this range, so neither is set.
+    categories: ["All Products", "Combo"],
+    summary: "✨ Reveal your natural radiance. Clearer, brighter skin starts here.",
+    // The three products in the range, in the live page's order.
+    bundle: [
+      { slug: "natural-face-serum-for-dark-spots-india", quantity: 1 },
+      { slug: "saffron-face-cream-for-glowing-skin", quantity: 1 },
+      { slug: "sacred-glow-sandalwood-soap", quantity: 1 },
+    ],
+    // No reviews yet on the live site (the "Reviews (0)" tab).
+    rating: { value: 0, count: 0 },
+    // The shop's two photos first, then the four supplied ones.
+    gallery: [
+      {
+        src: "/Bhumi-Blend-Brightening-Clarifying-Skin-Care-Range.jpg",
+        alt: "Bhumi Blend Brightening & Clarifying Skin Care Range: Sacred Glow Sandalwood Soap, Vitamin C Face Serum and Radiance Elixir Saffron & Aloe Brightening Gel with saffron flowers",
+      },
+      {
+        src: "/Bhumi-Blend-Brightening-Clarifying-Skin-Care-Range-2-500x669.jpg",
+        alt: "Dull skin? Let it glow: a 3-step brightening ritual. The serum improves brightness and supports even tone, the gel gives lightweight glow hydration and the soap is a gentle daily clarifying cleanse",
+      },
+      {
+        src: "/Bhumi-Blend-Brightening-Clarifying-Skin-Care-Range-3.jpg",
+        alt: "Your everyday glow system: simple steps, visible clarity. Gently removes impurities, targets dullness and hydrates without heaviness",
+      },
+      {
+        src: "/Bhumi-Blend-Brightening-Clarifying-Skin-Care-Range-4-800x1070.jpg",
+        alt: "Glow the Ayurvedic way: antioxidant-rich Vitamin C care, saffron-infused glow hydration and sandalwood-based gentle cleansing, with sandalwood bark, saffron flowers and oil",
+      },
+      {
+        src: "/Bhumi-Blend-Brightening-Clarifying-Skin-Care-Range-5.jpg",
+        alt: "Bhumi Blend Brightening & Clarifying Skin Care Range: a smiling woman with her hair in a bun touching her cheek, against green leaves",
+      },
+      {
+        src: "/Bhumi-Blend-Brightening-Clarifying-Skin-Care-Range-6.jpg",
+        alt: "The soap, serum and brightening gel standing on a marble table in a softly lit room, with saffron flowers",
+      },
+    ],
+    whyChoose: [
+      "Inspired by Ayurvedic traditions",
+      "Made with plant-based ingredients",
+      "Gentle for daily use",
+      "Crafted for real results",
+    ],
+    description: [
+      "Reveal brighter, fresher, and healthier-looking skin with the Bhumi Blend Brightening & Clarifying Skin Care Range. Thoughtfully curated to cleanse, nourish, and revitalize the skin, this complete skincare trio features Sacred Glow Sandalwood Soap, Vitamin C Face Serum, and Radiance Elixir – Saffron & Aloe Brightening Gel.",
+      "The routine begins with Sacred Glow Sandalwood Soap, a gentle cleanser that helps remove dirt, excess oil, and daily impurities while leaving the skin feeling refreshed and comfortable. Follow with the Vitamin C Face Serum, a lightweight formula designed to support a brighter and more even-looking complexion while helping restore radiance to dull-looking skin.",
+      "Complete the routine with Radiance Elixir – Saffron & Aloe Brightening Gel, a refreshing gel that combines hydration and nourishment to help maintain soft, healthy-looking skin. Together, these products create a simple yet effective skincare regimen that helps support a naturally radiant and revitalized appearance.",
+    ],
+    descriptionImage: {
+      src: "/Web-image-5-1536x658.jpg",
+      alt: "Sacred Glow Sandalwood Soap, Vitamin C Face Serum and Radiance Elixir Saffron & Aloe Brightening Gel on a wooden table in warm window light, with saffron flowers",
+    },
+    // A range has no ingredient cards, organic line or badges on the live page.
+    // The live page also has Usage Instructions and FAQ tabs, but the text that
+    // was pasted for them was the Summer Essentials Luxury Kit's, so neither is set.
+    ingredients: [],
+    relatedSlugs: [
+      "essential-skin-repair-range",
+      "ayurvedic-youth-revival-kit",
+      "aloe-pure-shampoo",
+      "bhumi-blend-organics-premium-combo-6-soap-set",
+      "bhumi-blend-organics-premium-combo-3-soap-set",
+      "ayurvedic-exfoliation-glow-kit",
+      "bhumi-blend-mens-combo",
+      "bhumi-blend-premium-combo-box",
+      "best-ayurvedic-hair-oil",
+      "revive-under-eye-corrector",
+    ],
+  },
+  {
+    // Same slug the shop, the combo page and the cards already used.
+    slug: "essential-skin-repair-range",
+    // The live page shows no SKU and no size for this range, so neither is set.
+    categories: ["All Products", "Combo"],
+    summary:
+      "A complete daily repair ritual designed for healthy, balanced, and refreshed skin.",
+    // The three products in the range, in the live page's order.
+    bundle: [
+      { slug: "buy-pure-aloe-vera-gel", quantity: 1 },
+      { slug: "revive-under-eye-corrector", quantity: 1 },
+      { slug: "gua-sha-face-tool", quantity: 1 },
+    ],
+    // No reviews yet on the live site (the "Reviews (0)" tab).
+    rating: { value: 0, count: 0 },
+    // The shop's two photos first, then the four supplied ones.
+    gallery: [
+      {
+        src: "/Essential-Skin-Repair-Range.webp",
+        alt: "Bhumi Blend Essential Skin Repair Range: Pure Aloe Healing Gel, Revive + Under Eye Corrector and a green Gua Sha tool with aloe leaves",
+      },
+      {
+        src: "/combo-1-feb-6.webp",
+        alt: "Bhumi Blend Essential Skin Repair Range, a complete daily repair ritual designed for healthy, balanced and refreshed skin: a woman touching her cheek among green leaves",
+      },
+      {
+        src: "/combo-1-feb-5-800x1070.webp",
+        alt: "The Pure Aloe Healing Gel and Revive + Under Eye Corrector jars stacked on a marble ledge beside a green Gua Sha tool and aloe leaves",
+      },
+      {
+        src: "/combo-1-feb-4.webp",
+        alt: "Turn your routine into a ritual: cooling aloe hydration, lightweight under-eye nourishment and relaxing facial massage therapy",
+      },
+      {
+        src: "/combo-1-feb-3.webp",
+        alt: "Hydrate. Soothe. Restore. Calms dryness and irritation, supports under-eye brightness, promotes better product absorption and is suitable for daily use",
+      },
+      {
+        src: "/combo-1-feb-2.webp",
+        alt: "Deep hydration, daily comfort, visible freshness: the aloe gel soothes and cools stressed skin, the under-eye corrector refreshes tired eyes and the Gua Sha enhances absorption and glow",
+      },
+    ],
+    whyChoose: [
+      "Inspired by Ayurvedic traditions",
+      "Made with plant-based ingredients",
+      "Gentle for daily use",
+      "Crafted for real results",
+    ],
+    description: [
+      "Restore, refresh, and revitalize your skin with the Bhumi Blend Essential Skin Repair Range, a thoughtfully curated skincare trio featuring Original Aloe Vera Gel with Jasmine, Organic Under Eye Cream, and the Gua Sha Face Tool. Designed to support hydration, under-eye care, and facial massage, this complete skincare routine helps promote smoother, healthier-looking, and more refreshed skin.",
+      "The Original Aloe Vera Gel with Jasmine delivers lightweight hydration and soothing care using real aloe vera infused with the refreshing essence of jasmine. It helps nourish and moisturize the skin while leaving it feeling soft, comfortable, and revitalized.",
+      "The Organic Under Eye Cream provides targeted care for the delicate under-eye area, helping to improve the appearance of tired-looking eyes while supporting smoother and more nourished skin around the eyes.",
+      "Completing the routine is the Gua Sha Face Tool, a timeless skincare accessory designed to enhance facial massage, improve product absorption, and promote a relaxing self-care experience. When used regularly, it helps reduce the appearance of puffiness and leaves the skin looking refreshed and revitalized.",
+      "Together, these three essentials create a simple yet effective skin repair routine focused on hydration, relaxation, and maintaining healthy-looking skin.",
+    ],
+    descriptionImage: {
+      src: "/Web-image-3-1536x658.jpg",
+      alt: "The Pure Aloe Healing Gel and Revive + Under Eye Corrector jars stacked on a marble surface beside a Gua Sha tool and a cut aloe leaf with water droplets",
+    },
+    // A range has no ingredient cards, organic line or badges on the live page.
+    ingredients: [],
+    usage: {
+      eyebrow: "Bhumi Blend · Essential Skin Repair Range",
+      title: "How to use",
+      steps: [
+        {
+          label: "Hydrate & Soothe",
+          text: "Apply a thin layer of Original Aloe Vera Gel with Jasmine to clean skin. Gently massage until absorbed. This helps provide lightweight hydration and prepares the skin for the next steps.",
+        },
+        {
+          label: "Under Eye Care",
+          text: "Take a small amount of Organic Under Eye Cream and gently apply around the under-eye area using your ring finger. Lightly tap until fully absorbed.",
+        },
+        {
+          label: "Facial Massage",
+          text: "Use the Gua Sha Face Tool over the aloe vera gel or after the under-eye cream has absorbed. Glide the tool gently upward and outward across the face and neck using light pressure.",
+        },
+      ],
+      tipLabel: "Recommended routine",
+      tip: "Use the Original Aloe Vera Gel and Organic Under Eye Cream daily, morning and evening. The Gua Sha Face Tool can be used daily or several times a week as part of your self-care routine.",
+    },
+    faqs: [
+      {
+        question: "What products are included in the Essential Skin Repair Range?",
+        answer:
+          "The kit includes Original Aloe Vera Gel with Jasmine, Organic Under Eye Cream, and the Gua Sha Face Tool.",
+      },
+      {
+        question: "Is the aloe vera gel in this kit made with real aloe vera?",
+        answer:
+          "Yes. The Original Aloe Vera Gel is formulated with real aloe vera and enriched with jasmine, offering hydration and refreshing skincare benefits.",
+      },
+      {
+        question: "What is the purpose of the Gua Sha Face Tool?",
+        answer:
+          "The Gua Sha Face Tool is designed to enhance facial massage, support relaxation, improve skincare application, and help reduce the appearance of puffiness.",
+      },
+      {
+        question: "Can I use all the products every day?",
+        answer:
+          "Yes. The aloe vera gel and under-eye cream are suitable for daily use, while the Gua Sha Face Tool can be used regularly as part of your skincare routine.",
+      },
+      {
+        question: "What skin concerns does the Essential Skin Repair Range help address?",
+        answer:
+          "The range is designed to support hydration, under-eye care, skin comfort, facial relaxation, and the appearance of refreshed, healthy-looking skin.",
+      },
+    ],
+    relatedSlugs: [
+      "ayurvedic-youth-revival-kit",
+      "brightening-clarifying-skin-care-range",
+      "aloe-pure-shampoo",
+      "bhumi-blend-organics-premium-combo-3-soap-set",
+      "ayurvedic-exfoliation-glow-kit",
+      "bhumi-blend-mens-combo",
+      "bhumi-blend-premium-combo-box",
+      "bhumi-blend-starter-combo-box",
+      "best-ayurvedic-hair-oil",
+      "revive-under-eye-corrector",
+    ],
+  },
+  {
+    // Same slug the shop, the skin care page and the cards already used.
+    slug: "gua-sha-face-tool",
+    sku: "BB-SKC-GFT-6",
+    categories: ["Face", "Skin", "Tool"],
+    // The live page shows no size and no pitch line under the highlights,
+    // so `weight` and `summary` are not set.
+    tagline: "Sculpt, Lift, Refresh",
+    highlights: [
+      "Improves circulation",
+      "Reduces puffiness",
+      "Tones facial muscles",
+      "Enhances radiance",
+    ],
+    // No reviews yet on the live site (the "Reviews (0)" tab).
+    rating: { value: 0, count: 0 },
+    // The two photos from the shop (500px versions) first, then the three supplied ones.
+    gallery: [
+      {
+        src: "/Gua-Sha-Face-Tool-BB-500x669.jpg",
+        alt: "Bhumi Blend Gua Sha Face Tool, a heart-shaped green stone",
+      },
+      {
+        src: "/Gua-Sha-2_02-500x669.jpg",
+        alt: "Benefits: improves circulation, reduces puffiness, enhances skin elasticity, relieves tension and supports lymphatic drainage, with a hand holding the green Gua Sha tool",
+      },
+      {
+        src: "/Gua-Sha-2_03.jpg",
+        alt: "Facial Gua Sha zones: forehead from the middle to each side, cheek from the nose to the ear, chin from the middle to the sides, jawbone from the bottom toward the ear and neck from the collarbone to the jawbone",
+      },
+      {
+        src: "/Gua-Sha-2_04.jpg",
+        alt: "A line drawing of a face with arrows and Gua Sha tool positions: smooth wrinkles, lift eyebrows, reduce lines and dark circles, soften smile lines, lift and firm skin and improve the neck area",
+      },
+      {
+        src: "/Gua-Sha-2_05-800x1070.jpg",
+        alt: "Bhumi Blend Organics Original Gua Sha Face Tool: a smiling woman in an embroidered cream top touching her face, against green leaves",
+      },
+    ],
+    whyChoose: [
+      "Inspired by Ayurvedic traditions",
+      "Made with plant-based ingredients",
+      "Gentle for daily use",
+      "Crafted for real results",
+    ],
+    description: [
+      "Elevate your skincare ritual with the Bhumi Blend Gua Sha Face Tool, a timeless beauty tool inspired by traditional wellness practices. Designed to gently glide across the contours of your face and neck, this tool helps enhance your self-care routine by promoting relaxation, reducing the appearance of puffiness, and supporting a refreshed, radiant look.",
+      "When used with your favorite facial oil, serum, or moisturizer, the Gua Sha Face Tool helps the product spread smoothly across the skin while providing a soothing facial massage experience. Regular use can help relieve facial tension, improve the appearance of tired-looking skin, and leave your complexion looking revitalized and refreshed.",
+      "Crafted for comfort and ease of use, the Bhumi Blend Gua Sha Face Tool is suitable for all skin types and can be seamlessly incorporated into your daily skincare routine. Whether you’re beginning your skincare journey or looking to enhance your existing regimen, this beauty tool offers a relaxing way to care for your skin naturally.",
+    ],
+    // A tool has no ingredient cards, organic line or badges on the live page.
+    ingredients: [],
+    usage: {
+      eyebrow: "Bhumi Blend · Gua Sha Face Tool",
+      title: "How to use",
+      steps: [
+        {
+          label: "Prepare",
+          text: "Start with a clean face and apply a facial oil, serum, or moisturizer.",
+        },
+        { label: "Position", text: "Hold the Gua Sha tool at a slight angle against your skin." },
+        { label: "Glide", text: "Gently glide the tool outward and upward across the face." },
+        { label: "Neck & Jaw", text: "Begin at the neck and move upward toward the jawline." },
+        {
+          label: "Cheeks & Temples",
+          text: "Continue from the jawline to the cheeks, then from the cheeks toward the temples.",
+        },
+        { label: "Forehead", text: "Use gentle strokes around the forehead and brow area." },
+        { label: "Repeat", text: "Repeat each movement 3–5 times on each side of the face." },
+        { label: "Clean", text: "Clean the tool after each use and store in a dry place." },
+      ],
+      tip: "For an extra refreshing experience, place the Gua Sha tool in the refrigerator before use.",
+    },
+    faqs: [
+      {
+        question: "What is a Gua Sha Face Tool used for?",
+        answer:
+          "A Gua Sha Face Tool is used to gently massage the face and neck, helping reduce the appearance of puffiness, relieve facial tension, and enhance your overall skincare routine.",
+      },
+      {
+        question: "Can I use the Gua Sha tool every day?",
+        answer:
+          "Yes. The tool is safe for daily use and can be incorporated into your morning or evening skincare routine.",
+      },
+      {
+        question: "Do I need to use a serum or facial oil with the Gua Sha tool?",
+        answer:
+          "Yes. Applying a facial oil, serum, or moisturizer helps the tool glide smoothly across the skin and prevents unnecessary pulling or tugging.",
+      },
+      {
+        question: "Is the Gua Sha Face Tool suitable for all skin types?",
+        answer:
+          "Yes. The tool can be used on all skin types when used gently and correctly as part of a regular skincare routine.",
+      },
+      {
+        question: "Can the Gua Sha tool help with facial puffiness?",
+        answer:
+          "Regular use may help reduce the appearance of temporary puffiness and leave the skin looking more refreshed and revitalized through gentle massage techniques.",
+      },
+    ],
+    relatedSlugs: [
+      "saffron-face-cream-for-glowing-skin",
+      "buy-pure-aloe-vera-gel",
+      "natural-face-serum-for-dark-spots-india",
+      "ayurvedic-anti-aging-cream",
+      "revive-under-eye-corrector",
+    ],
+  },
+  {
+    // Same slug the shop, the body care page and the soap sets already used.
+    slug: "luxury-shea-butter-soap",
+    sku: "BB-BBC-SBCB-150",
+    categories: ["Body"],
+    weight: "150g",
+    tagline: "Gently exfoliates with natural scrubbing elements",
+    highlights: ["Moisturizes skin", "Softens texture", "Heals dryness", "Enhances glow"],
+    summary: "Treat yourself to the gentle touch of Luxury Shea Butter Soap",
+    // No reviews yet on the live site (the "Reviews (0)" tab).
+    rating: { value: 0, count: 0 },
+    // The two photos from the shop (500px versions) first, then the three supplied ones.
+    gallery: [
+      {
+        src: "/shea-butter-soap-2_01-1-500x669.jpg",
+        alt: "Bhumi Blend Luxury Shea Butter Soap, 150g box with a soap bar and shea nuts",
+      },
+      {
+        src: "/shea-butter-soap-2_02-3-500x668.jpg",
+        alt: "Bhumi Blend Luxury Shea Butter Cleansing Bar, crafted with pure, organic ingredients: the box and a soap bar beside shea nuts",
+      },
+      {
+        src: "/shea-butter-soap-2_03-1.jpg",
+        alt: "Benefits: 100% organic, deep hydration, soothes and repairs, gentle cleansing and an eco-friendly choice, with a woman washing her face in a bubble bath",
+      },
+      {
+        src: "/shea-butter-soap-2_04-3.jpg",
+        alt: "Ingredients: a Luxury Shea Butter Soap box and bar with coconut, coconut oil, olive oil, walnuts and shea butter",
+      },
+      {
+        src: "/shea-butter-soap-2_05-1.jpg",
+        alt: "Shea butter is a rich, natural moisturizer packed with vitamins A, E and F: a wooden bowl of shea butter on a green leaf background",
+      },
+    ],
+    whyChoose: [
+      "Inspired by Ayurvedic traditions",
+      "Made with plant-based ingredients",
+      "Gentle for daily use",
+      "Crafted for real results",
+    ],
+    description: [
+      "Treat your skin to the richness of Bhumi Blend Luxury Shea Butter Soap, a nourishing cleansing bar crafted to cleanse, moisturize, and pamper your skin with every wash. Enriched with the goodness of shea butter, this luxurious soap helps maintain the skin’s natural moisture balance while leaving it feeling soft, smooth, and refreshed.",
+      "Unlike ordinary soaps that can leave the skin feeling dry and tight, Luxury Shea Butter Soap creates a rich, creamy lather that gently removes dirt, excess oil, and daily impurities without stripping away essential moisture. The deeply nourishing properties of shea butter help support healthy-looking skin, making it an excellent choice for everyday skincare.",
+      "Designed for both face and body use, this soap transforms your daily bathing routine into a luxurious self-care experience. Its gentle cleansing action and moisturizing benefits make it especially suitable for those seeking softer, smoother, and more comfortable skin throughout the day.",
+    ],
+    // Coconut-Milk, Coconut-Oil, Triphala and Sandalwood are 228×152 (Manjatti_bb is
+    // 658×494); the cards crop them all to the same frame.
+    ingredients: [
+      {
+        name: "Coconut Milk",
+        origin: "Kerala Coconuts",
+        image: "/Coconut-Milk.jpg",
+        text: "Cold-pressed from the purest coconuts, coconut milk is a luxurious source of natural moisture that hydrates and softens even the driest skin. Its rich texture and high fat content help restore skin’s natural glow and promote a smooth, supple feel throughout the day.",
+      },
+      {
+        name: "Coconut Oil",
+        origin: "Kerala Coconuts",
+        image: "/Coconut-Oil.jpg",
+        text: "A powerhouse of fatty acids and antioxidants, this cold-pressed coconut oil is deeply nourishing. It helps to repair skin barriers, hydrate, and protect against environmental aggressors, keeping your skin soft, smooth, and moisturized.",
+      },
+      {
+        name: "Triphala",
+        origin: "Himalayan Blend Amla, Haritaki & Bibhitaki",
+        image: "/Triphala.jpg",
+        text: "This ancient Ayurvedic blend, consisting of Amla, Haritaki, and Bibhitaki, provides a natural detox, promoting healthier, radiant skin. Triphala is known for its ability to brighten skin tone, boost elasticity, and combat the effects of aging by reducing fine lines and improving texture.",
+      },
+      {
+        name: "Manjatti",
+        origin: "Wild Indian Madder",
+        image: "/Manjatti_bb.jpg",
+        text: "Renowned in Ayurvedic skincare, Manjatti (Indian Madder) enhances skin’s natural radiance by reducing pigmentation, evening out skin tone, and helping with skin regeneration. It provides a healthy glow, leaving the skin looking fresh and youthful.",
+      },
+      {
+        name: "Sandalwood",
+        origin: "Tamil Nadu Forests",
+        image: "/Sandalwood.jpg",
+        text: "A cherished ingredient in Ayurvedic beauty rituals, sandalwood has cooling, anti-inflammatory properties that help soothe irritation and reduce blemishes. Its natural ability to purify and balance skin tone makes it an ideal ingredient for enhancing your skin’s overall appearance while imparting a soft, earthy fragrance.",
+      },
+    ],
+    calmingLine: "Deeply moisturize and pamper your skin with 100% pure shea butter soap.",
+    trust: [
+      { image: "/1.png", label: "100% Natural Ingredients" },
+      { image: "/2 (1).png", label: "Organically Cultivated" },
+      { image: "/3 (1).png", label: "No Artificial Additives" },
+      { image: "/4 (1).png", label: "Cruelty-Free" },
+      { image: "/5.png", label: "Ayurvedic Formulation" },
+    ],
+    usage: {
+      eyebrow: "Bhumi Blend · Luxury Shea Butter Soap",
+      title: "How to use",
+      steps: [
+        { label: "Wet", text: "Wet your skin with water." },
+        {
+          label: "Lather",
+          text: "Work the soap into a rich lather between your hands or on a washcloth.",
+        },
+        {
+          label: "Massage",
+          text: "Gently massage onto the face and body using circular motions.",
+        },
+        { label: "Rinse", text: "Rinse thoroughly with water." },
+        { label: "Dry", text: "Pat dry and follow with a moisturizer if desired." },
+        { label: "Frequency", text: "Use daily for clean, soft, and refreshed skin." },
+      ],
+      tip: "For best results, apply a body lotion or moisturizer after bathing to help lock in hydration.",
+      suitableFor: {
+        title: "Who is this soap suitable for?",
+        intro:
+          "Bhumi Blend Luxury Shea Butter Soap is ideal for individuals looking for a moisturizing and nourishing cleansing experience.",
+        points: [
+          "Men and women of all ages",
+          "Dry, normal, and combination skin types",
+          "Individuals experiencing skin dryness or roughness",
+          "People looking for a moisturizing cleansing bar",
+          "Those who enjoy luxurious self-care routines",
+          "Anyone seeking soft and healthy-looking skin",
+        ],
+      },
+    },
+    faqs: [
+      {
+        question: "What is Bhumi Blend Luxury Shea Butter Soap used for?",
+        answer:
+          "This soap is designed to gently cleanse the skin while helping maintain moisture, softness, and overall skin comfort.",
+      },
+      {
+        question: "What makes shea butter beneficial for the skin?",
+        answer:
+          "Shea butter is known for its moisturizing and nourishing properties, helping keep the skin feeling soft, smooth, and hydrated.",
+      },
+      {
+        question: "Can I use this soap on both my face and body?",
+        answer:
+          "Yes. Bhumi Blend Luxury Shea Butter Soap is suitable for daily cleansing of both the face and body.",
+      },
+      {
+        question: "Is this soap suitable for dry skin?",
+        answer:
+          "Yes. The shea butter-enriched formula makes it particularly suitable for individuals with dry or dehydrated skin who want a more nourishing cleansing experience.",
+      },
+      {
+        question: "Can men and women both use this soap?",
+        answer:
+          "Absolutely. Bhumi Blend Luxury Shea Butter Soap is suitable for both men and women and can be used as part of a daily skincare routine.",
+      },
+    ],
+    relatedSlugs: [
+      "sacred-glow-sandalwood-soap",
+      "ayurvedic-clarifying-soap",
+      "best-organic-body-lotion-for-dry-skin",
+    ],
+  },
+  {
+    // Renamed from "nalpamaram-soap" at the user's request; the shop, body care
+    // page, kit contents and related lists all use this slug now. The product
+    // is still called "Nalpamaram Soap" (see products.ts).
+    slug: "ayurvedic-clarifying-soap",
+    sku: "BB-BBC-ACS-150",
+    categories: ["Body"],
+    weight: "150g",
+    tagline: "Experience Dual Care with Nalpamaram",
+    highlights: [
+      "Exfoliates Gently",
+      "Cleanses Smoothly",
+      "Removes Dead Skin Cells",
+      "Refreshes & Revitalizes Skin",
+    ],
+    summary: "Refresh your skin with our natural Ayurvedic Clarifying Soap",
+    // No reviews yet on the live site (the "Reviews (0)" tab).
+    rating: { value: 0, count: 0 },
+    // The two photos from the shop first, then the four supplied ones.
+    gallery: [
+      {
+        src: "/Naalpamaram-Soap-2_01-1-500x669.jpg",
+        alt: "Bhumi Blend Ayurvedic Clarifying Soap, 150g box with a red soap bar and sandalwood sticks",
+      },
+      {
+        src: "/soap_poster-500x500.webp",
+        // A square poster: shown whole, so the 3:4 frame does not cut its text.
+        fit: "contain",
+        alt: "Two sides, one perfect cleanse: an exfoliating side that buffs away dead skin cells and a smooth side that gives a nourishing cleanse, with a woman in a shower beside the soap",
+      },
+      {
+        src: "/Naalpamaram-Soap-2_02-2.jpg",
+        alt: "Bhumi Blend organic Nalpamaram Soap, made from a unique blend of organic herbs: a smiling woman in a white towel and hair wrap",
+      },
+      {
+        src: "/Naalpamaram-Soap-2_03-2.jpg",
+        alt: "Benefits: made with the finest premium natural elements, reduces skin irritation and redness, purifies the skin while maintaining moisture and keeps the skin soft, smooth and nourished",
+      },
+      {
+        src: "/Naalpamaram-Soap-2_04-2.jpg",
+        alt: "A revitalizing bathing experience with nature’s purest herbs: the Ayurvedic Clarifying Soap box and a textured red soap bar with coconut, amla and sandalwood",
+      },
+      {
+        src: "/Naalpamaram-Soap-2_05-2.jpg",
+        alt: "Main ingredients: coconut milk, coconut oil, triphala, manjatti and sandalwood, each with a short benefit, above green leaves",
+      },
+    ],
+    whyChoose: [
+      "Inspired by Ayurvedic traditions",
+      "Made with plant-based ingredients",
+      "Gentle for daily use",
+      "Crafted for real results",
+    ],
+    description: [
+      "Experience the benefits of traditional Ayurvedic skincare with Bhumi Blend Ayurvedic Clarifying Soap, a unique dual-action cleansing bar designed to cleanse, exfoliate, and refresh your skin in one simple step. Infused with the wisdom of Ayurveda and the goodness of Nalpamaram, this innovative soap features two distinct sides to elevate your daily skincare routine.",
+      "The textured side provides gentle exfoliation to help remove dead skin cells, surface buildup, and impurities, while the smooth side delivers effective cleansing to wash away dirt, excess oil, and everyday pollutants. Together, they help leave your skin feeling clean, refreshed, and revitalized after every use.",
+      "Unlike ordinary soaps that focus only on cleansing, Bhumi Blend Ayurvedic Clarifying Soap offers a complete skincare experience by combining exfoliation and cleansing in a single bar. Suitable for regular use, it helps promote smoother, healthier-looking skin while maintaining a fresh and comfortable feel.",
+    ],
+    // Coconut-Milk, Coconut-Oil and Triphala are 228×152; Manjatti_bb is 658×494.
+    ingredients: [
+      {
+        name: "Coconut Milk",
+        origin: "Kerala’s Coastal Regions",
+        image: "/Coconut-Milk.jpg",
+        text: "Sourced from the lush coconut groves along Kerala’s coastline, Coconut Milk is packed with natural fats and vitamins that deeply hydrate and nourish the skin. It helps to restore moisture, leaving the skin feeling soft, smooth, and glowing. The unique blend of nutrients promotes a healthy, youthful appearance, perfect for skin rejuvenation.",
+      },
+      {
+        name: "Coconut Oil",
+        origin: "Kerala’s Coastal Treasure",
+        image: "/Coconut-Oil.jpg",
+        text: "Extracted from the coastal coconuts of Kerala, Coconut Oil is rich in antibacterial and anti-inflammatory properties. It deeply moisturizes and supports collagen production, promoting a firm, youthful glow while protecting the skin from environmental stress and damage.",
+      },
+      {
+        name: "Triphala",
+        origin: "Kerala’s Herb Gardens",
+        image: "/Triphala.jpg",
+        text: "Grown in the fertile herb gardens of Kerala, Triphala combines three powerful fruits – Amla, Haritaki, and Bibhitaki – known for their detoxifying and rejuvenating properties. It gently exfoliates and helps to revitalize the skin, improving radiance and promoting an even skin tone.",
+      },
+      {
+        name: "Manjatti",
+        origin: "Wayanad’s Hills",
+        image: "/Manjatti_bb.jpg",
+        text: "While many skincare products use chemical lightening agents, we rely on Red Sandalwood (Pterocarpus santalinus), a rare and powerful Ayurvedic skin elixir found in the forest reserves of Palakkad and Idukki. It evens out skin tone, reduces pigmentation, and fights inflammation, restoring the natural brightness of the under-eye area.",
+      },
+    ],
+    calmingLine:
+      "Experience the age-old healing touch of Nalpamaram for pure, softer skin, 100% natural.",
+    trust: [
+      { image: "/1.png", label: "100% Natural Ingredients" },
+      { image: "/2 (1).png", label: "Organically Cultivated" },
+      { image: "/3 (1).png", label: "No Artificial Additives" },
+      { image: "/4 (1).png", label: "Cruelty-Free" },
+      { image: "/5.png", label: "Ayurvedic Formulation" },
+    ],
+    usage: {
+      eyebrow: "Bhumi Blend · Ayurvedic Clarifying Soap",
+      title: "How to use",
+      steps: [
+        { label: "Wet", text: "Wet your skin with water." },
+        {
+          label: "Exfoliate",
+          text: "Use the textured side of the soap to gently massage areas that may benefit from mild exfoliation. Apply light pressure and use circular motions.",
+        },
+        {
+          label: "Cleanse",
+          text: "Turn the soap and use the smooth side to create a rich lather for cleansing. Gently cleanse the face and body.",
+        },
+        { label: "Rinse", text: "Rinse thoroughly with water and pat dry." },
+      ],
+      tip: "Use the textured side gently and avoid excessive scrubbing, especially on sensitive skin areas.",
+      suitableFor: {
+        title: "Who is this soap suitable for?",
+        intro:
+          "Bhumi Blend Ayurvedic Clarifying Soap is ideal for individuals looking for a complete cleansing and exfoliating solution in one product.",
+        points: [
+          "Men and women of all ages",
+          "Normal, oily, and combination skin types",
+          "Individuals exposed to pollution and daily environmental stressors",
+          "People looking for gentle exfoliation and cleansing",
+          "Those interested in Ayurvedic skincare solutions",
+          "Anyone seeking smoother and fresher-looking skin",
+        ],
+      },
+    },
+    faqs: [
+      {
+        question: "What makes Bhumi Blend Ayurvedic Clarifying Soap different from regular soaps?",
+        answer:
+          "Unlike ordinary soaps, this dual-action soap features a textured side for gentle exfoliation and a smooth side for effective cleansing, providing two skincare benefits in one bar.",
+      },
+      {
+        question: "What is Nalpamaram and why is it used in this soap?",
+        answer:
+          "Nalpamaram is a traditional Ayurvedic ingredient valued for its role in skincare and is commonly used in Ayurvedic formulations that support healthy-looking skin.",
+      },
+      {
+        question: "Can I use this soap on both my face and body?",
+        answer:
+          "Yes. Bhumi Blend Ayurvedic Clarifying Soap is suitable for both face and body cleansing when used gently.",
+      },
+      {
+        question: "How often should I use the textured exfoliating side?",
+        answer:
+          "The textured side can be used regularly with gentle pressure as part of your cleansing routine. Avoid excessive scrubbing on sensitive skin.",
+      },
+      {
+        question: "Is this soap suitable for daily use?",
+        answer:
+          "Yes. The soap is designed for daily use and helps keep the skin clean, refreshed, and healthy-looking while providing gentle exfoliation and cleansing.",
+      },
+    ],
+    relatedSlugs: [
+      "sacred-glow-sandalwood-soap",
+      "luxury-shea-butter-soap",
+      "best-organic-body-lotion-for-dry-skin",
+    ],
+  },
+  {
+    // Renamed from "organic-rosemary-water" at the user's request; the shop, hair
+    // care page, combo contents and related lists all use this slug now. The
+    // product is still called "Organic Rosemary Water" (see products.ts).
+    slug: "ayurvedic-hair-tonic-for-hair-growth",
+    sku: "BB-HC-BHT-100",
+    categories: ["Hair"],
+    weight: "100ml",
+    tagline: "Revitalize, Refresh, Rejuvenate",
+    highlights: ["Stimulates hair growth", "Refreshes skin", "Balances oil", "Soothes scalp"],
+    summary: "Try our Ayurvedic Hair Tonic for Hair Growth for a new awakening",
+    // No reviews yet on the live site (the "Reviews (0)" tab).
+    rating: { value: 0, count: 0 },
+    // The two photos from the shop (500px versions) first, then the three supplied ones.
+    gallery: [
+      {
+        src: "/carousel-poster_01-2-500x669.jpg",
+        alt: "Bhumi Blend Botanical Hair Tonic, pure rosemary scalp spray, 100ml, with rosemary sprigs",
+      },
+      {
+        src: "/carousel-poster_02-1-500x669.jpg",
+        alt: "Benefits of using Botanical Hair Tonic: promotes hair growth, reduces dandruff, improves skin health, enhances mental clarity and is a natural antiseptic, with a woman with long dark wavy hair",
+      },
+      {
+        src: "/carousel-poster_03-1.jpg",
+        alt: "Direction to use: spray on the scalp, massage gently for 2–3 minutes and leave in, beside a bowl of rosemary",
+      },
+      {
+        src: "/carousel-poster_04-1.jpg",
+        alt: "Easy to use water spray technique: an advanced spray system, adjustable spray nozzle, leakproof design and a durable, lightweight bottle, shown with the Botanical Hair Tonic on a green podium",
+      },
+      {
+        src: "/carousel-poster_05-1.jpg",
+        alt: "How Botanical Hair Tonic helps with hair growth for men and women: it stimulates scalp circulation, promotes follicle health, reduces hair loss, balances scalp oils and fights dandruff and build-up",
+      },
+    ],
+    whyChoose: [
+      "Inspired by Ayurvedic traditions",
+      "Made with plant-based ingredients",
+      "Gentle for daily use",
+      "Crafted for real results",
+    ],
+    description: [
+      "Give your scalp the care it deserves with Bhumi Blend Ayurvedic Hair Tonic for Hair Growth, a lightweight botanical scalp spray designed to support stronger, healthier-looking hair. Infused with the goodness of Ayurvedic herbs and carefully selected botanical ingredients, this non-greasy formula helps nourish the scalp, strengthen hair roots, and create an environment that supports healthy hair growth.",
+      "Unlike traditional hair oils that can feel heavy and difficult to manage, this easy-to-use scalp tonic absorbs quickly without leaving behind an oily residue. The refreshing spray format allows for direct application to the scalp, making it convenient for daily use at home, work, or while traveling.",
+      "Formulated to support scalp health and hair vitality, Bhumi Blend Ayurvedic Hair Tonic helps refresh and revitalize the scalp while promoting stronger-looking, more manageable hair. Whether you are experiencing hair fall, dryness, or simply looking to improve your hair care routine, this botanical tonic offers a simple and effective solution inspired by traditional Ayurvedic wisdom.",
+    ],
+    // rosemary.jpg is 1100×734 (about 3:2), so the card shows it almost whole.
+    ingredients: [
+      {
+        name: "Rosemary",
+        origin: "Kerala Farms",
+        image: "/rosemary.jpg",
+        text: "Known for its antioxidant-rich properties, rosemary helps to revitalize the skin by improving circulation and promoting cell regeneration. It naturally balances oil production, making it ideal for both dry and oily skin types. Its refreshing and invigorating scent also provides a calming effect while enhancing the skin’s natural radiance.",
+      },
+    ],
+    calmingLine:
+      "Revitalize your scalp and hair with 100% pure rosemary water for natural, healthy hair.",
+    trust: [
+      { image: "/1.png", label: "100% Natural Ingredients" },
+      { image: "/2 (1).png", label: "Organically Cultivated" },
+      { image: "/3 (1).png", label: "No Artificial Additives" },
+      { image: "/4 (1).png", label: "Cruelty-Free" },
+      { image: "/5.png", label: "Ayurvedic Formulation" },
+    ],
+    usage: {
+      eyebrow: "Bhumi Blend · Ayurvedic Hair Tonic",
+      title: "How to use",
+      steps: [
+        { label: "Shake", text: "Shake the bottle gently before use." },
+        { label: "Part", text: "Part your hair into sections to expose the scalp." },
+        {
+          label: "Spray",
+          text: "Spray directly onto the scalp, focusing on areas that need extra care.",
+        },
+        {
+          label: "Massage",
+          text: "Gently massage using your fingertips for 2–3 minutes.",
+        },
+        {
+          label: "Leave on",
+          text: "Leave on and allow the tonic to absorb naturally. Do not rinse immediately after application.",
+        },
+        { label: "Frequency", text: "Use daily or as directed for best results." },
+      ],
+      tip: "Consistent application and scalp massage can help maximize the benefits of your hair care routine.",
+      suitableFor: {
+        title: "Who is this hair tonic suitable for?",
+        intro:
+          "Bhumi Blend Ayurvedic Rosemary Water is ideal for individuals looking to support scalp health and maintain stronger, healthier-looking hair.",
+        points: [
+          "Men and women of all ages",
+          "Individuals experiencing mild hair fall",
+          "Dry, stressed, or dehydrated scalps",
+          "Those looking for a non-oily scalp treatment",
+          "Individuals seeking Ayurvedic hair care solutions",
+          "People wanting a convenient daily scalp spray",
+        ],
+      },
+    },
+    faqs: [
+      {
+        question: "What is Bhumi Blend Rosemary Water used for?",
+        answer:
+          "This hair tonic is designed to help nourish the scalp, strengthen hair roots, and support healthier-looking hair growth as part of a regular hair care routine.",
+      },
+      {
+        question: "How is this Rosemary Water different from traditional hair oils?",
+        answer:
+          "Unlike traditional hair oils, this tonic comes in a lightweight spray format that absorbs quickly into the scalp without leaving a heavy or greasy residue.",
+      },
+      {
+        question: "Can I use this Rosemary Water every day?",
+        answer:
+          "Yes. The formula is designed for daily use and can be easily incorporated into your regular hair care routine.",
+      },
+      {
+        question: "Do I need to wash my hair after applying the Rosemary Water?",
+        answer:
+          "No. The tonic is a leave-in formula and does not need to be rinsed off immediately after application.",
+      },
+      {
+        question: "Is this Rosemary Water suitable for both men and women?",
+        answer:
+          "Yes. Bhumi Blend Ayurvedic Hair Tonic is suitable for both men and women looking to improve scalp care and support stronger, healthier-looking hair.",
+      },
+    ],
+    relatedSlugs: [
+      "pure-leaf-aloe-conditioner",
+      "aloe-pure-shampoo",
+      "best-ayurvedic-hair-oil",
+      "best-ayurvedic-shampoo-for-hair-fall",
+    ],
+  },
+  {
+    // Same slug the shop, the home page, the skin care page and the cards already used.
+    slug: "saffron-face-cream-for-glowing-skin",
+    sku: "BB-SKC-RESABG-100",
+    categories: ["Face", "Skin"],
+    weight: "100g",
+    tagline: "Glow naturally with the power of saffron",
+    highlights: ["Brightens complexion", "Evens skin tone", "Reduces pigmentation", "Hydrates skin"],
+    summary:
+      "Experience perfect and healthy skin every day with our Saffron Face Cream for Glowing Skin",
+    // No reviews yet on the live site (the "Reviews (0)" tab).
+    rating: { value: 0, count: 0 },
+    // The shop's two photos first, then the three supplied ones.
+    gallery: [
+      {
+        src: "/Sffron-Gel-2_01-1.jpg",
+        alt: "Bhumi Blend Radiance Elixir Saffron & Aloe Brightening Gel, 100g jar with a purple saffron flower",
+      },
+      {
+        src: "/Sffron-Gel-2_05-2.jpg",
+        alt: "The Radiance Elixir Saffron & Aloe Brightening Gel jar with saffron threads and a flower on a green leaf-pattern background",
+      },
+      {
+        src: "/Sffron-Gel-2_02-3.jpg",
+        alt: "Made with pure saffron: a woman with her eyes closed and her hands on her cheeks among purple saffron flowers. We use the finest Kashmiri saffron, so the gel deeply hydrates, evens skin tone and reduces dark spots",
+      },
+      {
+        src: "/Sffron-Gel-2_03-2.jpg",
+        alt: "Benefits of Saffron & Aloe Brightening Gel: enhances skin radiance, reduces dark spots and pigmentation, anti-aging properties, natural sun protection and ideal for all skin types",
+      },
+      {
+        src: "/Sffron-Gel-2_04-1.jpg",
+        alt: "Directions to use: step 1 cleanse your face and pat dry, step 2 take the required amount of the gel on to your palm, step 3 gently apply and massage the gel on the face and neck area",
+      },
+    ],
+    whyChoose: [
+      "Inspired by Ayurvedic traditions",
+      "Made with plant-based ingredients",
+      "Gentle for daily use",
+      "Crafted for real results",
+    ],
+    description: [
+      "The Radiance Elixir-Saffron & Aloe Brightening Gel from Bhumi Blend, an opulent Ayurvedic blend made in Kerala that will give your skin a youthful, natural glow. This saffron face cream for glowing skin, which is infused with pure Kashmiri saffron, fresh aloe vera, and nourishing botanicals, reduces signs of aging, brightens a dull complexion, and deeply hydrates. It is ideal for daily use in all seasons because of its lightweight gel texture, which absorbs quickly and leaves skin feeling soft, refreshed, and radiant. Discover the fusion of modern skincare and centuries-old Ayurveda in a jar.",
+    ],
+    // saffron-gel.jpg, Rubia.jpg, Aloe-Vera.jpg and Licorice.jpg are all 228×152.
+    ingredients: [
+      {
+        name: "Saffron – The Glow-Enhancing Elixir",
+        origin: "Kashmir & Idukki Highlands",
+        image: "/saffron-gel.jpg",
+        text: "Sourced from the pristine saffron fields of Kashmir and organically grown in Kerala’s Idukki Highlands, saffron (Kumkumadi) is packed with potent antioxidants, carotenoids, and Vitamin C, working together to enhance skin radiance, fade dark spots, and improve complexion. Unlike synthetic brightening agents, our pure saffron gently revives dull skin for a natural golden glow.",
+      },
+      {
+        name: "Rubia – The Ayurvedic Brightener",
+        origin: "Wayanad Highlands",
+        image: "/Rubia.jpg",
+        // The live page repeats the saffron paragraph here; kept as supplied.
+        text: "Sourced from the pristine saffron fields of Kashmir and organically grown in Kerala’s Idukki Highlands, saffron (Kumkumadi) is packed with potent antioxidants, carotenoids, and Vitamin C, working together to enhance skin radiance, fade dark spots, and improve complexion. Unlike synthetic brightening agents, our pure saffron gently revives dull skin for a natural golden glow.",
+      },
+      {
+        name: "Aloe Vera – The Ultimate Hydration Booster",
+        origin: "Malabar Coast",
+        image: "/Aloe-Vera.jpg",
+        text: "Bhumi Blend sources fresh, organic Aloe Vera from the coastal plantations of Malabar, where the climate and soil conditions produce the most nutrient-dense aloe leaves. Rich in polysaccharides, vitamins, and amino acids, this natural wonder deeply hydrates, soothes inflammation, and repairs damaged skin cells. Its lightweight, non-greasy texture allows for instant absorption, leaving your skin soft, plump, and refreshed.",
+      },
+      {
+        name: "Licorice – The Ayurvedic Brightening & Anti-Inflammatory Powerhouse",
+        origin: "Western Ghats",
+        image: "/Licorice.jpg",
+        text: "Sustainably harvested from the rich, biodiverse forests of the Western Ghats, Licorice (Yashtimadhu) is known for its natural skin-lightening, anti-inflammatory, and antioxidant properties. Unlike chemical-based skin brighteners, our pure licorice extract inhibits melanin production, fades pigmentation, evens out skin tone, and provides a natural luminosity without irritation. It also calms redness and soothes sensitive skin, making it ideal for all skin types.",
+      },
+    ],
+    calmingLine: "Illuminate your skin with the pure radiance of saffron, 100% pure for a natural glow.",
+    trust: [
+      { image: "/1.png", label: "100% Natural Ingredients" },
+      { image: "/2 (1).png", label: "Organically Cultivated" },
+      { image: "/3 (1).png", label: "No Artificial Additives" },
+      { image: "/4 (1).png", label: "Cruelty-Free" },
+      { image: "/5.png", label: "Ayurvedic Formulation" },
+    ],
+    usage: {
+      eyebrow: "Bhumi Blend · Saffron Face Cream",
+      title: "How to use",
+      steps: [
+        { label: "Cleanse", text: "Cleanse your face thoroughly and pat dry." },
+        { label: "Take", text: "Take a small amount of Bhumi Blend Saffron Face Cream." },
+        {
+          label: "Apply",
+          text: "Apply evenly to the face and neck using gentle upward strokes.",
+        },
+        { label: "Massage", text: "Massage until fully absorbed." },
+        {
+          label: "Frequency",
+          text: "Use twice daily, morning and evening, for best results.",
+        },
+      ],
+      suitableFor: {
+        title: "Who is this gel suitable for?",
+        intro: "Bhumi Blend Saffron Face Gel is suitable for:",
+        points: [
+          "Normal skin",
+          "Dry skin",
+          "Combination skin",
+          "Dull and tired-looking skin",
+          "Men and women seeking daily hydration and natural radiance",
+        ],
+        outro:
+          "Regular use can help maintain a fresh, nourished appearance while supporting a smoother and healthier-looking complexion.",
+      },
+    },
+    faqs: [
+      {
+        question: "Can I use this cream every day?",
+        answer:
+          "Yes. The formula is designed for daily use as part of your morning and evening skincare routine.",
+      },
+      {
+        question: "Is it suitable for all skin types?",
+        answer:
+          "The cream is generally suitable for normal, dry, and combination skin types. Those with sensitive skin should perform a patch test before use.",
+      },
+      {
+        question: "Does saffron help improve skin radiance?",
+        answer:
+          "Saffron has been traditionally used in Ayurvedic skincare for its brightening and rejuvenating properties and is valued for supporting a healthy, glowing appearance.",
+      },
+      {
+        question: "Can I apply makeup after using this cream?",
+        answer:
+          "Yes. The lightweight, fast-absorbing formula works well as a moisturizing base before makeup application.",
+      },
+    ],
+    relatedSlugs: [
+      "buy-pure-aloe-vera-gel",
+      "natural-face-serum-for-dark-spots-india",
+      "ayurvedic-anti-aging-cream",
+      "gua-sha-face-tool",
+      "revive-under-eye-corrector",
+    ],
+  },
+  {
+    // Renamed from "organic-under-eye-cream" at the user's request; the shop, face
+    // care page, kit contents and related lists all use this slug now. The product
+    // is still called "Organic Under Eye Cream" (see products.ts).
+    slug: "revive-under-eye-corrector",
+    sku: "BB-SKC-RUEC-100",
+    categories: ["All Products", "Face"],
+    // The live top section shows 50g; the usage block lists "100g, 50g".
+    weight: "50g",
+    tagline: "Brighten, nourish, and rejuvenate your eyes naturally",
+    highlights: ["Reduces puffiness", "Lightens dark circles", "Smoothens wrinkles"],
+    // The live page has no pitch line under the highlights, so `summary` is not set.
+    // No reviews yet on the live site (the "Reviews (0)" tab).
+    rating: { value: 0, count: 0 },
+    // The shop's two photos first (the full-size versions), then the three supplied ones.
+    gallery: [
+      {
+        src: "/Under-Eye-Cream-3_01-1.jpg",
+        alt: "Bhumi Blend Revive + Under Eye Corrector jar with green leaves and cucumber slices",
+      },
+      {
+        src: "/Under-Eye-Cream-3_02-2.jpg",
+        alt: "Before and after close-ups of an eye, showing a dark circle lightened under the eye",
+      },
+      {
+        src: "/Under-Eye-Cream-3_03-2-800x1069.jpg",
+        alt: "How to use: cleanse your skin gently, apply a small amount of cream under your eyes using your fingertip, massage with the gua sha tool gliding from the inner corner outward, and allow the cream to absorb for a few minutes",
+      },
+      {
+        src: "/Under-Eye-Cream-3_04-2.jpg",
+        alt: "Nature’s purest ingredients for your eyes: the Revive + Under Eye Corrector jar with a bowl of oil, a ylang ylang flower, cucumber slices and red sandalwood chips",
+      },
+      {
+        src: "/Under-Eye-Cream-3_05-2.jpg",
+        alt: "Natural ingredients: a woman in a towel headband with dabs of cream under her eyes. Made with organic, skin-friendly ingredients that are gentle on sensitive under-eye skin",
+      },
+    ],
+    whyChoose: [
+      "Inspired by Ayurvedic traditions",
+      "Made with plant-based ingredients",
+      "Gentle for daily use",
+      "Crafted for real results",
+    ],
+    description: [
+      "Refresh and rejuvenate the delicate skin around your eyes with Bhumi Blend Revive Under Eye Corrector. Specially formulated to provide targeted care for the under-eye area, this nourishing treatment helps improve the appearance of dark circles, puffiness, and tired-looking eyes while supporting a brighter and more refreshed look.",
+      "The skin around the eyes is thinner and more delicate than the rest of the face, making it more prone to dryness, fatigue, and early signs of aging. Bhumi Blend Revive Under Eye Corrector delivers essential hydration and nourishment to help keep the under-eye area feeling soft, smooth, and revitalized. Its lightweight formula absorbs easily without feeling heavy, making it suitable for both daytime and nighttime use.",
+      "With regular application, this under-eye corrector helps maintain a well-rested appearance and supports healthier-looking skin around the eyes. Whether you’re dealing with long work hours, lack of sleep, or everyday environmental stressors, Bhumi Blend Revive Under Eye Corrector is designed to be a simple yet effective addition to your daily skincare routine.",
+    ],
+    // Coconut-Oil, Cucumber-1, Sandalwood and Sesame-Oil are 228×152; Ylang-Ylang-Oil.jpg
+    // is a 456×304 crop of a flower and oil taken from the Under-Eye-Cream-3_04-2 gallery photo.
+    ingredients: [
+      {
+        name: "Coconut Oil",
+        origin: "Kerala Coconuts",
+        image: "/Coconut-Oil.jpg",
+        // The live page puts the Rubia cordifolia paragraph under this Coconut Oil
+        // heading; kept as supplied.
+        text: "Grown in the mineral-rich hills of Wayanad, Rubia cordifolia (Indian Madder) is known for its powerful skin-brightening properties. Unlike chemically-laden market alternatives, our wildcrafted Rubia gently reduces dark circles and pigmentation while promoting a natural glow, making it ideal for the delicate under-eye area.",
+      },
+      {
+        name: "Cucumber – Nature’s Cooling Therapy",
+        origin: "Kuttanad Backwaters",
+        image: "/Cucumber-1.jpg",
+        text: "Unlike many brands that use synthetic cooling agents, we rely on hand-harvested cucumbers from the nutrient-rich floating fields of Kuttanad. Packed with natural antioxidants and vitamins, our cucumber extract soothes puffiness, hydrates, and revitalizes tired eyes – without any artificial additives.",
+      },
+      {
+        name: "Ylang Ylang Oil – Aromatic Hydration",
+        origin: "Malabar Coast",
+        image: "/Ylang-Ylang-Oil.jpg",
+        text: "Most skincare brands use synthetic fragrance oils, but Bhumi Blend sources pure Ylang Ylang essential oil from the coastal gardens of Kannur and Kozhikode. Known for its deep hydrating and toning properties, this precious oil reduces fine lines, enhances skin elasticity, and adds a luxurious natural aroma to your skincare ritual.",
+      },
+      {
+        name: "Red Sandalwood – The Ancient Healer",
+        origin: "Western Ghats Forests",
+        image: "/Sandalwood.jpg",
+        text: "While many skincare products use chemical lightening agents, we rely on Red Sandalwood (Pterocarpus santalinus), a rare and powerful Ayurvedic skin elixir found in the forest reserves of Palakkad and Idukki. It evens out skin tone, reduces pigmentation, and fights inflammation, restoring the natural brightness of the under-eye area.",
+      },
+      {
+        name: "Sesame Oil – The Timeless Moisturizer",
+        origin: "Onattukara Fields",
+        image: "/Sesame-Oil.jpg",
+        text: "Many brands use refined, processed oils, stripping them of their nutrients. At Bhumi Blend, we cold-press sesame seeds from the Onattukara region to ensure the oil retains its full potency. Rich in antioxidants, vitamins, and deep hydration, our sesame oil reduces fine lines, nourishes delicate skin, and prevents premature aging—all naturally.",
+      },
+    ],
+    calmingLine:
+      "Refresh and rejuvenate tired eyes with our soothing under-eye cream, 100% pure and gentle.",
+    trust: [
+      { image: "/1.png", label: "100% Natural Ingredients" },
+      { image: "/2 (1).png", label: "Organically Cultivated" },
+      { image: "/3 (1).png", label: "No Artificial Additives" },
+      { image: "/4 (1).png", label: "Cruelty-Free" },
+      { image: "/5.png", label: "Ayurvedic Formulation" },
+    ],
+    usage: {
+      eyebrow: "Bhumi Blend · Revive Under Eye Corrector",
+      title: "How to use",
+      steps: [
+        { label: "Cleanse", text: "Cleanse your face thoroughly and pat dry." },
+        {
+          label: "Take",
+          text: "Take a small amount of Bhumi Blend Revive Under Eye Corrector on your fingertip.",
+        },
+        { label: "Apply", text: "Gently apply around the under-eye area." },
+        {
+          label: "Blend",
+          text: "Using your ring finger, lightly tap and blend the product until absorbed.",
+        },
+        { label: "Caution", text: "Avoid direct contact with the eyes." },
+        { label: "Frequency", text: "Use twice daily, morning and evening, for best results." },
+      ],
+      tip: "Apply using gentle tapping motions rather than rubbing to avoid unnecessary stress on the delicate under-eye skin.",
+      suitableFor: {
+        title: "Who is this under eye corrector suitable for?",
+        intro:
+          "Bhumi Blend Revive Under Eye Corrector is ideal for individuals looking to care for and refresh the delicate skin around their eyes.",
+        points: [
+          "Men and women of all ages",
+          "Individuals with dark circles or under-eye dullness",
+          "People experiencing mild under-eye puffiness",
+          "Those with dry or tired-looking under-eye skin",
+          "Individuals exposed to long screen time or stressful lifestyles",
+          "Anyone seeking daily under-eye hydration and care",
+        ],
+      },
+    },
+    faqs: [
+      {
+        question: "What is Bhumi Blend Revive Under Eye Corrector used for?",
+        answer:
+          "This under-eye corrector is designed to help improve the appearance of dark circles, puffiness, dryness, and tired-looking eyes while supporting a refreshed and healthy-looking eye area.",
+      },
+      {
+        question: "How often should I use the under-eye corrector?",
+        answer:
+          "For best results, apply twice daily, once in the morning and once before bedtime, as part of your skincare routine.",
+      },
+      {
+        question: "Can both men and women use this product?",
+        answer:
+          "Yes. Bhumi Blend Revive Under Eye Corrector is suitable for both men and women seeking healthier-looking under-eye skin.",
+      },
+      {
+        question: "Can I apply makeup after using the under-eye corrector?",
+        answer:
+          "Yes. Allow the product to absorb fully before applying makeup or concealer around the eye area.",
+      },
+      {
+        question: "Is this product suitable for daily use?",
+        answer:
+          "Yes. The lightweight and gentle formula is designed for regular daily use to help maintain a refreshed and well-cared-for appearance around the eyes.",
+      },
+    ],
+    relatedSlugs: [
+      "essential-skin-repair-range",
+      "ayurvedic-youth-revival-kit",
+      "brightening-clarifying-skin-care-range",
+      "bhumi-blend-organics-premium-combo-3-soap-set",
+      "summer-essentials-luxury-kit",
+      "ayurvedic-exfoliation-glow-kit",
+      "saffron-face-cream-for-glowing-skin",
+      "natural-face-serum-for-dark-spots-india",
+      "best-ayurvedic-hair-oil",
+      "ayurvedic-anti-aging-cream",
+    ],
+  },
+  {
+    // Same slug the shop, the hair care page and the cards already used.
+    slug: "pure-leaf-aloe-conditioner",
+    sku: "BBPLC100ALC",
+    categories: ["Hair"],
+    weight: "100 ml",
+    // The live page has no tagline or highlights, only the pitch under the size.
+    summary:
+      "Nourish and smooth your hair with the power of pure Aloe, plant-based care for stronger, softer, naturally radiant hair.",
+    // No reviews yet on the live site (the "Reviews (0)" tab).
+    rating: { value: 0, count: 0 },
+    // The shop's two photos first, then the five supplied ones in the order given.
+    gallery: [
+      {
+        src: "/pure-leaf-aloe-conditioner.webp",
+        alt: "Bhumi Blend Pure Leaf Aloe Conditioner, 100ml amber pump bottle",
+      },
+      {
+        src: "/conditioner-4.webp",
+        alt: "Other conditioners versus Bhumi Blend Aloe Conditioner: lightweight conditioning without heaviness, aloe-powered nourishment from root to tip, scalp balance and comfort, soft, smooth and manageable hair, gentle enough for everyday rituals",
+      },
+      {
+        src: "/conditioner-5.webp",
+        alt: "A ritual of aloe and botanicals: Bhumi Blend Aloe Conditioner brings together soothing aloe, nourishing plant oils and calming herbal essences. Clean, calm, naturally radiant, designed for everyday care",
+      },
+      {
+        src: "/conditioner-6.webp",
+        alt: "Bouncy hair, full of life: a woman with long, glossy black hair looking over her shoulder",
+      },
+      {
+        src: "/conditioner-1.webp",
+        alt: "Aloe nourishment, naturally balanced: Ayurveda-inspired conditioning for calm scalps and smooth, healthy hair, with a woman resting on a rolled towel beside an aloe leaf",
+      },
+      {
+        src: "/conditioner-2.webp",
+        alt: "Before and after: 10x more hydrated hair with no weigh down, shown on long wavy brown hair seen from behind",
+      },
+      {
+        src: "/conditioner-3.webp",
+        alt: "Pure nutrients, no plastic, no wax: a strand of black hair with green aloe droplets",
+      },
+    ],
+    whyChoose: [
+      "Inspired by Ayurvedic traditions",
+      "Made with plant-based ingredients",
+      "Gentle for daily use",
+      "Crafted for real results",
+    ],
+    description: [
+      "Give your hair the nourishment it needs with Bhumi Blend Pure Leaf Aloe Conditioner, a hydrating conditioner enriched with the goodness of Aloe Vera and botanical ingredients. Specially formulated to moisturize, soften, and smooth the hair, this lightweight conditioner helps improve manageability while leaving your hair feeling refreshed and healthy-looking.",
+      "Daily exposure to pollution, heat styling, and environmental stressors can leave hair feeling dry, rough, and difficult to manage. Pure Leaf Aloe Conditioner helps replenish moisture, reduce dryness, and support smoother, softer hair without weighing it down. The nourishing formula works to improve hair texture while helping maintain natural shine and vitality.",
+      "Designed for regular use, this conditioner complements your hair care routine by providing hydration and care after every wash. Whether your hair is dry, frizzy, color-treated, or simply in need of extra moisture, Bhumi Blend Pure Leaf Aloe Conditioner helps leave it feeling silky, manageable, and beautifully nourished.",
+    ],
+    // All four photos are 228×152, the size the ingredient cards show them at.
+    ingredients: [
+      {
+        name: "Aloe Extract",
+        origin: "Kerala Cultivation",
+        image: "/Aloe-Vera.jpg",
+        text: "Rich in vitamins and amino acids, aloe helps hydrate hair, soothe the scalp, and improve overall texture and shine.",
+      },
+      {
+        name: "Olive Oil",
+        image: "/Olive-Oil.jpg",
+        text: "A natural emollient packed with antioxidants and fatty acids that deeply nourishes, smooths frizz, and enhances softness.",
+      },
+      {
+        name: "Lavender Essential Oil",
+        image: "/Lavender-Oil.jpg",
+        text: "Traditionally valued for its calming properties, it supports scalp balance and adds a refreshing natural aroma.",
+      },
+      {
+        name: "Basil Essential Oil",
+        origin: "Tulsi",
+        image: "/basil.jpg",
+        text: "An Ayurvedic herb known for strengthening hair roots and supporting scalp health.",
+      },
+    ],
+    calmingLine:
+      "Cleanse and strengthen your hair with the power of pure Aloe, 100% plant-based and crafted for healthy scalp and lasting shine",
+    trust: [
+      { image: "/1.png", label: "100% Natural Ingredients" },
+      { image: "/2 (1).png", label: "Organically Cultivated" },
+      { image: "/3 (1).png", label: "No Artificial Additives" },
+      { image: "/4 (1).png", label: "Cruelty-Free" },
+      { image: "/5.png", label: "Ayurvedic Formulation" },
+    ],
+    usage: {
+      eyebrow: "Bhumi Blend · Pure Leaf Aloe Conditioner",
+      title: "How to use",
+      steps: [
+        { label: "Shampoo", text: "Wash your hair with shampoo and rinse thoroughly." },
+        {
+          label: "Apply",
+          text: "Apply an adequate amount of Bhumi Blend Pure Leaf Aloe Conditioner to damp hair.",
+        },
+        { label: "Focus", text: "Focus on the mid-lengths and ends of the hair." },
+        { label: "Leave on", text: "Leave on for 2–3 minutes." },
+        { label: "Rinse", text: "Rinse thoroughly with water." },
+        { label: "Frequency", text: "Use regularly after shampooing for best results." },
+      ],
+      tip: "For enhanced hair care results, pair with Bhumi Blend Aloe Pure Shampoo.",
+      suitableFor: {
+        title: "Who is this conditioner suitable for?",
+        intro:
+          "Bhumi Blend Pure Leaf Aloe Conditioner is ideal for individuals looking to improve hair softness, hydration, and manageability.",
+        points: [
+          "Men and women of all ages",
+          "Dry, frizzy, or rough hair",
+          "Normal and combination hair types",
+          "Chemically treated or color-treated hair",
+          "Individuals seeking lightweight hair hydration",
+          "Anyone looking for smoother and more manageable hair",
+        ],
+      },
+    },
+    faqs: [
+      {
+        question: "What is Bhumi Blend Pure Leaf Aloe Conditioner used for?",
+        answer:
+          "This conditioner is designed to help hydrate, soften, and smooth the hair while improving manageability and reducing dryness.",
+      },
+      {
+        question: "Can I use this conditioner every time I wash my hair?",
+        answer:
+          "Yes. The lightweight formula is suitable for regular use and can be applied after every shampoo wash.",
+      },
+      {
+        question: "Is this conditioner suitable for all hair types?",
+        answer:
+          "Yes. Bhumi Blend Pure Leaf Aloe Conditioner is suitable for all hair types, including dry, frizzy, normal, and chemically treated hair.",
+      },
+      {
+        question: "Will this conditioner make my hair feel heavy or greasy?",
+        answer:
+          "No. The lightweight formula helps nourish and hydrate the hair without weighing it down or leaving excessive residue.",
+      },
+      {
+        question: "Can both men and women use this conditioner?",
+        answer:
+          "Absolutely. Bhumi Blend Pure Leaf Aloe Conditioner is suitable for both men and women looking for softer, smoother, and healthier-looking hair.",
+      },
+    ],
+    relatedSlugs: [
+      "aloe-pure-shampoo",
+      "ayurvedic-hair-tonic-for-hair-growth",
+      "best-ayurvedic-hair-oil",
+      "best-ayurvedic-shampoo-for-hair-fall",
+    ],
+  },
+  {
+    // Renamed from "root-vitality-ayurvedic-shampoo" at the user's request; the shop,
+    // hair care page, Premium Combo Box contents and related lists all use this slug
+    // now. The product is still called "Root Vitality Ayurvedic Shampoo" (products.ts).
+    slug: "best-ayurvedic-shampoo-for-hair-fall",
+    sku: "BB-HC-AS-250",
+    categories: ["Hair"],
+    // The live top section shows 200ml; the usage block lists "450ml" and the SKU says 250.
+    weight: "200ml",
+    tagline: "Stronger roots, healthier hair naturally",
+    highlights: ["Strengthens roots", "Reduces hair fall", "Nourishes scalp", "Promotes growth"],
+    summary: "Revive your hair naturally with our Best Ayurvedic Shampoo for Hair Fall",
+    // No reviews yet on the live site (the "Reviews (0)" tab).
+    rating: { value: 0, count: 0 },
+    // The shop's two photos first, then the four supplied ones in the order given.
+    gallery: [
+      {
+        src: "/anti_hairfall_shampoo.jpg",
+        alt: "Bhumi Blend Root Vitality Ayurvedic Shampoo, 200ml pump bottle with herbs and a red hibiscus flower",
+      },
+      {
+        src: "/anti-hairfall-Shampoo_03.jpg",
+        alt: "Let nature restore your hair’s glory: a smiling woman with long dark wavy hair against a green leaf background",
+      },
+      {
+        src: "/anti-hairfall-Shampoo-03-800x1070.jpg",
+        alt: "Bhumi Blend Root Vitality Ayurvedic Shampoo strengthens roots, reduces hair fall, promotes growth and restores natural shine, shown with aloe, hibiscus and amla",
+      },
+      {
+        src: "/anti-hairfall-Shampoo_04.jpg",
+        alt: "How to use Organic Anti-Hairfall Shampoo: wet your hair thoroughly, apply shampoo to your scalp and roots, massage gently and lather, rinse thoroughly with water and use 2–3 times a week for best results",
+      },
+      {
+        src: "/anti-hairfall-Shampoo-05.jpg",
+        alt: "Benefits: strengthens hair roots, reduces hair fall, promotes hair growth, improves scalp health and is free from harsh chemicals, with the shampoo bottle among green leaves",
+      },
+      {
+        src: "/anti-hairfall-Shampoo-02.jpg",
+        alt: "Our promises for healthier, stronger hair: 100% natural and organic, cruelty-free, free from harmful chemicals and eco-conscious packaging and production, with the shampoo bottle and flying leaves",
+      },
+    ],
+    whyChoose: [
+      "Inspired by Ayurvedic traditions",
+      "Made with plant-based ingredients",
+      "Gentle for daily use",
+      "Crafted for real results",
+    ],
+    description: [
+      "Nourish your hair from the roots with Bhumi Blend Root Vitality Ayurvedic Shampoo, a herbal hair care solution inspired by the time-tested wisdom of Ayurveda. Specially formulated to cleanse the scalp while supporting stronger, healthier-looking hair, this shampoo helps remove dirt, excess oil, and buildup while providing essential care for the scalp and hair roots.",
+      "Designed for individuals experiencing hair fall, weak hair strands, or scalp stress, Root Vitality Ayurvedic Shampoo works to refresh and nourish the scalp while helping maintain healthy-looking hair. Its gentle cleansing action helps keep the scalp clean and balanced without leaving the hair feeling dry or stripped of its natural moisture.",
+      "Suitable for regular use, this Ayurvedic shampoo supports overall hair wellness by promoting a healthy scalp environment, improving hair manageability, and helping maintain stronger-looking hair from root to tip. Whether you’re looking to strengthen your existing hair care routine or embrace the benefits of Ayurvedic hair care, Root Vitality Ayurvedic Shampoo offers daily nourishment and care for both men and women.",
+    ],
+    keyBenefits: {
+      title: "Key Benefits",
+      points: [
+        "Strengthens roots and lessens hair loss",
+        "Helps naturally manage dandruff",
+        "Restores the natural shine and nourishes the scalp.",
+        "For all hair types, a mild, sulfate-free formula",
+        "Infused with pure Ayurvedic herbs from Kerala",
+      ],
+    },
+    philosophy: {
+      title: "Why Choose Root Vitality Ayurvedic Shampoo?",
+      paragraphs: [
+        "Root Vitality uses traditional Ayurvedic recipes to cleanse and nourish your scalp without being harsh, unlike chemical shampoos that strip it. Because it’s made in Kerala with only real herbs, your hair will receive natural care that shows results.",
+      ],
+    },
+    // All nine photos are small (228×152, except herbs-botanicals.webp at 1080×1080); the
+    // cards crop them to the same frame.
+    ingredients: [
+      {
+        name: "Bhringaraja",
+        origin: "Kerala Plains",
+        image: "/Bhringraj-.jpg",
+        text: "A powerful Ayurvedic herb, Bhringaraja is the ultimate natural hair tonic, known for its ability to strengthen roots, reduce hair fall, and promote thicker, healthier growth. Sourced from the fertile plains of Kerala, it is rich in essential nutrients and antioxidants that deeply nourish the scalp, prevent premature greying, and restore vitality to dull, damaged hair. This time-tested ingredient enhances scalp health, improves hair texture, and supports long-lasting hair wellness for naturally strong and beautiful locks.",
+      },
+      {
+        name: "Indigo",
+        origin: "Tamil Nadu Farms",
+        image: "/Indigo.jpg",
+        text: "A powerful natural herb known for its incredible hair-strengthening properties, Indigo helps prevent premature greying while enhancing overall scalp health. Sourced from the nutrient-rich farms of Tamil Nadu, this Ayurvedic ingredient nourishes hair follicles, strengthens roots, and promotes healthy hair growth. Its antimicrobial properties help soothe the scalp, reduce dandruff, and maintain a balanced scalp environment, making hair look and feel healthier, shinier, and more vibrant.",
+      },
+      {
+        name: "Curry Leaf",
+        origin: "South Indian Groves",
+        image: "/Curry-Leaf.jpg",
+        text: "A powerhouse of antioxidants, proteins, and essential nutrients, Curry Leaf is known for its ability to deeply nourish hair follicles, strengthen roots, and prevent thinning. Sourced from the lush groves of South India, this Ayurvedic ingredient stimulates hair growth, repairs damaged strands, and restores the scalp’s natural balance. Its rich vitamin and mineral content help boost shine, enhance hair texture, and reduce hair fall, leaving your hair healthier, stronger, and naturally lustrous.",
+      },
+      {
+        name: "Henna",
+        origin: "Rajasthan Fields",
+        image: "/Henna.jpg",
+        text: "A time-honored Ayurvedic remedy, Henna is a natural scalp cleanser and conditioner that promotes overall hair health. Sourced from the sun-kissed fields of Rajasthan, this nutrient-rich herb strengthens hair strands, reduces breakage, and adds volume for a fuller, healthier look. Henna’s natural conditioning properties deeply nourish the scalp, balance oil production, and enhance the hair’s natural color, leaving it silky, smooth, and vibrant.",
+      },
+      {
+        name: "Triphala",
+        origin: "Himalayan Valleys",
+        image: "/Triphala.jpg",
+        text: "A potent blend of Amla, Haritaki, and Bibhitaki, Triphala is a revered Ayurvedic ingredient that detoxifies the scalp, strengthens hair roots, and promotes healthy hair growth. Sourced from the pristine Himalayan valleys, this powerful trio works together to reduce dandruff, control excess oil, and soothe scalp irritation, creating the perfect foundation for stronger, shinier, and more resilient hair. Rich in antioxidants and essential nutrients, Triphala helps prevent hair thinning, enhances hair texture, and restores natural vitality.",
+      },
+      {
+        name: "Shikakai",
+        origin: "Western Ghats",
+        image: "/Shikakai-.jpg",
+        text: "A mild yet effective herbal cleanser, Shikakai is known for its gentle cleansing action that removes dirt and excess oil without stripping natural moisture. Sourced from the lush Western Ghats, this Ayurvedic powerhouse soothes the scalp, strengthens hair roots, and promotes a balanced, healthy scalp environment. Its rich vitamin and antioxidant content helps reduce dandruff, prevent hair breakage, and add natural softness and shine, leaving hair feeling silky, smooth, and nourished.",
+      },
+      {
+        name: "Brahmi",
+        origin: "Sacred Groves of India",
+        // No Brahmi photo exists in /public, so this card uses the general herbs photo.
+        image: "/herbs-botanicals.webp",
+        text: "A revered Ayurvedic herb, Brahmi is known for its cooling and rejuvenating properties that help combat stress-induced hair loss while strengthening roots. Sourced from the sacred groves of India, this nutrient-rich botanical nourishes the scalp, promotes thicker hair growth, and enhances overall hair health. Its calming effects help soothe irritation, reduce dandruff, and improve blood circulation, resulting in stronger, shinier, and more resilient hair with every wash.",
+      },
+      {
+        name: "Hibiscus Flower",
+        origin: "Kerala Gardens",
+        image: "/Hibiscus-Leaves-Flowers-.jpg",
+        text: "A deeply nourishing Ayurvedic herb, Hibiscus is rich in natural amino acids and antioxidants that stimulate hair growth, strengthen roots, and prevent breakage. Sourced from the vibrant gardens of Kerala, this floral powerhouse enhances blood circulation to the scalp, deeply conditions hair, and restores moisture balance. Its natural shine-boosting properties add luster, improve hair texture, and leave hair soft, smooth, and healthy with every wash.",
+      },
+      {
+        name: "Jatamansi",
+        origin: "Himalayan Slopes",
+        image: "/Jatamansi-.jpg",
+        text: "A highly revered Ayurvedic herb, Jatamansi is known for its powerful rejuvenating and hair-strengthening properties. Sourced from the pristine Himalayan slopes, this botanical wonder reduces hair fall, enhances scalp circulation, and deeply nourishes hair follicles. Its calming and stress-relieving effects help prevent stress-induced hair loss, promote healthy hair growth, and restore scalp balance. With regular use, Jatamansi leaves hair stronger, thicker, and more resilient, while adding a natural shine and softness.",
+      },
+    ],
+    calmingLine:
+      "Strengthen your roots and reduce hairfall with the power of nature’s best ingredients, 100% pure.",
+    trust: [
+      { image: "/1.png", label: "100% Natural Ingredients" },
+      { image: "/2 (1).png", label: "Organically Cultivated" },
+      { image: "/3 (1).png", label: "No Artificial Additives" },
+      { image: "/4 (1).png", label: "Cruelty-Free" },
+      { image: "/5.png", label: "Ayurvedic Formulation" },
+    ],
+    usage: {
+      eyebrow: "Bhumi Blend · Ayurvedic Shampoo for Hair Fall",
+      title: "How to use",
+      steps: [
+        { label: "Wet", text: "Wet your hair thoroughly with water." },
+        {
+          label: "Take",
+          text: "Take an adequate amount of Bhumi Blend Ayurvedic Shampoo into your palms.",
+        },
+        { label: "Apply", text: "Apply to the scalp and hair." },
+        {
+          label: "Massage",
+          text: "Gently massage using your fingertips to create a rich lather. Work through the lengths of your hair.",
+        },
+        { label: "Rinse", text: "Rinse thoroughly with water. Repeat if necessary." },
+        { label: "Follow up", text: "Follow with a conditioner or hair tonic for added care." },
+      ],
+      tip: "Regular use combined with a healthy hair care routine can help maintain stronger and healthier-looking hair.",
+      suitableFor: {
+        title: "Who is this shampoo suitable for?",
+        intro:
+          "Bhumi Blend Ayurvedic Shampoo for Hair Fall is ideal for individuals seeking gentle cleansing and scalp nourishment while supporting stronger-looking hair.",
+        points: [
+          "Men and women of all ages",
+          "Individuals experiencing mild hair fall",
+          "Weak, fragile, or thinning-looking hair",
+          "Dry, normal, and oily scalp types",
+          "Those seeking Ayurvedic hair care solutions",
+          "Individuals looking for daily scalp and hair care",
+        ],
+      },
+    },
+    faqs: [
+      {
+        question: "What is Bhumi Blend Ayurvedic Shampoo for Hair Fall used for?",
+        answer:
+          "This shampoo is designed to gently cleanse the scalp and hair while helping support stronger-looking hair and overall scalp health.",
+      },
+      {
+        question: "Can I use this shampoo every day?",
+        answer:
+          "Yes. The gentle formula is suitable for regular use and can be incorporated into your daily or frequent hair care routine.",
+      },
+      {
+        question: "Is this shampoo suitable for all hair types?",
+        answer:
+          "Yes. Bhumi Blend Ayurvedic Shampoo for Hair Fall is suitable for all hair types, including dry, oily, normal, and combination hair.",
+      },
+      {
+        question: "Can both men and women use this shampoo?",
+        answer:
+          "Absolutely. The shampoo is formulated for both men and women seeking healthier-looking hair and scalp care.",
+      },
+      {
+        question: "For best results, should I use other hair care products with this shampoo?",
+        answer:
+          "Yes. Pairing the shampoo with a conditioner, hair tonic, and a consistent hair care routine can help maximize overall hair health and manageability.",
+      },
+    ],
+    relatedSlugs: [
+      "pure-leaf-aloe-conditioner",
+      "aloe-pure-shampoo",
+      "ayurvedic-hair-tonic-for-hair-growth",
+      "best-ayurvedic-hair-oil",
+    ],
+  },
+  {
+    // Renamed from "sandalwood-soap" at the user's request; the shop, body care page,
+    // kit and combo contents and related lists all use this slug now. The product is
+    // still called "Sandalwood Soap" (see products.ts).
+    slug: "sacred-glow-sandalwood-soap",
+    sku: "BB-BBC-HS-150",
+    categories: ["Body"],
+    weight: "150g",
+    tagline: "Pure Indulgence, Timeless Glow",
+    highlights: ["Soothes skin", "Hydrates deeply", "Improves complexion", "Calms irritation"],
+    summary:
+      "Bhumi Blend’s Sacred Glow Sandalwood Soap leaves your skin fresh, calm, and beautiful",
+    // No reviews yet on the live site (the "Reviews (0)" tab).
+    rating: { value: 0, count: 0 },
+    // The shop's two photos first, then the two supplied ones.
+    gallery: [
+      {
+        src: "/Sandal-Soap-2_01-1.jpg",
+        alt: "Bhumi Blend Sacred Glow Sandalwood Soap, 150g box with an orange soap bar and sandalwood bark",
+      },
+      {
+        src: "/Sandal-Soap-2_02-2-1532x2048.jpg",
+        alt: "Sacred Glow Sandalwood: crafted with 100% natural and organic ingredients, a luxurious cleanse enriched with the calming, healing properties of sandalwood, shown with a smiling woman drying her face with a towel",
+      },
+      {
+        src: "/Sandal-Soap-2_03-2.jpg",
+        alt: "Benefits: made with natural, chemical-free ingredients, reduces skin irritation and redness, purifies without drying out the skin, keeps skin soft and moisturized, and the calming scent of sandalwood creates a peaceful experience",
+      },
+      {
+        src: "/Sandal-Soap-2_04-2.jpg",
+        alt: "Main ingredients: sandalwood extract, coconut oil, olive oil, palm oil and aloe vera, shown with the soap, an oil bottle, olives, a coconut and sandalwood bark",
+      },
+    ],
+    whyChoose: [
+      "Inspired by Ayurvedic traditions",
+      "Made with plant-based ingredients",
+      "Gentle for daily use",
+      "Crafted for real results",
+    ],
+    description: [
+      "Indulge in the timeless goodness of sandalwood with Bhumi Blend Sacred Glow Sandalwood Soap. Inspired by traditional Ayurvedic skincare practices, this luxurious cleansing bar is crafted to gently cleanse, refresh, and nourish the skin while helping maintain its natural softness and radiance.",
+      "Sandalwood has been treasured for centuries for its calming aroma and skin-loving properties. Combined with a carefully balanced cleansing formula, this soap helps remove dirt, excess oil, and everyday impurities without stripping the skin of its natural moisture. The rich lather leaves your skin feeling clean, refreshed, and revitalized after every wash.",
+      "Suitable for both face and body, Bhumi Blend Sacred Glow Sandalwood Soap transforms your daily bathing routine into a refreshing self-care experience. With its soothing fragrance and gentle cleansing action, it helps promote healthy-looking skin that feels soft, smooth, and naturally refreshed.",
+    ],
+    // Sandalwood, Coconut-Oil, Olive-Oil and Aloe-Vera are 228×152. Palm-Oil.jpg is a
+    // 456×304 crop of the oil bottle from the Sandal-Soap-2_04-2 gallery photo, since no
+    // palm oil photo exists.
+    ingredients: [
+      {
+        name: "Sandalwood",
+        origin: "Tamil Nadu Forests",
+        image: "/Sandalwood.jpg",
+        text: "Revered in Ayurveda, sandalwood deeply purifies, cools, and enhances skin tone. Its natural anti-inflammatory properties soothe irritation, reduce blemishes, and impart a lasting glow while leaving behind a rich, earthy fragrance.",
+      },
+      {
+        name: "Coconut Oil",
+        origin: "Kerala Coconuts",
+        image: "/Coconut-Oil.jpg",
+        text: "Cold-pressed from the finest Kerala coconuts, this nutrient-rich oil deeply moisturizes, repairs skin barriers, and protects against dryness. Unlike harsh chemical soaps, our coconut oil infusion retains skin’s natural hydration for a soft, supple feel.",
+      },
+      {
+        name: "Olive Oil",
+        origin: "Mediterranean Groves",
+        image: "/Olive-Oil.jpg",
+        text: "A powerhouse of vitamin E and polyphenols, olive oil nourishes, hydrates, and restores skin elasticity. It forms a protective layer against environmental damage while ensuring a smooth, youthful texture.",
+      },
+      {
+        name: "Palm Oil",
+        origin: "Sustainably Sourced, India",
+        image: "/Palm-Oil.jpg",
+        text: "Derived from ethically harvested palm fruit, this ingredient locks in moisture, gently cleanses, and improves skin texture. Rich in tocotrienols, it helps fight signs of premature aging and enhances skin smoothness.",
+      },
+      {
+        name: "Aloe Vera",
+        origin: "Thar Desert Farms",
+        image: "/Aloe-Vera.jpg",
+        text: "Freshly extracted aloe vera instantly soothes and cools the skin, making it ideal for sensitive and sun-exposed skin. Packed with natural enzymes and hydration boosters, it reduces redness, nourishes deeply, and promotes long-lasting freshness.",
+      },
+    ],
+    calmingLine: "Indulge in the calming aroma of sandalwood for refreshed, pure skin, 100% natural.",
+    trust: [
+      { image: "/1.png", label: "100% Natural Ingredients" },
+      { image: "/2 (1).png", label: "Organically Cultivated" },
+      { image: "/3 (1).png", label: "No Artificial Additives" },
+      { image: "/4 (1).png", label: "Cruelty-Free" },
+      { image: "/5.png", label: "Ayurvedic Formulation" },
+    ],
+    usage: {
+      eyebrow: "Bhumi Blend · Sacred Glow Sandalwood Soap",
+      title: "How to use",
+      steps: [
+        { label: "Wet", text: "Wet your face or body with water." },
+        { label: "Lather", text: "Work the soap into a rich lather between your hands." },
+        {
+          label: "Massage",
+          text: "Gently massage the lather onto the skin using circular motions.",
+        },
+        { label: "Rinse", text: "Rinse thoroughly with water." },
+        { label: "Dry", text: "Pat the skin dry and follow with a moisturizer if desired." },
+        { label: "Frequency", text: "Use daily for best results." },
+      ],
+      tip: "For a complete skincare routine, follow with your favorite Bhumi Blend serum, cream, or moisturizer.",
+      suitableFor: {
+        title: "Who is this soap suitable for?",
+        intro:
+          "Bhumi Blend Sacred Glow Sandalwood Soap is suitable for anyone seeking a gentle, refreshing, and naturally inspired cleansing experience.",
+        points: [
+          "Men and women of all ages",
+          "Normal, oily, dry, and combination skin types",
+          "Individuals looking for daily face and body cleansing",
+          "Those who enjoy traditional sandalwood skincare",
+          "People seeking a refreshing bathing experience",
+          "Individuals wanting soft and healthy-looking skin",
+        ],
+      },
+    },
+    faqs: [
+      {
+        question: "What is Bhumi Blend Sacred Glow Sandalwood Soap used for?",
+        answer:
+          "This soap is designed to gently cleanse the skin, remove impurities, and leave the skin feeling refreshed, soft, and healthy-looking.",
+      },
+      {
+        question: "Can I use this soap on my face and body?",
+        answer:
+          "Yes. The soap is suitable for both face and body cleansing as part of your daily skincare routine.",
+      },
+      {
+        question: "Is this soap suitable for everyday use?",
+        answer:
+          "Absolutely. The gentle cleansing formula makes it suitable for daily use by both men and women.",
+      },
+      {
+        question: "What makes sandalwood a popular skincare ingredient?",
+        answer:
+          "Sandalwood has been valued in traditional skincare for generations due to its soothing properties, refreshing aroma, and ability to support healthy-looking skin.",
+      },
+      {
+        question: "Is this soap suitable for all skin types?",
+        answer:
+          "Yes. Bhumi Blend Sacred Glow Sandalwood Soap is generally suitable for normal, oily, dry, and combination skin types. Those with highly sensitive skin should perform a patch test before regular use.",
+      },
+    ],
+    relatedSlugs: [
+      "luxury-shea-butter-soap",
+      "ayurvedic-clarifying-soap",
+      "best-organic-body-lotion-for-dry-skin",
+    ],
+  },
+  {
+    // Same slug the shop, the combo page and the related lists already used.
+    slug: "summer-essentials-luxury-kit",
+    // The live page shows no SKU and no size for this kit, so neither is set.
+    categories: ["All Products", "Combo"],
+    offer: {
+      headline: "🎁 Limited-Time Offer: Get 20% OFF",
+      detail: "Use Code: BHUMISUMMER10 at checkout.",
+      code: "BHUMISUMMER10",
+    },
+    summary:
+      "✨ Feel the luxury of nature. Stay fresh, nourished, and glowing all summer long.",
+    // The three products in the kit, in the live page's order.
+    bundle: [
+      { slug: "ayurvedic-hair-tonic-for-hair-growth", quantity: 1 },
+      { slug: "buy-pure-aloe-vera-gel", quantity: 1 },
+      { slug: "natural-face-serum-for-dark-spots-india", quantity: 1 },
+    ],
+    // No reviews yet on the live site (the "Reviews (0)" tab).
+    rating: { value: 0, count: 0 },
+    // Only one photo exists for this kit (the shop shows it on hover too), so there is
+    // no thumbnail row. It is only 500px wide.
+    gallery: [
+      {
+        src: "/Summer-Essentials-Luxury-Kit-500x669.jpg",
+        alt: "Bhumi Blend Summer Essentials Luxury Kit: Botanical Hair Tonic, Vitamin C Face Serum and Pure Aloe Healing Gel",
+      },
+    ],
+    whyChoose: [
+      "Inspired by Ayurvedic traditions",
+      "Made with plant-based ingredients",
+      "Gentle for daily use",
+      "Crafted for real results",
+    ],
+    description: [
+      "Stay refreshed, hydrated, and radiant all summer long with the Bhumi Blend Summer Essentials Luxury Kit. Thoughtfully curated to provide lightweight hydration and daily skin nourishment, this seasonal skincare trio features Organic Rosemary Water, Original Aloe Vera Gel with Jasmine, and Vitamin C Face Serum – three essential products designed to help your skin feel revitalized, comfortable, and glowing.",
+      "The Organic Rosemary Water acts as a refreshing facial mist that helps invigorate the skin throughout the day while providing a cooling and refreshing experience. The Vitamin C Face Serum helps support a brighter and more radiant-looking complexion, while the Original Aloe Vera Gel with Jasmine delivers soothing hydration using real aloe vera infused with the refreshing essence of jasmine.",
+      "Together, these products create a simple yet effective skincare routine perfect for warm weather, helping maintain skin hydration, freshness, and a healthy-looking glow without feeling heavy or greasy. Whether you’re spending time outdoors, traveling, or simply looking for lightweight daily skincare, the Summer Essentials Luxury Kit provides everything you need to keep your skin refreshed and nourished.",
+    ],
+    descriptionImage: {
+      src: "/Web-image-7-1536x658.jpg",
+      alt: "Vitamin C Face Serum, Botanical Hair Tonic and Pure Aloe Healing Gel on a sunlit marble surface beside rosemary, a daisy and an aloe slice",
+    },
+    // A kit has no ingredient cards, organic line or badges on the live page.
+    ingredients: [],
+    usage: {
+      eyebrow: "Bhumi Blend · Summer Essentials Luxury Kit",
+      title: "How to use",
+      steps: [
+        {
+          label: "Refresh with Organic Rosemary Water",
+          text: "Spray Organic Rosemary Water onto clean skin or whenever your skin needs a refreshing boost. Allow it to absorb naturally.",
+        },
+        {
+          label: "Apply Vitamin C Face Serum",
+          text: "Take 2–3 drops of Vitamin C Face Serum and gently apply to the face and neck. Massage until fully absorbed.",
+        },
+        {
+          label: "Hydrate with Aloe Vera Gel",
+          text: "Apply a thin layer of Original Aloe Vera Gel with Jasmine to lock in hydration and leave the skin feeling refreshed, soothed, and nourished.",
+        },
+      ],
+      tipLabel: "Daily routine",
+      tip: "Use the complete routine every morning and evening. Organic Rosemary Water can also be used throughout the day as a refreshing facial mist whenever needed.",
+    },
+    faqs: [
+      {
+        question: "What products are included in the Summer Essentials Luxury Kit?",
+        answer:
+          "The kit includes Organic Rosemary Water, Original Aloe Vera Gel with Jasmine, and Vitamin C Face Serum.",
+      },
+      {
+        question: "Why is this kit ideal for summer skincare?",
+        answer:
+          "The products are lightweight, refreshing, and hydrating, helping keep the skin comfortable and nourished during warmer weather without feeling heavy.",
+      },
+      {
+        question: "Can I use Organic Rosemary Water throughout the day?",
+        answer:
+          "Yes. Organic Rosemary Water can be used as a refreshing facial mist whenever your skin needs a cooling or revitalizing boost.",
+      },
+      {
+        question: "Is the Aloe Vera Gel made with real aloe vera?",
+        answer:
+          "Yes. Bhumi Blend Original Aloe Vera Gel is formulated with real aloe vera and enriched with jasmine for a refreshing and nourishing skincare experience.",
+      },
+      {
+        question: "Can I use all three products every day?",
+        answer:
+          "Absolutely. The products are designed to work together as a daily skincare routine to help maintain hydrated, refreshed, and healthy-looking skin.",
+      },
+    ],
+    relatedSlugs: [
+      "essential-skin-repair-range",
+      "ayurvedic-youth-revival-kit",
+      "brightening-clarifying-skin-care-range",
+      "aloe-pure-shampoo",
+      "bhumi-blend-organics-premium-combo-6-soap-set",
+      "bhumi-blend-organics-premium-combo-3-soap-set",
+      "ayurvedic-exfoliation-glow-kit",
+      "bhumi-blend-premium-combo-box",
+      "bhumi-blend-starter-combo-box",
+      "revive-under-eye-corrector",
+    ],
+  },
+  {
+    // Same slug the shop, the home page, the skin care page and the kits already used.
+    slug: "natural-face-serum-for-dark-spots-india",
+    sku: "BB-SKC-PGVC-30",
+    categories: ["Face", "Skin"],
+    weight: "30ml",
+    tagline: "Brighten, Revitalize, Glow",
+    highlights: ["Brightens skin", "Reduces dark spots", "Boosts collagen", "Evens tone"],
+    summary:
+      "Use the best Natural Face Serum For Dark Spots to reveal your skin’s glow",
+    // No reviews yet on the live site (the "Reviews (0)" tab).
+    rating: { value: 0, count: 0 },
+    // The shop's two photos first (the full-size versions), then the four supplied ones.
+    gallery: [
+      {
+        src: "/face-serum-2_01.jpg",
+        alt: "Bhumi Blend Vitamin C Face Serum, 30ml dropper bottle with plums and chamomile flowers",
+      },
+      {
+        src: "/face-serum-2_03-1.jpg",
+        alt: "100% clean beauty, pure goodness, zero nasties: a woman applying serum from a dropper to her cheek among chamomile flowers",
+      },
+      {
+        src: "/face-serum-2_02-800x1069.jpg",
+        alt: "Why choose Bhumi Blend Vitamin C Serum? Powerful brightening, hydrates and plumps, reduces fine lines and wrinkles, protects against environmental damage and 100% clean beauty",
+      },
+      {
+        src: "/face-serum-2_04.jpg",
+        alt: "How to use: apply drops to clean, dry skin, massage gently in upward motions, follow with moisturizer for locked-in hydration, finish with sunscreen for daytime protection and use daily for a radiant, even-toned glow",
+      },
+      {
+        src: "/face-serum-2_05-1.jpg",
+        alt: "Glow daily, naturally with Bhumi Blend Vitamin C Serum: nature’s bright secret, glow with Billy Goat Plum and Chamomile, perfect for all skin types, shown with the dropper bottle, a halved plum and chamomile flowers",
+      },
+      {
+        src: "/face-serum-2_06.jpg",
+        alt: "Bhumi Blend Vitamin C Serum: a powerful blend of nature and science designed to brighten, hydrate and protect your skin, formulated with 3-O-Ethyl Ascorbic Acid and hand-picked botanical extracts",
+      },
+    ],
+    whyChoose: [
+      "Inspired by Ayurvedic traditions",
+      "Made with plant-based ingredients",
+      "Gentle for daily use",
+      "Crafted for real results",
+    ],
+    description: [
+      "Bhumi Blend Vitamin C Face Serum is a lightweight organic Ayurvedic formula enriched with Vitamin C, Billy Goat Plum, Chamomile Flower, and botanical extracts inspired by Kerala’s natural beauty traditions.",
+      "This fast-absorbing, non-sticky serum helps brighten dull skin, reduce the appearance of dark spots, improve skin radiance, and provide deep hydration. Its gentle chemical-free formula supports an even-looking skin tone while leaving skin soft, smooth, refreshed, and naturally glowing. Suitable for daily use and all skin types, this organic face serum is crafted without harsh chemicals, making it a healthier choice for a radiant skincare routine.",
+    ],
+    // The live page has these five points under the description with no heading, then a
+    // closing paragraph about Vitamin C.
+    keyBenefits: {
+      points: [
+        "Fades Dark Spots: Helps visibly reduce pigmentation and blemishes.",
+        "Brightens Skin: Encourages a balanced, radiant complexion.",
+        "Prevents Damage: Combats Free Radicals and Early Indications.",
+        "Lightweight & Non-Greasy: Absorbs quickly without clogging pores.",
+        "Deeply Hydrates: Preserves moisture for smooth, silky skin.",
+      ],
+      outro:
+        "A vital component of healthy skin is vitamin C. It keeps your complexion looking young, promotes the production of collagen, and shields your skin from everyday harm in addition to brightening. Modern science and traditional Ayurvedic knowledge are combined in Bhumi Blend serum to provide you with noticeable results without the use of harsh chemicals.",
+    },
+    // Both photos are 228×152, the size the ingredient cards show them at.
+    ingredients: [
+      {
+        name: "Billy Goat Plum",
+        origin: "Australian Native",
+        image: "/Billy-Goat-Plum.jpg",
+        text: "A powerful antioxidant rich in vitamin C, this exotic fruit helps to brighten the complexion, reduce pigmentation, and protect the skin from environmental stressors. It promotes a natural, healthy glow while fighting the signs of aging.",
+      },
+      {
+        name: "Chamomile Flower",
+        origin: "Kerala Herb Gardens",
+        image: "/Chamomile-Flower.jpg",
+        text: "Known for its soothing and anti-inflammatory properties, chamomile helps to calm irritated skin, reduce redness, and promote even skin tone. Its antioxidant-rich nature also helps in moisturizing and revitalizing the skin.",
+      },
+    ],
+    calmingLine:
+      "Brighten and nourish your skin with the power of Vitamin C, 100% pure and effective for a radiant glow.",
+    trust: [
+      { image: "/1.png", label: "100% Natural Ingredients" },
+      { image: "/2 (1).png", label: "Organically Cultivated" },
+      { image: "/3 (1).png", label: "No Artificial Additives" },
+      { image: "/4 (1).png", label: "Cruelty-Free" },
+      { image: "/5.png", label: "Ayurvedic Formulation" },
+    ],
+    usage: {
+      eyebrow: "Bhumi Blend · Vitamin C Face Serum",
+      title: "How to use",
+      steps: [
+        { label: "Cleanse", text: "Cleanse your face thoroughly and pat dry." },
+        { label: "Apply", text: "Take 2–3 drops of the serum onto your fingertips." },
+        {
+          label: "Massage",
+          text: "Gently apply the serum to your face and neck. Massage in upward circular motions until fully absorbed.",
+        },
+        {
+          label: "Wait",
+          text: "Allow the serum to absorb for 1–2 minutes before applying moisturizer.",
+        },
+        {
+          label: "Protect",
+          text: "Follow with sunscreen during the daytime for optimal skincare protection.",
+        },
+        { label: "Frequency", text: "Use twice daily, morning and evening, for best results." },
+      ],
+      tipLabel: "Pro tip",
+      tip: "Consistent use as part of your daily skincare routine can help improve the appearance of dull and uneven-looking skin.",
+      suitableFor: {
+        title: "Who is this serum for?",
+        intro:
+          "Bhumi Blend Natural Face Serum for Dark Spots is suitable for individuals who want to enhance their skin's natural radiance and achieve a more even-looking complexion.",
+        points: [
+          "People with dark spots and uneven-looking skin tone",
+          "Individuals experiencing dull or tired-looking skin",
+          "Those seeking a lightweight daily skincare solution",
+          "Men and women of all ages",
+          "Normal, oily, dry, and combination skin types",
+          "Anyone looking to support smoother, healthier-looking skin",
+        ],
+      },
+    },
+    faqs: [
+      {
+        question: "What is Bhumi Blend Natural Face Serum for Dark Spots used for?",
+        answer:
+          "This serum is designed to help improve the appearance of dark spots, uneven skin tone, and dull-looking skin while promoting a brighter and healthier-looking complexion.",
+      },
+      {
+        question: "How do I use the serum?",
+        answer:
+          "Apply 2–3 drops to clean, dry skin and gently massage into the face and neck until absorbed. Follow with a moisturizer and sunscreen during the day.",
+      },
+      {
+        question: "Is this serum suitable for all skin types?",
+        answer:
+          "Yes, the lightweight formula is suitable for normal, oily, dry, and combination skin types. A patch test is recommended for sensitive skin.",
+      },
+      {
+        question: "Can I use this serum every day?",
+        answer:
+          "Yes. For best results, use the serum twice daily, once in the morning and once at night, as part of your regular skincare routine.",
+      },
+      {
+        question: "Can men and women both use this serum?",
+        answer:
+          "Absolutely. Bhumi Blend Natural Face Serum for Dark Spots is suitable for both men and women looking to achieve smoother, brighter, and more radiant-looking skin.",
+      },
+    ],
+    relatedSlugs: [
+      "saffron-face-cream-for-glowing-skin",
+      "buy-pure-aloe-vera-gel",
+      "ayurvedic-anti-aging-cream",
+      "gua-sha-face-tool",
+      "revive-under-eye-corrector",
     ],
   },
 ];
