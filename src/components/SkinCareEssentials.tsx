@@ -46,18 +46,20 @@ function Sprig({ className }: { className: string }) {
   );
 }
 
-function EssentialCard({ product, index }: { product: Product; index: number }) {
+function EssentialCard({ product }: { product: Product }) {
   const { slug, name, image, hoverImage, price, regularPrice, rating } = product;
   const href = `/product/${slug}`;
   const onOffer = regularPrice !== undefined && regularPrice > price;
   const percentOff = onOffer ? Math.round((1 - price / regularPrice) * 100) : 0;
 
   return (
-    // Double gold frame: the card ring plus a finer line inset in the padding.
-    <article className="group relative flex h-full flex-col rounded-[6px] bg-white p-3 shadow-[0_26px_50px_-32px_rgba(120,85,20,0.55)] ring-1 ring-[#C89B3C]/30 transition-[transform,box-shadow] duration-500 ease-out before:pointer-events-none before:absolute before:inset-[5px] before:rounded-[3px] before:border before:border-[#C89B3C]/25 before:transition-colors before:duration-500 focus-within:ring-[#C89B3C] sm:p-3.5 [@media(hover:hover)]:hover:-translate-y-1.5 [@media(hover:hover)]:hover:shadow-[0_40px_70px_-30px_rgba(200,155,60,0.65)] [@media(hover:hover)]:hover:ring-[#C89B3C]/80 [@media(hover:hover)]:hover:before:border-[#C89B3C]/60">
+    // A classic boxed card: one thin gold-tinted border, the photo running edge
+    // to edge across the top, the details centred below.
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-[16px] bg-white shadow-[0_26px_50px_-32px_rgba(120,85,20,0.55)] ring-1 ring-[#C89B3C]/35 transition-[transform,box-shadow] duration-500 ease-out focus-within:ring-[#C89B3C] [@media(hover:hover)]:hover:-translate-y-1.5 [@media(hover:hover)]:hover:shadow-[0_40px_70px_-30px_rgba(200,155,60,0.65)] [@media(hover:hover)]:hover:ring-[#C89B3C]/80">
       {/* Photo. On hover (or keyboard focus) the lifestyle photo wipes up over
-          the product shot like a curtain. Touch screens keep the product shot. */}
-      <div className="relative aspect-[3/4] overflow-hidden rounded-[3px] bg-[#fbf6e9]">
+          the product shot like a curtain. Touch screens keep the product shot.
+          The hairline under it turns a stronger gold on hover. */}
+      <div className="relative aspect-[3/4] overflow-hidden border-b border-[#C89B3C]/25 bg-[#fbf6e9] transition-colors duration-500 group-hover:border-[#C89B3C]/80">
         <Link href={href} tabIndex={-1} aria-hidden="true" className="absolute inset-0 block">
           <Image
             src={image}
@@ -87,70 +89,63 @@ function EssentialCard({ product, index }: { product: Product; index: number }) 
         <WishlistButton slug={slug} productName={name} />
       </div>
 
-      <div className="flex flex-1 flex-col px-1.5 pt-4 pb-1.5 sm:px-2">
-        {/* Index number with a hairline that turns gold on hover. */}
-        <div aria-hidden="true" className="flex items-center gap-3">
-          <span className="font-sans text-[11px] font-semibold tracking-[0.3em] text-[#C89B3C]">
-            {String(index + 1).padStart(2, "0")}
-          </span>
-          <span className="h-px flex-1 bg-[#C89B3C]/25 transition-colors duration-500 group-hover:bg-[#C89B3C]/80" />
-        </div>
-
-        <div className="mt-3 flex flex-1 flex-col">
-          <h3 className="font-serif text-[16px] leading-snug text-[#222] sm:text-[18px] lg:text-[21px]">
-            <Link
-              href={href}
-              className="outline-none after:absolute after:inset-0 after:content-[''] focus-visible:underline focus-visible:decoration-[#C89B3C] focus-visible:underline-offset-4"
-            >
-              {name}
-            </Link>
-          </h3>
-          {rating !== undefined && <Stars rating={rating} />}
-
-          {/* Price on the left, cart button on the right; pinned to the bottom
-              so prices line up across a row even when names wrap. */}
-          <div className="mt-auto flex items-end justify-between gap-2 pt-2.5">
-            <p className="flex min-w-0 flex-wrap items-baseline gap-x-2.5 font-sans text-[14px] sm:text-[15px]">
-              {onOffer ? (
-                <>
-                  <del className="text-[#9b9b9b]">
-                    <span className="sr-only">Original price was </span>
-                    {rupees.format(regularPrice)}
-                  </del>
-                  <ins className="font-semibold text-brand-gold-dark no-underline">
-                    <span className="sr-only">Current price is </span>
-                    {rupees.format(price)}
-                  </ins>
-                </>
-              ) : (
-                <span className="font-semibold text-brand-gold-dark">
-                  {rupees.format(price)}
-                </span>
-              )}
-            </p>
-
-            {/* Sits above the stretched card link so it stays clickable. */}
-            <AddToCartButton
-              slug={slug}
-              productName={name}
-              className="relative z-10 grid h-10 w-10 shrink-0 place-items-center rounded-full border border-[#C89B3C]/70 text-brand-gold-dark transition-[background-color,color,transform] duration-300 hover:bg-brand-gold hover:text-white active:scale-95 sm:h-11 sm:w-11"
-            >
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 24 24"
-                className="h-[22px] w-[22px] fill-none stroke-current"
-                strokeWidth="1.7"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                {/* Shopping cart (same glyph as the header's cart). The old
-                    shopping-bag shape read as a bin at this size. */}
-                <path d="M3 4h2.2l2.1 10.2a1.5 1.5 0 0 0 1.5 1.2h8.1a1.5 1.5 0 0 0 1.5-1.1L20 8H6.2" />
-                <circle cx="9.5" cy="19.5" r="1.3" />
-                <circle cx="17" cy="19.5" r="1.3" />
-              </svg>
-            </AddToCartButton>
+      <div className="flex flex-1 flex-col items-center px-3 pt-4 pb-4 text-center sm:px-5 sm:pt-5 sm:pb-5">
+        <h3 className="font-serif text-[16px] leading-snug text-[#222] sm:text-[18px] lg:text-[21px]">
+          <Link
+            href={href}
+            className="outline-none after:absolute after:inset-0 after:content-[''] focus-visible:underline focus-visible:decoration-[#C89B3C] focus-visible:underline-offset-4"
+          >
+            {name}
+          </Link>
+        </h3>
+        {rating !== undefined && (
+          <div className="flex justify-center">
+            <Stars rating={rating} />
           </div>
+        )}
+
+        <p className="mt-2 flex min-w-0 flex-wrap items-baseline justify-center gap-x-2 font-sans text-[13px] sm:gap-x-2.5 sm:text-[15px]">
+          {onOffer ? (
+            <>
+              <del className="text-[#9b9b9b]">
+                <span className="sr-only">Original price was </span>
+                {rupees.format(regularPrice)}
+              </del>
+              <ins className="text-[16px] font-semibold text-brand-gold-dark no-underline sm:text-[19px]">
+                <span className="sr-only">Current price is </span>
+                {rupees.format(price)}
+              </ins>
+            </>
+          ) : (
+            <span className="text-[16px] font-semibold text-brand-gold-dark sm:text-[19px]">
+              {rupees.format(price)}
+            </span>
+          )}
+        </p>
+
+        {/* Pinned to the bottom so the buttons line up across a row; it sits
+            above the stretched card link so it stays clickable. */}
+        <div className="mt-auto w-full pt-4">
+          <AddToCartButton
+            slug={slug}
+            productName={name}
+            className="relative z-10 flex w-full items-center justify-center gap-2 rounded-[8px] bg-brand-gold px-3 py-2.5 font-sans text-[11px] font-bold tracking-[0.14em] whitespace-nowrap text-white uppercase transition-[background-color,transform] duration-300 hover:bg-brand-gold-dark active:scale-[0.98] sm:py-3 sm:text-[12px]"
+          >
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              className="h-[18px] w-[18px] shrink-0 fill-none stroke-current"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              {/* Shopping cart (same glyph as the header's cart). */}
+              <path d="M3 4h2.2l2.1 10.2a1.5 1.5 0 0 0 1.5 1.2h8.1a1.5 1.5 0 0 0 1.5-1.1L20 8H6.2" />
+              <circle cx="9.5" cy="19.5" r="1.3" />
+              <circle cx="17" cy="19.5" r="1.3" />
+            </svg>
+            Add to Cart
+          </AddToCartButton>
         </div>
       </div>
     </article>
@@ -205,7 +200,7 @@ export function SkinCareEssentials() {
           {skinCareEssentials.map((product, index) => (
             <li key={product.slug}>
               <Reveal delay={(index % 3) * 120} className="h-full">
-                <EssentialCard product={product} index={index} />
+                <EssentialCard product={product} />
               </Reveal>
             </li>
           ))}

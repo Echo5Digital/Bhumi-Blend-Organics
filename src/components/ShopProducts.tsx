@@ -41,100 +41,131 @@ function ListIcon() {
   );
 }
 
+function CartIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="h-[18px] w-[18px] shrink-0 fill-none stroke-current"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M6 7h12l-1 13H7L6 7Z" />
+      <path d="M9 10V6.5a3 3 0 0 1 6 0V10" />
+    </svg>
+  );
+}
+
+// A framed card: the photo sits inside a soft rounded border, with the name,
+// price and an "Add to Cart" pill centred underneath (left-aligned in list view).
+// On a mouse the card lifts, its border turns gold, the photo crossfades to the
+// second picture and the button fills in. Touch screens have no hover, so the
+// button is already filled there.
 function ProductTile({ product, view }: { product: Product; view: View }) {
   const { slug, name, image, hoverImage, price, regularPrice, rating } = product;
   const href = `/product/${slug}`;
   const onOffer = regularPrice !== undefined && regularPrice > price;
+  const percentOff = onOffer ? Math.round((1 - price / regularPrice) * 100) : 0;
   const isList = view === "list";
+  const imageSizes = isList ? "240px" : "(min-width: 1024px) 430px, 50vw";
 
   return (
     <article
-      className={`group relative bg-white ring-1 ring-[#efe8d6] shadow-[0_2px_14px_rgba(120,85,20,0.07)] transition-shadow duration-500 hover:shadow-[0_18px_34px_-18px_rgba(120,85,20,0.45)] ${
+      className={`group relative rounded-[22px] bg-gradient-to-b from-[#fdf8ea] to-[#f8eed6] p-2 shadow-[0_10px_30px_-18px_rgba(120,85,20,0.38)] ring-1 ring-[#ecdcb4] transition-[transform,box-shadow] duration-500 ease-out sm:rounded-[26px] sm:p-2.5 [@media(hover:hover)]:hover:-translate-y-1.5 [@media(hover:hover)]:hover:shadow-[0_28px_44px_-22px_rgba(184,121,31,0.55)] [@media(hover:hover)]:hover:ring-brand-gold/60 ${
         isList ? "flex flex-row" : "flex h-full flex-col"
       }`}
     >
       {/* Photo: hover (mouse only) crossfades to the second picture. */}
       <div
-        className={`relative aspect-[3/4] shrink-0 overflow-hidden ${
-          isList ? "w-[38%] max-w-[240px]" : "w-full border-b border-[#eee]"
+        className={`relative aspect-[3/4] shrink-0 overflow-hidden rounded-[14px] bg-white shadow-[0_1px_0_rgba(255,255,255,0.9),0_0_0_1px_rgba(200,155,60,0.18)] sm:rounded-[16px] ${
+          isList ? "w-[38%] max-w-[240px]" : "w-full"
         }`}
       >
         <Link href={href} tabIndex={-1} aria-hidden="true" className="absolute inset-0 block">
-          <Image
-            src={image}
-            alt={name}
-            fill
-            sizes={isList ? "240px" : "(min-width: 1024px) 430px, 50vw"}
-            className="object-cover"
-          />
-          {hoverImage !== image && (
-            <Image
-              src={hoverImage}
-              alt=""
-              fill
-              sizes={isList ? "240px" : "(min-width: 1024px) 430px, 50vw"}
-              className="object-cover opacity-0 transition-opacity duration-700 ease-out [@media(hover:hover)]:group-hover:opacity-100"
-            />
-          )}
+          <div className="relative h-full w-full transition-transform duration-[900ms] ease-out [@media(hover:hover)]:group-hover:scale-[1.05]">
+            <Image src={image} alt={name} fill sizes={imageSizes} className="object-cover" />
+            {hoverImage !== image && (
+              <Image
+                src={hoverImage}
+                alt=""
+                fill
+                sizes={imageSizes}
+                className="object-cover opacity-0 transition-opacity duration-700 ease-out [@media(hover:hover)]:group-hover:opacity-100"
+              />
+            )}
+          </div>
         </Link>
+
+        {onOffer && (
+          <span className="absolute top-2.5 left-2.5 z-10 rounded-full bg-gradient-to-r from-brand-gold to-brand-gold-dark px-2.5 py-1 font-system text-[10.5px] leading-none font-bold tracking-[0.08em] text-white uppercase shadow-[0_6px_12px_-6px_rgba(184,121,31,0.8)] sm:top-3 sm:left-3 sm:px-3 sm:py-1.5 sm:text-[11.5px]">
+            Save {percentOff}%
+          </span>
+        )}
 
         <WishlistButton
           slug={slug}
           productName={name}
-          className="top-2.5 left-2.5 sm:top-3 sm:left-3"
+          className="top-2 right-2 sm:top-2.5 sm:right-2.5"
         />
-
-        {onOffer && (
-          <span className="absolute top-3 right-0 z-10 bg-brand-gold px-2.5 py-0.5 font-system text-[12px] font-bold text-white sm:text-[13px]">
-            Offer
-          </span>
-        )}
       </div>
 
       <div
         className={`flex flex-1 flex-col ${
-          isList ? "justify-center gap-1 p-4 sm:gap-2 sm:p-8" : "px-3.5 pt-4 pb-5 sm:px-6 sm:pt-5 sm:pb-6"
+          isList
+            ? "justify-center gap-1 p-4 sm:p-8"
+            : "items-center px-1.5 pt-4 pb-2 text-center sm:px-3 sm:pt-5 sm:pb-3"
         }`}
       >
-        <h3 className="font-system text-[15px] leading-snug font-medium text-[#222] sm:text-[18px]">
-          <Link
-            href={href}
-            className="transition-colors duration-300 group-hover:text-brand-gold-dark"
-          >
+        <h3 className="font-serif text-[15px] leading-snug text-[#222] sm:text-[19px]">
+          <Link href={href} className="transition-colors duration-300 group-hover:text-brand-gold-dark">
             {name}
           </Link>
         </h3>
-        {rating !== undefined && <Stars rating={rating} />}
-        <p className="mt-1.5 flex flex-wrap items-baseline gap-x-2.5 font-system text-[14px] sm:text-[15px]">
+        {rating !== undefined && (
+          <div className={`flex ${isList ? "justify-start" : "justify-center"}`}>
+            <Stars rating={rating} />
+          </div>
+        )}
+
+        {/* Short gold rule that lengthens when the card is hovered. */}
+        <span
+          aria-hidden="true"
+          className="my-2.5 block h-px w-8 bg-brand-gold transition-all duration-500 group-hover:w-14 sm:my-3 sm:w-10"
+        />
+
+        <p
+          className={`flex flex-wrap items-baseline gap-x-2.5 font-system text-[14px] sm:text-[16px] ${
+            isList ? "justify-start" : "justify-center"
+          }`}
+        >
           {onOffer ? (
             <>
-              <del className="text-[#9b9b9b]">
+              <del className="text-[13px] text-[#a3a3a3] sm:text-[14px]">
                 <span className="sr-only">Original price was </span>
                 {rupees.format(regularPrice)}
               </del>
-              <ins className="font-semibold text-brand-gold-dark no-underline">
+              <ins className="text-[16px] font-bold text-brand-gold-dark no-underline sm:text-[18px]">
                 <span className="sr-only">Current price is </span>
                 {rupees.format(price)}
               </ins>
             </>
           ) : (
-            <span className="font-semibold text-[#222]">{rupees.format(price)}</span>
+            <span className="text-[16px] font-bold text-[#222] sm:text-[18px]">
+              {rupees.format(price)}
+            </span>
           )}
         </p>
 
-        {/* Grid: space is always reserved, so the card never changes height;
-            the button fades in on hover / keyboard focus. Touch screens have no
-            hover and list view has room, so there it is always visible. */}
-        <div className="mt-3.5">
+        <div className={`pt-4 sm:pt-5 ${isList ? "" : "mt-auto w-full"}`}>
           <AddToCartButton
             slug={slug}
             productName={name}
-            className={`max-sm:w-full rounded-sm bg-brand-gold px-4 py-2.5 font-system text-[12px] font-bold tracking-[0.1em] text-white uppercase transition-[opacity,transform,background-color] duration-300 hover:bg-brand-gold-dark ${
-              isList
-                ? ""
-                : "[@media(hover:hover)]:translate-y-1 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-focus-within:translate-y-0 [@media(hover:hover)]:group-focus-within:opacity-100 [@media(hover:hover)]:group-hover:translate-y-0 [@media(hover:hover)]:group-hover:opacity-100"
+            className={`inline-flex items-center justify-center gap-2 rounded-full border border-brand-gold py-2.5 font-system text-[11px] font-bold tracking-[0.1em] whitespace-nowrap text-brand-gold-dark uppercase transition-[background-color,color,box-shadow,border-color] duration-300 hover:border-brand-gold-dark hover:bg-brand-gold-dark hover:text-white focus-visible:bg-brand-gold focus-visible:text-white group-hover:bg-brand-gold group-hover:text-white group-hover:shadow-[0_10px_18px_-10px_rgba(184,121,31,0.85)] sm:text-[12px] [@media(hover:none)]:bg-brand-gold [@media(hover:none)]:text-white [@media(hover:none)]:shadow-[0_8px_14px_-8px_rgba(184,121,31,0.8)] [@media(hover:none)]:active:bg-brand-gold-dark ${
+              isList ? "px-7" : "w-full px-3"
             }`}
           >
+            <CartIcon />
             Add to Cart
           </AddToCartButton>
         </div>

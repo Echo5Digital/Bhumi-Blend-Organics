@@ -62,6 +62,7 @@ export function ProductGallery({
       {/* Six thumbnails fill the row; any more scroll sideways at the same
           size. The padding (with matching negative margins) keeps the active
           ring from being clipped by the scroll area. */}
+      {count > 1 && (
       <ul
         ref={thumbsRef}
         className="relative order-2 -mx-1 mt-3 grid auto-cols-[calc((100%-2.5rem)/6)] grid-flow-col gap-2 overflow-x-auto px-1 py-1.5 [scrollbar-width:none] sm:auto-cols-[calc((100%-3.75rem)/6)] sm:gap-3"
@@ -90,6 +91,7 @@ export function ProductGallery({
           </li>
         ))}
       </ul>
+      )}
 
       <div
         role="group"
@@ -131,6 +133,8 @@ export function ProductGallery({
           ))}
         </div>
 
+        {count > 1 && (
+          <>
         <button
           type="button"
           aria-label="Previous photo"
@@ -147,6 +151,8 @@ export function ProductGallery({
         >
           <Chevron direction="right" />
         </button>
+          </>
+        )}
       </div>
     </div>
   );

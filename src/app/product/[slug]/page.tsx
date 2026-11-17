@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Footer } from "@/components/Footer";
@@ -36,7 +37,7 @@ export async function generateMetadata({
 
   return {
     title: `Buy ${product.name} | Bhumi Blend Organics`,
-    description: detail.description[0],
+    description: detail.description[0] ?? detail.summary,
   };
 }
 
@@ -86,7 +87,33 @@ async function ProductContent({
   const { name, price, regularPrice } = product;
   const onOffer = regularPrice !== undefined && regularPrice > price;
   const related = getRelatedProducts(detail);
+  // The products a kit is made of, from the catalogue (price and photo stay in one place).
+  const bundleItems = (detail.bundle ?? []).flatMap(({ slug: itemSlug, quantity }) => {
+    const item = getCatalogueProduct(itemSlug);
+    return item ? [{ item, quantity, hasPage: getProductDetail(itemSlug) !== undefined }] : [];
+  });
   const { rating } = detail;
+  // A product with no description text (the live page's tab is empty) gets no Description tab.
+  const hasDescription = detail.description.length > 0;
+  // The highlighted offer (a coupon, or a bonus), shown above or below the pitch line.
+  const offerBox = detail.offer ? (
+    <div className="mt-6 rounded-2xl border border-[#e2d5b6] bg-[#fbf3de] px-5 py-4">
+      <p className="font-system text-[16px] font-bold text-[#222]">{detail.offer.headline}</p>
+      <p className="mt-1 font-system text-[15px] leading-snug text-[#444]">
+        {detail.offer.code ? (
+          <>
+            {detail.offer.detail.split(detail.offer.code)[0]}
+            <strong className="rounded-md bg-white px-2 py-0.5 font-bold tracking-[0.5px] text-brand-gold-dark ring-1 ring-[#C89B3C]/40">
+              {detail.offer.code}
+            </strong>
+            {detail.offer.detail.split(detail.offer.code)[1]}
+          </>
+        ) : (
+          detail.offer.detail
+        )}
+      </p>
+    </div>
+  ) : null;
   const reviewLabel = `${rating.count} customer ${rating.count === 1 ? "review" : "reviews"}`;
 
   return (
@@ -105,20 +132,23 @@ async function ProductContent({
               {name}
             </h1>
 
-            <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span
-                role="img"
-                aria-label={`Rated ${rating.value} out of 5`}
-                className="flex gap-0.5 text-[#C89B3C]"
-              >
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <span key={n} className={n <= rating.value ? "" : "text-[#e6dcc5]"}>
-                    <StarIcon />
-                  </span>
-                ))}
-              </span>
-              <span className="font-system text-[14px] text-[#666]">({reviewLabel})</span>
-            </div>
+            {/* Only shown once a product has reviews: no empty stars or "(0 customer reviews)". */}
+            {rating.count > 0 && (
+              <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1">
+                <span
+                  role="img"
+                  aria-label={`Rated ${rating.value} out of 5`}
+                  className="flex gap-0.5 text-[#C89B3C]"
+                >
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <span key={n} className={n <= rating.value ? "" : "text-[#e6dcc5]"}>
+                      <StarIcon />
+                    </span>
+                  ))}
+                </span>
+                <span className="font-system text-[14px] text-[#666]">({reviewLabel})</span>
+              </div>
+            )}
 
             <p className="mt-6 flex flex-wrap items-baseline gap-x-3 font-system">
               {onOffer ? (
@@ -144,9 +174,11 @@ async function ProductContent({
               className="mt-6 block h-px w-full bg-gradient-to-r from-[#d9bd7a] via-[#eadcb6] to-transparent"
             />
 
-            <p className="mt-6 w-fit rounded-full border border-[#e2d5b6] px-4 py-1 font-system text-[14px] font-bold text-[#222]">
-              {detail.weight}
-            </p>
+            {detail.weight && (
+              <p className="mt-6 w-fit rounded-full border border-[#e2d5b6] px-4 py-1 font-system text-[14px] font-bold text-[#222]">
+                {detail.weight}
+              </p>
+            )}
             {detail.tagline && (
               <p className="mt-4 font-serif text-[21px] text-brand-gold-dark italic sm:text-[23px]">
                 {detail.tagline}
@@ -168,9 +200,61 @@ async function ProductContent({
               </ul>
             )}
 
+            {detail.freebie && (
+              <p className="mt-4 w-fit rounded-full bg-[#fbf3de] px-4 py-1.5 font-system text-[14px] font-bold text-brand-gold-dark ring-1 ring-[#C89B3C]/40">
+                {detail.freebie}
+              </p>
+            )}
+
+            {!detail.offer?.afterSummary && offerBox}
+
             <p className="mt-4 font-system text-[16px] leading-[1.7] text-[#555]">
               {detail.summary}
             </p>
+
+            {detail.offer?.afterSummary && offerBox}
+
+            {/* What a kit is made of: each product with its quantity and price. */}
+            {bundleItems.length > 0 && (
+              <ul className="mt-5 divide-y divide-[#efe5c9] rounded-2xl border border-[#eadcb6] bg-white">
+                {bundleItems.map(({ item, quantity, hasPage }) => (
+                  <li key={item.slug} className="flex items-center gap-4 px-4 py-3">
+                    <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg ring-1 ring-[#eadcb6]">
+                      <Image src={item.image} alt="" fill sizes="56px" className="object-cover" />
+                    </span>
+                    <span className="min-w-0 flex-1 font-system text-[15px] leading-snug text-[#222]">
+                      {quantity} ×{" "}
+                      {hasPage ? (
+                        <Link
+                          href={`/product/${item.slug}`}
+                          className="font-semibold transition-colors duration-300 hover:text-brand-gold-dark"
+                        >
+                          {item.name}
+                        </Link>
+                      ) : (
+                        <span className="font-semibold">{item.name}</span>
+                      )}
+                    </span>
+                    <span className="flex shrink-0 flex-wrap items-baseline justify-end gap-x-2 font-system text-[14px]">
+                      {item.regularPrice !== undefined && item.regularPrice > item.price ? (
+                        <>
+                          <del className="text-[#9b9b9b]">
+                            <span className="sr-only">Original price was </span>
+                            {rupees.format(item.regularPrice)}
+                          </del>
+                          <ins className="font-semibold text-brand-gold-dark no-underline">
+                            <span className="sr-only">Current price is </span>
+                            {rupees.format(item.price)}
+                          </ins>
+                        </>
+                      ) : (
+                        <span className="font-semibold text-[#222]">{rupees.format(item.price)}</span>
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
 
             <div className="mt-7">
               <PurchasePanel slug={slug} productName={name} />
@@ -198,10 +282,14 @@ async function ProductContent({
             </div>
 
             <p className="mt-6 font-system text-[12px] leading-relaxed text-[#8a8a8a]">
-              <span className="font-semibold text-[#6d6c6c]">SKU:</span> {detail.sku}
-              <span aria-hidden="true" className="mx-2.5">
-                |
-              </span>
+              {detail.sku && (
+                <>
+                  <span className="font-semibold text-[#6d6c6c]">SKU:</span> {detail.sku}
+                  <span aria-hidden="true" className="mx-2.5">
+                    |
+                  </span>
+                </>
+              )}
               <span className="font-semibold text-[#6d6c6c]">Categories:</span>{" "}
               {detail.categories.join(", ")}
             </p>
@@ -214,6 +302,8 @@ async function ProductContent({
         <div className="mx-auto max-w-[1290px] px-5 pt-10 pb-14 sm:px-6 md:pt-14 md:pb-20">
           <ProductTabs
             tabs={[
+              ...(hasDescription
+                ? [
               {
                 id: "description",
                 label: "Description",
@@ -222,11 +312,77 @@ async function ProductContent({
                     <Reveal>
                       <SectionTitle>Description</SectionTitle>
                       <div className="mt-7 max-w-[980px] space-y-5 font-system text-[16px] leading-[1.85] text-[#555]">
+                        {detail.descriptionHeading && (
+                          <p className="font-sans text-[12px] leading-snug font-semibold tracking-[3px] text-brand-gold-dark uppercase sm:text-[13px]">
+                            {detail.descriptionHeading}
+                          </p>
+                        )}
                         {detail.description.map((paragraph) => (
                           <p key={paragraph}>{paragraph}</p>
                         ))}
                       </div>
+
+                      {detail.descriptionImage && (
+                        <div className="relative mt-10 aspect-[1536/658] max-w-[980px] overflow-hidden rounded-[18px] shadow-[0_26px_50px_-32px_rgba(120,85,20,0.55)] ring-1 ring-[#eadcb6] sm:rounded-[24px]">
+                          <Image
+                            src={detail.descriptionImage.src}
+                            alt={detail.descriptionImage.alt}
+                            fill
+                            sizes="(min-width: 1024px) 980px, 100vw"
+                            className="object-cover"
+                          />
+                        </div>
+                      )}
                     </Reveal>
+
+                    {detail.keyBenefits && (
+                      <Reveal className="mt-12 md:mt-14">
+                        <h2 className="font-serif text-[24px] leading-tight font-medium text-[#222] sm:text-[30px]">
+                          {detail.keyBenefits.title}
+                        </h2>
+                        <ul className="mt-5 grid max-w-[980px] gap-x-8 gap-y-3 sm:grid-cols-2">
+                          {detail.keyBenefits.points.map((point) => (
+                            <li
+                              key={point}
+                              className="flex items-start gap-3 font-system text-[15px] leading-snug text-[#3b3226] sm:text-[16px]"
+                            >
+                              <span className="mt-0.5 shrink-0 text-brand-gold-dark">
+                                <CheckIcon className="h-4 w-4" />
+                              </span>
+                              {point}
+                            </li>
+                          ))}
+                        </ul>
+                      </Reveal>
+                    )}
+
+                    {detail.philosophy && (
+                      <Reveal className="mt-12 md:mt-14">
+                        <div className="relative max-w-[980px] overflow-hidden rounded-2xl border border-[#eadcb6] bg-[#fbf8ef] py-8 pr-6 pl-8 sm:py-10 sm:pr-10 sm:pl-12">
+                          <span
+                            aria-hidden="true"
+                            className="absolute inset-y-6 left-0 w-[3px] rounded-full bg-brand-gold"
+                          />
+                          <h2 className="font-serif text-[26px] leading-tight font-medium text-[#222] sm:text-[32px]">
+                            {detail.philosophy.title}
+                          </h2>
+                          <div className="mt-5 space-y-4">
+                            {detail.philosophy.paragraphs.map((paragraph, index) => (
+                              <p
+                                key={paragraph}
+                                className={
+                                  index === 0
+                                    ? "font-serif text-[20px] leading-[1.55] text-[#2f2619] sm:text-[24px]"
+                                    : "font-system text-[16px] leading-[1.8] text-[#555] sm:text-[17px]"
+                                }
+                              >
+                                {paragraph}
+                              </p>
+                            ))}
+                          </div>
+                        </div>
+                      </Reveal>
+                    )}
 
                     {detail.ingredientsHeading && (
                       <div className="mt-14 md:mt-16">
@@ -240,11 +396,12 @@ async function ProductContent({
                       </div>
                     )}
 
+                    {detail.ingredients.length > 0 && (
                     <div
                       className={`space-y-5 sm:space-y-6 ${detail.ingredientsHeading ? "mt-8" : "mt-12"}`}
                     >
                       {detail.ingredients.map((ingredient, index) => (
-                        <Reveal key={ingredient.name} delay={index * 120}>
+                        <Reveal key={ingredient.name} delay={(index % 3) * 120}>
                           <article className="flex flex-col gap-5 rounded-[22px] bg-white p-4 shadow-[0_22px_44px_-30px_rgba(120,85,20,0.55)] ring-1 ring-[#eadcb6] sm:flex-row sm:items-center sm:gap-8 sm:p-6">
                             {/* Source photo is 228×152: full width on phones, native size from sm up. */}
                             <div className="relative aspect-[3/2] w-full shrink-0 overflow-hidden rounded-2xl sm:h-[152px] sm:w-[228px]">
@@ -281,8 +438,10 @@ async function ProductContent({
                         </Reveal>
                       ))}
                     </div>
+                    )}
 
-                    {/* Organic badge sits directly above this line. */}
+                    {/* Organic badge sits directly above this line (only products that have one). */}
+                    {detail.calmingLine && (
                     <Reveal className="mt-16 flex flex-col items-center text-center md:mt-20">
                       <Image
                         src="/orgnc_icon.png"
@@ -295,8 +454,10 @@ async function ProductContent({
                         {detail.calmingLine}
                       </p>
                     </Reveal>
+                    )}
 
                     {/* The five badges are 100×100 PNGs, so they're capped near that size to stay sharp. */}
+                    {detail.trust && (
                     <ul className="mt-12 flex flex-wrap justify-center gap-y-9 md:mt-16">
                       {detail.trust.map((item, index) => (
                         <li key={item.label} className="basis-1/2 px-2 sm:basis-1/3 lg:basis-1/5">
@@ -318,9 +479,12 @@ async function ProductContent({
                         </li>
                       ))}
                     </ul>
+                    )}
                   </>
                 ),
               },
+                  ]
+                : []),
               // How to use: only for products that have steps.
               ...(detail.usage
                 ? [
@@ -361,6 +525,29 @@ async function ProductContent({
                             ))}
                           </ol>
 
+                          {detail.usage.guide && (
+                            <div className="mt-12 max-w-[760px] md:mt-14">
+                              <h2 className="font-serif text-[24px] leading-tight font-medium text-[#222] sm:text-[30px]">
+                                {detail.usage.guide.title}
+                              </h2>
+                              <ul className="mt-5 space-y-3">
+                                {detail.usage.guide.items.map((item) => (
+                                  <li
+                                    key={item.name}
+                                    className="rounded-2xl border border-[#eadcb6] bg-white px-5 py-4 shadow-[0_14px_30px_-24px_rgba(120,85,20,0.5)]"
+                                  >
+                                    <h3 className="font-serif text-[19px] leading-snug text-[#222] sm:text-[21px]">
+                                      {item.name}
+                                    </h3>
+                                    <p className="mt-1.5 font-system text-[15px] leading-[1.7] text-[#555] sm:text-[16px]">
+                                      {item.text}
+                                    </p>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
                           {detail.usage.tip && (
                             <div className="relative mt-8 max-w-[760px] overflow-hidden rounded-2xl border border-[#eadcb6] bg-[#fbf8ef] py-5 pr-6 pl-7">
                               <span
@@ -368,7 +555,7 @@ async function ProductContent({
                                 className="absolute inset-y-4 left-0 w-[3px] rounded-full bg-brand-gold"
                               />
                               <p className="font-sans text-[12px] font-semibold tracking-[2.5px] text-brand-gold-dark uppercase">
-                                Tip
+                                {detail.usage.tipLabel ?? "Tip"}
                               </p>
                               <p className="mt-1.5 font-system text-[16px] leading-[1.7] text-[#444] sm:text-[17px]">
                                 {detail.usage.tip}

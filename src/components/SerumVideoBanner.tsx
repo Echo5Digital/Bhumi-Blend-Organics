@@ -2,8 +2,9 @@
 
 import { useEffect, useRef } from "react";
 
-// Full-width Vitamin C Face Serum film — just the video and the browser's own
-// controls, nothing drawn on top of it.
+// Vitamin C Face Serum film, shown as a framed picture: a thin gold border, a
+// white mat and rounded corners, on a soft champagne band. Nothing is drawn on
+// top of the video — only the browser's own controls.
 //
 // The file is ~9 MB, so nothing is downloaded until the banner scrolls into
 // view (preload="none" + a poster frame). It then plays muted on a loop and
@@ -54,24 +55,33 @@ export function SerumVideoBanner() {
   }, []);
 
   return (
-    // 10px side margins at every screen size (same as the live site), so the
-    // film doesn't touch the screen edges.
-    <section id="serum-film" aria-label="Vitamin C Face Serum film" className="px-[10px]">
-      {/* Fixed aspect ratio so the page doesn't jump while the video loads. */}
-      <video
-        ref={videoRef}
-        controls
-        controlsList="nodownload"
-        muted
-        loop
-        playsInline
-        preload="none"
-        poster="/Banner-Serum-Poster.jpg"
-        aria-label="Bhumi Blend Vitamin C Face Serum film"
-        className="block aspect-[1880/1080] h-auto w-full bg-black"
-      >
-        <source src="/Banner-Serum-Video.mp4" type="video/mp4" />
-      </video>
+    <section
+      id="serum-film"
+      aria-label="Vitamin C Face Serum film"
+      className="bg-[linear-gradient(to_bottom,#ffffff_0%,#fcf6e6_30%,#f9efd6_70%,#ffffff_100%)] px-5 py-12 sm:px-6 md:py-20"
+    >
+      <div className="mx-auto max-w-[1180px]">
+        {/* Gold border, then a white mat, then the film with rounded corners. */}
+        <div className="rounded-[22px] bg-gradient-to-br from-[#f0d27e] via-[#c8921f] to-[#9a6a17] p-[2px] shadow-[0_36px_70px_-38px_rgba(120,85,20,0.7)] sm:rounded-[30px] sm:p-[3px]">
+          <div className="rounded-[20px] bg-white p-2 sm:rounded-[27px] sm:p-3.5">
+            {/* Fixed aspect ratio so the page doesn't jump while the video loads. */}
+            <video
+              ref={videoRef}
+              controls
+              controlsList="nodownload"
+              muted
+              loop
+              playsInline
+              preload="none"
+              poster="/Banner-Serum-Poster.jpg"
+              aria-label="Bhumi Blend Vitamin C Face Serum film"
+              className="block aspect-[1880/1080] h-auto w-full rounded-[14px] bg-black sm:rounded-[20px]"
+            >
+              <source src="/Banner-Serum-Video.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }

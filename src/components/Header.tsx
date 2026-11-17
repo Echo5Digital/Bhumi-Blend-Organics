@@ -46,7 +46,7 @@ export function Header() {
           <Link href="/product-category/combo" className={navLinkClass}>
             Combo
           </Link>
-          <Link href="/#about" className={navLinkClass}>
+          <Link href="/our-story" className={navLinkClass}>
             Our Story
           </Link>
           <Link href="/contact-us" className={navLinkClass}>

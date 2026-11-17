@@ -134,14 +134,14 @@ export const shopProducts: Product[] = [
     price: 2999,
   },
   {
-    slug: "premium-soap-set-of-3",
+    slug: "bhumi-blend-organics-premium-combo-3-soap-set",
     name: "Bhumi Blend Organics Premium Soap Set of 3",
     image: "/3-Combo-Soap-Set.jpg",
     hoverImage: "/Soap-Combo-Box_02.jpg",
     price: 699,
   },
   {
-    slug: "premium-soap-set-of-6",
+    slug: "bhumi-blend-organics-premium-combo-6-soap-set",
     name: "Bhumi Blend Organics Premium Soap Set of 6",
     image: "/6-Combo-Soap-Set.jpg",
     // Identical to the Set of 3 hover photo (the supplied "(1)" copy).
@@ -149,7 +149,7 @@ export const shopProducts: Product[] = [
     price: 1349,
   },
   {
-    slug: "premium-combo-box",
+    slug: "bhumi-blend-premium-combo-box",
     name: "Bhumi Blend Premium Combo Box",
     image: "/woman-care-2_01.jpg",
     hoverImage: "/women-care-3_04-1.jpg",
@@ -292,9 +292,9 @@ const comboSlugs = [
   "ayurvedic-exfoliation-glow-kit",
   "ayurvedic-youth-revival-kit",
   "bhumi-blend-mens-combo",
-  "premium-soap-set-of-3",
-  "premium-soap-set-of-6",
-  "premium-combo-box",
+  "bhumi-blend-organics-premium-combo-3-soap-set",
+  "bhumi-blend-organics-premium-combo-6-soap-set",
+  "bhumi-blend-premium-combo-box",
   "bhumi-blend-starter-combo-box",
   "brightening-clarifying-skin-care-range",
   "essential-skin-repair-range",
