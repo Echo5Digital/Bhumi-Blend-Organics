@@ -5,6 +5,10 @@ export const contact = {
   // wa.me wants the number as digits only, with the country code.
   whatsappHref: "https://wa.me/918921410904",
   email: "support@bhumiblend.com",
+  // Social profiles, used by the footer icons. These are the share links as supplied.
+  facebookHref:
+    "https://www.facebook.com/bhumiblend?mibextid=wwXIfr&rdid=atvCvoHu9mH5ucfR&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1bkZe7Zchp%2F%3Fmibextid%3DwwXIfr#",
+  instagramHref: "https://www.instagram.com/bhumiblend_?igsh=MXJub2F3ZnRvdDl5cA%3D%3D",
   company: "Bhumi Fusion Private Limited",
   addressLines: [
     "64/5434-B, Building No. 1634",

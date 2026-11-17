@@ -102,12 +102,24 @@ export function Footer() {
               Ayurvedic beauty rituals inspired by nature, crafted for everyday care.
             </p>
             <div className="mt-8 flex gap-3 lg:mt-auto lg:pt-10">
-              <a href="#" aria-label="Bhumi Blend on Facebook" className={socialClass}>
+              <a
+                href={contact.facebookHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Bhumi Blend on Facebook (opens in a new tab)"
+                className={socialClass}
+              >
                 <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[18px] w-[18px] fill-current">
                   <path d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.6-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.9 1.4-3.9 4v2.2H7.8v3h2.7V21h3Z" />
                 </svg>
               </a>
-              <a href="#" aria-label="Bhumi Blend on Instagram" className={socialClass}>
+              <a
+                href={contact.instagramHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Bhumi Blend on Instagram (opens in a new tab)"
+                className={socialClass}
+              >
                 <svg
                   aria-hidden="true"
                   viewBox="0 0 24 24"
