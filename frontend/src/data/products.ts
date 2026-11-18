@@ -1,3 +1,7 @@
+// NOTE: the site no longer reads the product lists in this file — products now come from
+// the backend (lib/catalog.ts), so edits in the admin panel show on the site. The lists
+// stay only as the starting data that `npm run seed` in backend/ loads into the database;
+// the `Product` type below is still used everywhere.
 export type Product = {
   slug: string;
   name: string;
@@ -11,6 +15,10 @@ export type Product = {
   regularPrice?: number;
   /** Average star rating out of 5 — only set where the live site shows one. */
   rating?: number;
+  /** false when the product is sold out or switched off in the admin (set by the backend). */
+  inStock?: boolean;
+  /** Pack size, "100g" or "450ml" (set by the backend). */
+  weight?: string;
 };
 
 // The 8 Best Sellers, in display order. Names, prices and offers are the ones

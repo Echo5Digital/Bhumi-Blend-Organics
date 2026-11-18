@@ -20,6 +20,9 @@
 # production
 /build
 
+# the admin panel, built by `npm run build` in ../admin (served at /adminecho5)
+/public/adminecho5/
+
 # misc
 .DS_Store
 *.pem

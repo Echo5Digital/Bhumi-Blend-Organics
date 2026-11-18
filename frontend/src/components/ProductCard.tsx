@@ -55,6 +55,7 @@ export function ProductCard({ product }: { product: Product }) {
         <AddToCartButton
           slug={slug}
           productName={name}
+          soldOut={product.inStock === false}
           className="absolute inset-x-3 bottom-3 z-10 translate-y-[170%] rounded-full bg-[#222] px-4 py-3 text-[12px] font-semibold tracking-[0.14em] text-white uppercase transition-[transform,background-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-focus-within:translate-y-0 hover:bg-brand-gold-dark group-hover:translate-y-0 [@media(hover:none)]:hidden"
         >
           Add to Cart
@@ -95,6 +96,7 @@ export function ProductCard({ product }: { product: Product }) {
           <AddToCartButton
             slug={slug}
             productName={name}
+            soldOut={product.inStock === false}
             className="w-full rounded-full border border-brand-gold bg-brand-gold px-4 py-2.5 text-[12px] font-semibold tracking-[0.14em] text-white uppercase shadow-[0_8px_16px_-8px_rgba(184,121,31,0.7)] transition-colors duration-300 active:border-brand-gold-dark active:bg-brand-gold-dark"
           >
             Add to Cart

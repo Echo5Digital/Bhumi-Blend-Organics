@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { skinCareEssentials, type Product } from "@/data/products";
+import type { Product } from "@/data/products";
+import { getCollection } from "@/lib/catalog";
 import { Reveal } from "@/components/Reveal";
 import { Stars } from "@/components/Stars";
 import { AddToCartButton } from "@/components/AddToCartButton";
@@ -129,6 +130,7 @@ function EssentialCard({ product }: { product: Product }) {
           <AddToCartButton
             slug={slug}
             productName={name}
+            soldOut={product.inStock === false}
             className="relative z-10 flex w-full items-center justify-center gap-2 rounded-[8px] bg-brand-gold px-3 py-2.5 font-sans text-[11px] font-bold tracking-[0.14em] whitespace-nowrap text-white uppercase transition-[background-color,transform] duration-300 hover:bg-brand-gold-dark active:scale-[0.98] sm:py-3 sm:text-[12px]"
           >
             <svg
@@ -152,7 +154,8 @@ function EssentialCard({ product }: { product: Product }) {
   );
 }
 
-export function SkinCareEssentials() {
+export async function SkinCareEssentials() {
+  const skinCareEssentials = await getCollection("skin-care-essentials");
   return (
     <section
       id="skin-care-essentials"

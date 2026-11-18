@@ -1,3 +1,6 @@
+// NOTE: product pages no longer read this file — their content now comes from the backend
+// (lib/catalog.ts). It stays only as the starting content that `npm run seed` in backend/
+// loads into the database; the `ProductDetail` type below is still used.
 import { shopProducts, skinCareEssentials, type Product } from "@/data/products";
 
 // Content for the /product/[slug] page, copied from the live bhumiblend.com

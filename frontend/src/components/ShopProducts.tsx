@@ -161,6 +161,7 @@ function ProductTile({ product, view }: { product: Product; view: View }) {
           <AddToCartButton
             slug={slug}
             productName={name}
+            soldOut={product.inStock === false}
             className={`inline-flex items-center justify-center gap-2 rounded-full border border-brand-gold py-2.5 font-system text-[11px] font-bold tracking-[0.1em] whitespace-nowrap text-brand-gold-dark uppercase transition-[background-color,color,box-shadow,border-color] duration-300 hover:border-brand-gold-dark hover:bg-brand-gold-dark hover:text-white focus-visible:bg-brand-gold focus-visible:text-white group-hover:bg-brand-gold group-hover:text-white group-hover:shadow-[0_10px_18px_-10px_rgba(184,121,31,0.85)] sm:text-[12px] [@media(hover:none)]:bg-brand-gold [@media(hover:none)]:text-white [@media(hover:none)]:shadow-[0_8px_14px_-8px_rgba(184,121,31,0.8)] [@media(hover:none)]:active:bg-brand-gold-dark ${
               isList ? "px-7" : "w-full px-3"
             }`}

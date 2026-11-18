@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSession } from "@/lib/auth";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
 
@@ -16,8 +17,9 @@ import { useWishlist } from "@/lib/wishlist";
 //   room for the spacing around the navbar.
 // - Cart: the badge is the total number of items added with the "Add to cart"
 //   buttons (lib/cart.ts) and the link opens /cart.
-// - Login: no account backend yet, so it points at where that page will live
-//   (/my-account is the live site's login page); the page doesn't exist yet.
+// - Login: opens /my-account, which shows the login / register forms. Once the
+//   visitor is logged in (lib/auth.ts) the word "Login" goes away and only the
+//   user icon stays, opening their account dashboard.
 //
 // Labels show from 1280px; narrower than that — where the navbar needs the
 // room — only the icons show.
@@ -82,7 +84,6 @@ function ActionLink({
   count,
   bump = 0,
   showLabel = true,
-  placeholder = false,
   className = "",
   children,
 }: {
@@ -94,8 +95,6 @@ function ActionLink({
   bump?: number;
   /** Show the text next to the icon from 1280px up. */
   showLabel?: boolean;
-  /** The page doesn't exist yet: don't prefetch a route that isn't there. */
-  placeholder?: boolean;
   className?: string;
   children: React.ReactNode;
 }) {
@@ -105,7 +104,6 @@ function ActionLink({
   return (
     <Link
       href={href}
-      prefetch={placeholder ? false : undefined}
       aria-label={name}
       title={label}
       className={`group inline-flex h-10 w-[34px] items-center justify-center gap-2 rounded-sm font-system text-[15px] leading-none text-black transition-colors duration-300 hover:text-[#C89B3C] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C89B3C] md:w-auto md:justify-start ${className}`}
@@ -126,6 +124,7 @@ function ActionLink({
 export function HeaderActions() {
   const wishlist = useWishlist();
   const cart = useCart();
+  const loggedIn = useSession() !== null;
 
   return (
     // md:pt-6 moves the row's centre line down 12px: the navbar links are
@@ -138,8 +137,8 @@ export function HeaderActions() {
           Login moves into the menu there (see MobileMenu). */}
       <ActionLink
         href="/my-account"
-        label="Login"
-        placeholder
+        label={loggedIn ? "My account" : "Login"}
+        showLabel={!loggedIn}
         className="max-[359px]:hidden"
       >
         <UserIcon />

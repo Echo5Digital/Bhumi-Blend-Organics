@@ -1,9 +1,11 @@
+import { Suspense } from "react";
 import { BestSellers } from "@/components/BestSellers";
 import { BrandDifference } from "@/components/BrandDifference";
 import { Footer } from "@/components/Footer";
 import { HeroBanner } from "@/components/HeroBanner";
 import { HeroSlider } from "@/components/HeroSlider";
 import { IngredientTicker } from "@/components/IngredientTicker";
+import { PageSkeleton } from "@/components/PageSkeleton";
 import { SerumVideoBanner } from "@/components/SerumVideoBanner";
 import { ShopByConcern } from "@/components/ShopByConcern";
 import { SkinCareEssentials } from "@/components/SkinCareEssentials";
@@ -37,7 +39,9 @@ export default function Home() {
       </div>
 
       {/* Best Sellers — directly after the ticker, as on the live site */}
-      <BestSellers />
+      <Suspense fallback={<PageSkeleton className="h-[900px]" />}>
+        <BestSellers />
+      </Suspense>
 
       {/* Shop by Concern — next section on the live site (keeps id="categories" for the footer link) */}
       <ShopByConcern />
@@ -49,7 +53,9 @@ export default function Home() {
       <WhyChoose />
 
       {/* Skin Care Essentials — next section after Nature, Ritual, Results */}
-      <SkinCareEssentials />
+      <Suspense fallback={<PageSkeleton className="h-[900px]" />}>
+        <SkinCareEssentials />
+      </Suspense>
 
       {/* Vitamin C Face Serum film banner — straight after Skin Care Essentials */}
       <SerumVideoBanner />

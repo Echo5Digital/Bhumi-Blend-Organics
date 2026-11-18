@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { Suspense } from "react";
 import { Footer } from "@/components/Footer";
-import { contact } from "@/data/contact";
+import { PageSkeleton } from "@/components/PageSkeleton";
+import { getContact } from "@/lib/catalog";
 
 export const metadata: Metadata = {
   title: "Contact Us | Bhumi Blend Organics",
@@ -64,7 +66,10 @@ function Badge({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function ContactPage() {
+// The page's content. Its contact details come from the backend (cached), so it is
+// shown behind <Suspense> below — a cold cache never blocks the page.
+async function ContactContent() {
+  const contact = await getContact();
   return (
     <>
       <main>
@@ -185,6 +190,16 @@ export default function ContactPage() {
           />
         </section>
       </main>
+    </>
+  );
+}
+
+export default function ContactPage() {
+  return (
+    <>
+      <Suspense fallback={<PageSkeleton className="h-[80vh]" />}>
+        <ContactContent />
+      </Suspense>
       <Footer />
     </>
   );

@@ -1,8 +1,9 @@
-import { bestSellers } from "@/data/products";
+import { getCollection } from "@/lib/catalog";
 import { ProductCard } from "@/components/ProductCard";
 import { Reveal } from "@/components/Reveal";
 
-export function BestSellers() {
+export async function BestSellers() {
+  const bestSellers = await getCollection("best-sellers");
   return (
     <section id="best-sellers" className="bg-brand-cream">
       <div className="mx-auto max-w-[1290px] px-6 pt-10 pb-20 md:pb-24">

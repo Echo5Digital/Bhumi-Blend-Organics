@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useId, useState } from "react";
+import { useSession } from "@/lib/auth";
 
 // Same destinations as the desktop navbar (the Category dropdown is flattened
 // into its three categories). Phones only: from 768px up the navbar shows.
@@ -21,6 +22,7 @@ const links = [
 export function MobileMenu() {
   const [open, setOpen] = useState(false);
   const panelId = useId();
+  const loggedIn = useSession() !== null;
 
   useEffect(() => {
     if (!open) return;
@@ -70,16 +72,15 @@ export function MobileMenu() {
               </Link>
             </li>
           ))}
-          {/* Under 360px the header drops its Login icon to leave room for the
-              logo, so Login lives here instead. */}
+          {/* Under 360px the header drops its account icon to leave room for the
+              logo, so Login (or My account, once logged in) lives here instead. */}
           <li className="min-[360px]:hidden">
             <Link
               href="/my-account"
-              prefetch={false}
               onClick={() => setOpen(false)}
               className="block py-3 font-system text-[16px] tracking-[0.5px] text-black uppercase transition-colors duration-300 hover:text-[#C89B3C]"
             >
-              Login
+              {loggedIn ? "My account" : "Login"}
             </Link>
           </li>
         </ul>

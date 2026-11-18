@@ -6,17 +6,35 @@ import { addToCart } from "@/lib/cart";
 // the cart (see lib/cart.ts) — the header badge counts it, the toast confirms
 // it and it is listed on /cart; it never navigates anywhere by itself.
 // Each card passes its own look through `className` / `children`.
+//
+// A sold-out product (switched off, or its count reached 0 in the admin) gets a
+// greyed, disabled "Out of stock" button in the same spot instead.
 export function AddToCartButton({
   slug,
   productName,
   className,
   children,
+  soldOut = false,
 }: {
   slug: string;
   productName: string;
   className?: string;
   children: React.ReactNode;
+  soldOut?: boolean;
 }) {
+  if (soldOut) {
+    return (
+      <button
+        type="button"
+        disabled
+        aria-label={`${productName} is out of stock`}
+        className={`${className ?? ""} cursor-not-allowed! border-[#d9d2bf]! bg-[#ece7d8]! text-[#7a7468]! shadow-none!`}
+      >
+        Out of stock
+      </button>
+    );
+  }
+
   return (
     <button
       type="button"

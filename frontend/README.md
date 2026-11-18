@@ -1,3 +1,10 @@
+> **Where the data comes from.** Products, categories, prices, stock and the contact details come from the backend
+> (`../backend`), through `src/lib/catalog.ts` — so edits made in the admin panel (`../admin`) show here. Set
+> `NEXT_PUBLIC_API_URL` if the backend isn't on http://localhost:4000, and put the same `REVALIDATE_SECRET` in `.env.local` as in
+> `backend/.env` so edits appear at once (otherwise within a minute). `src/data/products.ts` and `productDetails.ts` are no
+> longer read by the site; they are only the starting data that `npm run seed` in `backend/` loads. A production build needs the
+> backend running.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

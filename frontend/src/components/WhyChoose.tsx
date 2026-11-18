@@ -119,17 +119,27 @@ export function WhyChoose() {
     >
       {/* Background photo (gold silk, oil ribbons, podium) — decorative, so no
           alt text, and nothing laid over it so it stays at full clarity. Served
-          as-is (unoptimized) so it isn't re-compressed. On phones the section
-          is much taller than the photo is wide, so it is cropped around its
-          centre there. */}
+          as-is (unoptimized) so it isn't re-compressed. Phones (below md) get
+          their own portrait version of the scene (bhumi.jpeg, 900×1600) because
+          the section is far taller than it is wide there; md and up use the
+          wide one. Only the one that is showing is downloaded (the other is
+          display:none and lazy). */}
       <div aria-hidden="true" className="absolute inset-0 -z-10">
+        <Image
+          src="/bhumi.jpeg"
+          alt=""
+          fill
+          sizes="100vw"
+          unoptimized
+          className="object-cover object-center md:hidden"
+        />
         <Image
           src={encodeURI("/bhumiblend haicare.jpeg")}
           alt=""
           fill
           sizes="100vw"
           unoptimized
-          className="object-cover object-center"
+          className="hidden object-cover object-center md:block"
         />
       </div>
 

@@ -10,12 +10,7 @@ import { ProductGallery } from "@/components/product/ProductGallery";
 import { CheckIcon, StarIcon } from "@/components/product/ProductIcons";
 import { ProductTabs } from "@/components/product/ProductTabs";
 import { PurchasePanel } from "@/components/product/PurchasePanel";
-import {
-  getCatalogueProduct,
-  getProductDetail,
-  getRelatedProducts,
-  productDetails,
-} from "@/data/productDetails";
+import { getCatalogue, getProductPage } from "@/lib/catalog";
 
 const rupees = new Intl.NumberFormat("en-IN", {
   style: "currency",
@@ -23,16 +18,18 @@ const rupees = new Intl.NumberFormat("en-IN", {
   minimumFractionDigits: 2,
 });
 
-export function generateStaticParams() {
-  return productDetails.map((detail) => ({ slug: detail.slug }));
+export async function generateStaticParams() {
+  const products = await getCatalogue();
+  return products.map((product) => ({ slug: product.slug }));
 }
 
 export async function generateMetadata({
   params,
 }: PageProps<"/product/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const detail = getProductDetail(slug);
-  const product = getCatalogueProduct(slug);
+  const page = await getProductPage(slug);
+  const detail = page?.detail;
+  const product = page?.product;
   if (!detail || !product) return {};
 
   return {
@@ -80,18 +77,14 @@ async function ProductContent({
   params,
 }: Pick<PageProps<"/product/[slug]">, "params">) {
   const { slug } = await params;
-  const detail = getProductDetail(slug);
-  const product = getCatalogueProduct(slug);
-  if (!detail || !product) notFound();
+  const page = await getProductPage(slug);
+  if (!page) notFound();
+  const { product, detail, related } = page;
 
   const { name, price, regularPrice } = product;
   const onOffer = regularPrice !== undefined && regularPrice > price;
-  const related = getRelatedProducts(detail);
   // The products a kit is made of, from the catalogue (price and photo stay in one place).
-  const bundleItems = (detail.bundle ?? []).flatMap(({ slug: itemSlug, quantity }) => {
-    const item = getCatalogueProduct(itemSlug);
-    return item ? [{ item, quantity, hasPage: getProductDetail(itemSlug) !== undefined }] : [];
-  });
+  const bundleItems = page.bundle.map(({ item, quantity }) => ({ item, quantity, hasPage: true }));
   const { rating } = detail;
   // A product with no description text (the live page's tab is empty) gets no Description tab.
   const hasDescription = detail.description.length > 0;
@@ -259,7 +252,7 @@ async function ProductContent({
             )}
 
             <div className="mt-7">
-              <PurchasePanel slug={slug} productName={name} />
+              <PurchasePanel slug={slug} productName={name} soldOut={product.inStock === false} />
             </div>
 
             <div className="relative mt-8 overflow-hidden rounded-2xl border border-[#eadcb6] bg-white p-6 pl-7 shadow-[0_18px_36px_-28px_rgba(120,85,20,0.5)]">

@@ -44,8 +44,15 @@ export type CartAddedDetail = {
   added: number;
 };
 
-/** Put `qty` more of a product in the cart (never above MAX_QTY in total). Stays on the current page. */
-export function addToCart(product: { slug: string; name: string }, qty = 1) {
+/**
+ * Put `qty` more of a product in the cart (never above MAX_QTY in total). Stays on the current page.
+ * Pass `announce: false` to skip the "added" toast — "Buy It Now" does, because it is about to leave the page.
+ */
+export function addToCart(
+  product: { slug: string; name: string },
+  qty = 1,
+  { announce = true }: { announce?: boolean } = {},
+) {
   let added = 0;
   store.update((lines) => {
     const existing = lines.find((line) => line.slug === product.slug);
@@ -60,6 +67,7 @@ export function addToCart(product: { slug: string; name: string }, qty = 1) {
       ? lines.map((line) => (line.slug === product.slug ? { ...line, qty: after } : line))
       : [...lines, { slug: product.slug, qty: after }];
   });
+  if (!announce) return;
   window.dispatchEvent(
     new CustomEvent<CartAddedDetail>(CART_ADDED_EVENT, {
       detail: { slug: product.slug, name: product.name, added },

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { addToCart, MAX_QTY } from "@/lib/cart";
 
@@ -7,12 +8,30 @@ const stepperButton =
   "grid h-full w-11 cursor-pointer place-items-center text-[#444] transition-colors duration-300 hover:bg-[#fbf3e0] hover:text-brand-gold-dark disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent disabled:hover:text-[#444] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-gold";
 
 // Quantity + "Add to cart" + "Buy It Now". "Add to cart" puts the chosen
-// quantity in the cart (lib/cart.ts) and stays on the page. There is no
-// checkout yet, so "Buy It Now" is in place but doesn't do anything.
-export function PurchasePanel({ slug, productName }: { slug: string; productName: string }) {
+// quantity in the cart (lib/cart.ts) and stays on the page. "Buy It Now" puts
+// it in the cart the same way (no toast — the page is about to change) and goes
+// straight to /checkout, which checks out the cart.
+export function PurchasePanel({ slug, productName, soldOut = false }: { slug: string; productName: string; soldOut?: boolean }) {
+  const router = useRouter();
   const [qty, setQty] = useState(1);
 
   const clamp = (value: number) => Math.min(MAX_QTY, Math.max(1, value));
+
+  // Sold out (switched off, or its stock count reached 0 in the admin): nothing to buy.
+  if (soldOut) {
+    return (
+      <div>
+        <button
+          type="button"
+          disabled
+          className="h-[52px] w-full cursor-not-allowed rounded-full border border-[#d9d2bf] bg-[#ece7d8] px-4 font-system text-[13px] font-bold tracking-[0.12em] text-[#7a7468] uppercase"
+        >
+          Out of stock
+        </button>
+        <p className="mt-3 font-system text-[14px] text-[#777]">This product is currently unavailable. Please check back soon.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-[auto_1fr] gap-3 sm:grid-cols-[auto_1fr_1fr] lg:grid-cols-[auto_1fr] xl:grid-cols-[auto_1fr_1fr]">
@@ -77,6 +96,10 @@ export function PurchasePanel({ slug, productName }: { slug: string; productName
 
       <button
         type="button"
+        onClick={() => {
+          addToCart({ slug, name: productName }, qty, { announce: false });
+          router.push("/checkout");
+        }}
         className="col-span-2 h-[52px] cursor-pointer rounded-full border border-brand-gold bg-white px-4 font-system text-[13px] font-bold tracking-[0.12em] whitespace-nowrap text-brand-gold-dark uppercase transition-colors duration-300 hover:bg-[#fbf3e0] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-gold sm:col-span-1 lg:col-span-2 xl:col-span-1"
       >
         Buy It Now

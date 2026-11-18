@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { CurrentYear } from "@/components/CurrentYear";
-import { contact } from "@/data/contact";
+import { contact as builtInContact } from "@/data/contact";
+import { getContact } from "@/lib/catalog";
 
 // Links the live site has but this build has no page for yet point at "#".
 const columns = [
@@ -75,7 +77,11 @@ const contactLinkClass = `group flex items-center gap-3 rounded-sm text-[15px] t
 
 const socialClass = `grid h-10 w-10 place-items-center rounded-full text-[#e8c46f] ring-1 ring-[#C89B3C]/60 transition-colors duration-300 hover:bg-[#e8c46f] hover:text-[#2a1a05] ${focusRing}`;
 
-export function Footer() {
+type Contact = typeof builtInContact;
+
+// The footer itself. It takes the contact details as a prop so the same markup
+// serves both the real footer and the placeholder shown while they load.
+function FooterView({ contact }: { contact: Contact }) {
   return (
     <footer id="contact" className="relative isolate bg-[#21160e] text-[#e6dcc6]">
       {/* Gold line along the top edge, and a faint gold glow in two corners. */}
@@ -205,5 +211,23 @@ export function Footer() {
         </div>
       </div>
     </footer>
+  );
+}
+
+async function FooterWithContact() {
+  return <FooterView contact={await getContact()} />;
+}
+
+// The contact details (set in the admin's Settings) come from the backend and are
+// cached, but that cache can be cold — right after an admin saves Settings, or after
+// a restart. Reading them behind <Suspense> means a cold cache never holds the page
+// back: the footer shows at once with the built-in details and swaps in the saved
+// ones a moment later (same layout, so nothing jumps). When the cache is warm the
+// saved details are already part of the page.
+export function Footer() {
+  return (
+    <Suspense fallback={<FooterView contact={builtInContact} />}>
+      <FooterWithContact />
+    </Suspense>
   );
 }

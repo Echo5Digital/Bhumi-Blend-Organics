@@ -9,6 +9,7 @@ import { Footer } from "@/components/Footer";
 import { ShopProducts } from "@/components/ShopProducts";
 import { TrustBar } from "@/components/TrustBar";
 import { categories, getCategory, type Category } from "@/data/categories";
+import { getCategoryProducts } from "@/lib/catalog";
 
 export function generateStaticParams() {
   return categories.map((category) => ({ slug: category.slug }));
@@ -130,6 +131,8 @@ async function CategoryContent({
   const { slug } = await params;
   const category = getCategory(slug);
   if (!category) notFound();
+  // The banner and wording are this page's design; the products in it come from the backend.
+  const products = await getCategoryProducts(slug);
 
   return (
     <>
@@ -137,7 +140,7 @@ async function CategoryContent({
       <TrustBar />
       {/* The page already pads scrolling for the sticky header (globals.css). */}
       <div id="products">
-        <ShopProducts products={category.products} heading={category.listHeading} />
+        <ShopProducts products={products} heading={category.listHeading} />
       </div>
       {category.ingredients && <CategoryIngredients section={category.ingredients} />}
       {category.whyChoose && <CategoryWhyChoose section={category.whyChoose} />}

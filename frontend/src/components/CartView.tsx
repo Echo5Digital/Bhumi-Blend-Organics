@@ -293,10 +293,8 @@ export function CartView({ catalogue }: { catalogue: Product[] }) {
                   {rupees.format(subtotal)}
                 </span>
               </p>
-              {/* No checkout yet: this points at where it will live. */}
               <Link
                 href="/checkout"
-                prefetch={false}
                 className="mt-6 flex h-[52px] items-center justify-center rounded-full bg-brand-gold px-6 font-system text-[13px] font-bold tracking-[0.12em] whitespace-nowrap text-white uppercase shadow-[0_14px_24px_-12px_rgba(184,121,31,0.8)] transition-[background-color,transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:bg-brand-gold-dark hover:shadow-[0_18px_28px_-12px_rgba(184,121,31,0.9)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-gold"
               >
                 Proceed to checkout

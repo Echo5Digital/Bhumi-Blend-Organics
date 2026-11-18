@@ -1,14 +1,22 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { Suspense } from "react";
 import { Footer } from "@/components/Footer";
+import { PageSkeleton } from "@/components/PageSkeleton";
 import { ShopProducts } from "@/components/ShopProducts";
-import { shopProducts } from "@/data/products";
+import { getCatalogue } from "@/lib/catalog";
 
 export const metadata: Metadata = {
   title: "Shop | Bhumi Blend Organics",
   description:
     "Browse the complete Bhumi Blend Organics collection — Ayurvedic skin care, hair care, body care and combo sets crafted with nature.",
 };
+
+// The products are read behind <Suspense> so a cold cache never blocks the page
+// (the banner above them shows straight away).
+async function ShopGrid() {
+  return <ShopProducts products={await getCatalogue()} />;
+}
 
 export default function ShopPage() {
   return (
@@ -36,7 +44,9 @@ export default function ShopPage() {
           </div>
         </section>
 
-        <ShopProducts products={shopProducts} />
+        <Suspense fallback={<PageSkeleton className="h-[720px]" />}>
+          <ShopGrid />
+        </Suspense>
       </main>
       <Footer />
     </>
