@@ -1,0 +1,16 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+
+# secrets — .env holds the database link and API keys, never commit it
+.env
+.env.*
+!.env.example
+
+# test / tooling
+coverage/
+.cache/
+*.log
+*.tsbuildinfo
