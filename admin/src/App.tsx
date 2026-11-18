@@ -38,7 +38,8 @@ function NotFound() {
 export function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      {/* the admin lives under /adminecho5 (vite.config.ts `base`); every link and route below is relative to it */}
+      <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, "")}>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route

@@ -44,7 +44,7 @@ function ImageField({ label, image, onChange, error, required }: { label: string
         {required && " *"}
       </label>
       <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-        {image?.url ? <img className="thumb" style={{ width: 84, height: 84 }} src={imageSrc(image.url)} alt="" /> : <div className="thumb" style={{ width: 84, height: 84, display: "grid", placeItems: "center", color: "#a7aaad" }}>No photo</div>}
+        {image?.url ? <img className="thumb" style={{ width: 84, height: 84 }} src={imageSrc(image.url)} alt="" /> : <div className="thumb" style={{ width: 84, height: 84, display: "grid", placeItems: "center", color: "#000", fontSize: 12 }}>No photo</div>}
         <div style={{ flex: 1, minWidth: 0 }}>
           <input type="text" aria-label={`${label} address`} placeholder="https://… or /photo.jpg" value={image?.url ?? ""} className={error ? "invalid" : ""} onChange={(event) => onChange(event.target.value ? { url: event.target.value } : null)} />
           <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
@@ -219,7 +219,7 @@ function ProductForm({ initial, categories }: { initial: Product | null; categor
                     }}
                   />
                 </Field>
-                <Field label="Web address (slug)" htmlFor="slug" error={errors.slug} hint={slug ? `${STOREFRONT_URL}/product/${slug}` : "Lowercase letters, numbers and dashes."}>
+                <Field label="Web address (slug)" htmlFor="slug" error={errors.slug} hint="Lowercase letters, numbers and dashes.">
                   <input
                     id="slug"
                     type="text"

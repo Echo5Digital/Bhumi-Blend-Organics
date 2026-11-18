@@ -63,16 +63,28 @@ export function Shell() {
     <>
       <div className="adminbar">
         <button type="button" className="menu-toggle" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((value) => !value)}>
-          <svg className="icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+          <svg className="icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
             <path d={icons.menu} />
           </svg>
         </button>
-        <a className="site-name" href={STOREFRONT_URL} target="_blank" rel="noreferrer">
-          Bhumi Blend Organics
-        </a>
+        <Link className="brand" to="/" aria-label="Bhumi Blend dashboard">
+          <img src={`${import.meta.env.BASE_URL}logo.png`} alt="" width={40} height={38} />
+          <span className="name">
+            Bhumi Blend
+            <small>Admin</small>
+          </span>
+        </Link>
         <span className="spacer" />
-        <span style={{ padding: "0 8px" }}>Howdy, {admin?.name}</span>
-        <button type="button" onClick={logout}>
+        <a className="view-site" href={STOREFRONT_URL} target="_blank" rel="noreferrer">
+          View store
+        </a>
+        <span className="user">
+          <span className="avatar" aria-hidden="true">
+            {admin?.name?.trim().charAt(0) || "A"}
+          </span>
+          <span>{admin?.name}</span>
+        </span>
+        <button type="button" className="logout" onClick={logout}>
           Log out
         </button>
       </div>

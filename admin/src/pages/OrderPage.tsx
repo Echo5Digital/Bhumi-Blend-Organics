@@ -175,7 +175,7 @@ function OrderView({ number }: { number: string }) {
                   {order.payment.lastError && (
                     <>
                       <br />
-                      <span style={{ color: "var(--wp-red)" }}>Last attempt failed: {order.payment.lastError}</span>
+                      <span style={{ color: "#000", fontWeight: 600 }}>Last attempt failed: {order.payment.lastError}</span>
                     </>
                   )}
                 </p>
@@ -338,7 +338,7 @@ function OrderView({ number }: { number: string }) {
                 {order.notes.length === 0 && <li className="hint">There are no notes yet.</li>}
               </ul>
 
-              <form onSubmit={addNote} className="stack" style={{ borderTop: "1px solid var(--wp-card-border)", paddingTop: 12 }}>
+              <form onSubmit={addNote} className="stack" style={{ borderTop: "1px solid var(--card-border)", paddingTop: 12 }}>
                 <label className="label" htmlFor="note">
                   Add note
                 </label>

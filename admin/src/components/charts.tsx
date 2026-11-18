@@ -34,8 +34,55 @@ function niceScale(max: number) {
   return { yMax: ticks[ticks.length - 1] ?? step, ticks };
 }
 
+/**
+ * A smooth line through the points that never overshoots them (monotone cubic, Fritsch–Carlson):
+ * a day with no sales stays on the baseline instead of dipping below it.
+ */
+function smoothPath(coords: [number, number][]): string {
+  const n = coords.length;
+  const at = (index: number) => coords[index]!;
+  const move = (index: number) => `${at(index)[0].toFixed(1)},${at(index)[1].toFixed(1)}`;
+  if (n < 3) return coords.map((_, index) => `${index === 0 ? "M" : "L"}${move(index)}`).join(" ");
+
+  const dx: number[] = [];
+  const slope: number[] = [];
+  for (let i = 0; i < n - 1; i++) {
+    dx[i] = at(i + 1)[0] - at(i)[0];
+    slope[i] = (at(i + 1)[1] - at(i)[1]) / dx[i]!;
+  }
+  const tangent: number[] = [slope[0]!];
+  for (let i = 1; i < n - 1; i++) tangent[i] = slope[i - 1]! * slope[i]! <= 0 ? 0 : (slope[i - 1]! + slope[i]!) / 2;
+  tangent[n - 1] = slope[n - 2]!;
+  for (let i = 0; i < n - 1; i++) {
+    if (slope[i] === 0) {
+      tangent[i] = 0;
+      tangent[i + 1] = 0;
+      continue;
+    }
+    const a = tangent[i]! / slope[i]!;
+    const b = tangent[i + 1]! / slope[i]!;
+    const size = a * a + b * b;
+    if (size > 9) {
+      const k = 3 / Math.sqrt(size);
+      tangent[i] = k * a * slope[i]!;
+      tangent[i + 1] = k * b * slope[i]!;
+    }
+  }
+
+  let path = `M${move(0)}`;
+  for (let i = 0; i < n - 1; i++) {
+    const third = dx[i]! / 3;
+    const c1 = `${(at(i)[0] + third).toFixed(1)},${(at(i)[1] + tangent[i]! * third).toFixed(1)}`;
+    const c2 = `${(at(i + 1)[0] - third).toFixed(1)},${(at(i + 1)[1] - tangent[i + 1]! * third).toFixed(1)}`;
+    path += ` C${c1} ${c2} ${move(i + 1)}`;
+  }
+  return path;
+}
+
 type LineChartProps = {
   points: Point[];
+  /** Curve between the points instead of straight segments. */
+  smooth?: boolean;
   /** What is plotted ("Gross sales"): in the tooltip and the accessible name. */
   seriesName: string;
   /** Full value for the tooltip and the end label (₹1,198.00). */
@@ -47,7 +94,7 @@ type LineChartProps = {
   height?: number;
 };
 
-export function LineChart({ points, seriesName, format, formatAxis, emptyMax = 4, height = 260 }: LineChartProps) {
+export function LineChart({ points, smooth = false, seriesName, format, formatAxis, emptyMax = 4, height = 260 }: LineChartProps) {
   const holder = useRef<HTMLDivElement>(null);
   const width = useWidth(holder);
   const [active, setActive] = useState<number | null>(null);
@@ -62,12 +109,13 @@ export function LineChart({ points, seriesName, format, formatAxis, emptyMax = 4
   const x = (index: number) => (count <= 1 ? margin.left + innerWidth / 2 : margin.left + (index / (count - 1)) * innerWidth);
   const y = (value: number) => margin.top + innerHeight - (value / yMax) * innerHeight;
 
-  const line = points.map((point, index) => `${index === 0 ? "M" : "L"}${x(index).toFixed(1)},${y(point.value).toFixed(1)}`).join(" ");
+  const coords = points.map((point, index): [number, number] => [x(index), y(point.value)]);
+  const line = smooth ? smoothPath(coords) : points.map((point, index) => `${index === 0 ? "M" : "L"}${x(index).toFixed(1)},${y(point.value).toFixed(1)}`).join(" ");
   const baseline = margin.top + innerHeight;
   const area = count > 1 ? `${line} L${x(count - 1).toFixed(1)},${baseline} L${x(0).toFixed(1)},${baseline} Z` : "";
 
-  // About seven labels along the bottom, never crowded.
-  const every = Math.max(1, Math.ceil(count / 7));
+  // About seven labels along the bottom on a wide chart, fewer on a narrow one — never crowded.
+  const every = Math.max(1, Math.ceil(count / Math.min(7, Math.max(2, Math.floor(innerWidth / 70)))));
   const labelled = points.map((_, index) => index).filter((index) => index % every === 0 && (count - 1 - index >= every / 2 || index === count - 1));
 
   const nearest = (clientX: number, left: number) => {
@@ -196,6 +244,78 @@ export function RankedBars({ rows, empty = "Nothing to show for this period." }:
         </li>
       ))}
     </ul>
+  );
+}
+
+export type Slice = { key: string; name: string; value: number; color: string };
+
+/**
+ * One whole split into parts (orders by status). The names, counts and shares sit in the
+ * legend beside the ring, so no colour has to be decoded alone; hovering (or tabbing to) a
+ * legend row or a segment lights it up and shows its count in the middle.
+ */
+export function DonutChart({ slices, total, centerLabel, formatValue = (value) => String(value) }: { slices: Slice[]; total: number; centerLabel: string; formatValue?: (value: number) => string }) {
+  const [active, setActive] = useState<string | null>(null);
+  const size = 190;
+  const stroke = 26;
+  const radius = (size - stroke) / 2 - 2;
+  const circumference = 2 * Math.PI * radius;
+  const gap = slices.length > 1 ? 3 : 0;
+
+  let offset = 0;
+  const arcs = slices.map((slice) => {
+    const length = (slice.value / total) * circumference;
+    const arc = { slice, dash: `${Math.max(0, length - gap)} ${circumference - Math.max(0, length - gap)}`, offset: -offset };
+    offset += length;
+    return arc;
+  });
+  const shown = slices.find((slice) => slice.key === active);
+
+  return (
+    <div className="donut-wrap">
+      <div className="donut">
+        <svg viewBox={`0 0 ${size} ${size}`} role="img" aria-label={`${centerLabel}: ${slices.map((slice) => `${slice.name} ${formatValue(slice.value)}`).join(", ")}`}>
+          {arcs.map(({ slice, dash, offset: dashOffset }) => (
+            <circle
+              key={slice.key}
+              className={`seg ${active && active !== slice.key ? "dim" : ""}`}
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              stroke={slice.color}
+              strokeDasharray={dash}
+              strokeDashoffset={dashOffset}
+              onPointerEnter={() => setActive(slice.key)}
+              onPointerLeave={() => setActive(null)}
+            >
+              <title>{`${slice.name}: ${formatValue(slice.value)}`}</title>
+            </circle>
+          ))}
+        </svg>
+        <div className="middle" aria-hidden="true">
+          <strong>{formatValue(shown ? shown.value : total)}</strong>
+          <span>{shown ? shown.name : centerLabel}</span>
+        </div>
+      </div>
+      <ul className="legend">
+        {slices.map((slice) => (
+          <li
+            key={slice.key}
+            className={active === slice.key ? "on" : ""}
+            tabIndex={0}
+            onPointerEnter={() => setActive(slice.key)}
+            onPointerLeave={() => setActive(null)}
+            onFocus={() => setActive(slice.key)}
+            onBlur={() => setActive(null)}
+          >
+            <span className="swatch" style={{ background: slice.color }} aria-hidden="true" />
+            <span className="name">{slice.name}</span>
+            <span className="n">{formatValue(slice.value)}</span>
+            <span className="pct">{Math.round((slice.value / total) * 100)}%</span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

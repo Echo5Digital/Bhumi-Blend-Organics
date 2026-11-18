@@ -147,7 +147,7 @@ export function Customers() {
               </tbody>
             </table>
           </div>
-          <div className="card-head" style={{ borderTop: "1px solid var(--wp-card-border)", borderBottom: 0 }}>
+          <div className="card-head" style={{ borderTop: "1px solid var(--card-border)", borderBottom: 0 }}>
             <Pagination page={data?.page ?? 1} pages={data?.pages ?? 1} total={data?.total ?? 0} noun="customers" onPage={(next) => update({ page: String(next) })} />
           </div>
         </section>
