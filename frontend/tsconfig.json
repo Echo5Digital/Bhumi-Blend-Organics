@@ -30,6 +30,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  // admin/ and backend/ are separate apps with their own packages and tsconfig; the storefront must not type-check them
-  "exclude": ["node_modules", "admin", "backend"]
+  "exclude": ["node_modules"]
 }
