@@ -4,8 +4,9 @@ import { HttpError } from "../lib/httpError.js";
 
 // Razorpay, behind a small interface so the rest of the app (and the tests)
 // never touch the network. The real one talks to Razorpay's REST API with the
-// key id + secret; until those are in `.env`, `configured` is false and the
-// order endpoints answer 503 "payments not set up" instead of half-working.
+// key id + secret; until those are in `.env`, `configured` is false: orders are
+// still placed (as "pending payment", see services/orders.ts) but nothing can be
+// paid for, and creating a Razorpay order answers 503 "payments not set up".
 
 export type GatewayOrder = { id: string; amount: number; currency: string };
 

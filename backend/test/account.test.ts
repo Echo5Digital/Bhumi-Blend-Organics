@@ -4,7 +4,7 @@ import { Customer } from "../src/models/Customer.js";
 import { Order } from "../src/models/Order.js";
 import { PendingRegistration } from "../src/models/PendingRegistration.js";
 import { startRegistration } from "../src/services/registration.js";
-import { adminHeader, fakeGateway, fakeMailer, startTestApp, validAddress } from "./helpers.js";
+import { adminHeader, fakeGateway, fakeMailer, placeOrderWithoutAccount, startTestApp, validAddress } from "./helpers.js";
 
 const gateway = fakeGateway();
 const mail = fakeMailer();
@@ -406,7 +406,7 @@ describe("orders in the account", () => {
     const other = (await register({ email: "other@example.com" })).body;
 
     const placed = await ctx.api.post("/api/orders").set(bearer(mine.token)).send(cart).expect(201);
-    await ctx.api.post("/api/orders").send(cart).expect(201); // a guest order
+    await ctx.api.post("/api/orders").send(cart).expect(401); // no login, no order
     await ctx.api.post("/api/orders").set(bearer(other.token)).send(cart).expect(201);
 
     const list = await ctx.api.get("/api/account/orders").set(bearer(mine.token)).expect(200);
@@ -420,8 +420,8 @@ describe("orders in the account", () => {
     expect(theirs.status).toBe(404);
   });
 
-  it("does not hand a new account the guest orders placed under the same email", async () => {
-    await ctx.api.post("/api/orders").send(cart).expect(201);
+  it("does not hand a new account the orders with no account that carry the same email (like ones imported from the old shop)", async () => {
+    await placeOrderWithoutAccount(ctx, cart);
     const { body } = await register({ email: "echo@example.com" });
     const list = await ctx.api.get("/api/account/orders").set(bearer(body.token)).expect(200);
     expect(list.body.total).toBe(0);
@@ -437,9 +437,16 @@ describe("orders in the account", () => {
     expect(list.body.items.map((o: { number: number }) => o.number)).toEqual([second.order.number]);
   });
 
-  it("still lets a stale or bogus login token check out as a guest", async () => {
+  it("refuses a stale or bogus login token instead of falling back to a guest order", async () => {
     const response = await ctx.api.post("/api/orders").set(bearer("stale-token")).send(cart);
-    expect(response.status).toBe(201);
-    expect((await Order.findOne({ number: response.body.order.number }))?.customer).toBeUndefined();
+    expect(response.status).toBe(401);
+    expect(await Order.countDocuments()).toBe(0);
+  });
+
+  it("refuses the order of an account the admin has switched off", async () => {
+    const { body } = await register();
+    await Customer.updateOne({ email: "echo@example.com" }, { isActive: false });
+    await ctx.api.post("/api/orders").set(bearer(body.token)).send(cart).expect(401);
+    expect(await Order.countDocuments()).toBe(0);
   });
 });

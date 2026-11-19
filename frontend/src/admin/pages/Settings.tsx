@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { NavLink } from "react-router";
 import { ErrorNotice, Loading, Notice, PageTitle, useTitle } from "../components/ui";
 import { ApiError, api } from "../lib/api";
 import { useAuth } from "../lib/auth";
@@ -175,17 +176,25 @@ function SettingsForm({ initial }: { initial: SettingsData }) {
   );
 }
 
+/** The tabs along the top of every Settings screen. */
+export function SettingsTabs() {
+  return (
+    <nav className="nav-tabs" aria-label="Settings sections">
+      <NavLink to="/settings" end>
+        General
+      </NavLink>
+      <NavLink to="/settings/emails">Emails</NavLink>
+    </nav>
+  );
+}
+
 export function Settings() {
   useTitle("Settings");
   const { data, error } = useApi<{ settings: SettingsData }>("/admin/settings");
   return (
     <div className="page">
       <PageTitle title="Settings" />
-      <nav className="nav-tabs" aria-label="Settings sections">
-        <a className="active" href="#general" onClick={(event) => event.preventDefault()}>
-          General
-        </a>
-      </nav>
+      <SettingsTabs />
       <ErrorNotice error={error} />
       {!data && !error && <Loading />}
       {data && <SettingsForm initial={data.settings} />}

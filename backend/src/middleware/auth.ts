@@ -69,20 +69,3 @@ export function requireCustomer(env: Pick<Env, "JWT_SECRET">): RequestHandler {
     next();
   };
 }
-
-/**
- * For routes open to everyone (checkout): if the shopper happens to be logged
- * in, `res.locals.customerId` is set so the order lands in their account;
- * otherwise (no token, or a stale one) it carries on as a guest.
- */
-export function optionalCustomer(env: Pick<Env, "JWT_SECRET">): RequestHandler {
-  return async (req, res, next) => {
-    const token = bearerToken(req);
-    const customerId = token ? subjectOf(env.JWT_SECRET, token, "customer") : null;
-    if (customerId) {
-      const customer = await Customer.findById(customerId).select("_id isActive");
-      if (customer?.isActive) res.locals.customerId = String(customer._id);
-    }
-    next();
-  };
-}

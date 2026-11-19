@@ -2,7 +2,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { Coupon } from "../src/models/Coupon.js";
 import { Product } from "../src/models/Product.js";
 import { Setting } from "../src/models/Setting.js";
-import { adminHeader, fakeGateway, fakeImages, fakeMailer, startTestApp, validAddress } from "./helpers.js";
+import { adminHeader, customerHeader, fakeGateway, fakeImages, fakeMailer, startTestApp, validAddress } from "./helpers.js";
 
 const gateway = fakeGateway();
 const store = fakeImages();
@@ -70,9 +70,10 @@ describe("settings", () => {
     const refused = await ctx.api.post("/api/coupons/validate").send({ code: "SAVE10", items });
     expect(refused.status).toBe(400);
     expect(refused.body.error.code).toBe("COUPONS_DISABLED");
-    const order = await ctx.api.post("/api/orders").send({ items, email: "a@b.co", shipping: validAddress, couponCode: "SAVE10" });
+    const shopper = await customerHeader(ctx);
+    const order = await ctx.api.post("/api/orders").set(shopper).send({ items, email: "a@b.co", shipping: validAddress, couponCode: "SAVE10" });
     expect(order.body.error.code).toBe("COUPONS_DISABLED");
-    await ctx.api.post("/api/orders").send({ items, email: "a@b.co", shipping: validAddress }).expect(201); // no coupon: fine
+    await ctx.api.post("/api/orders").set(shopper).send({ items, email: "a@b.co", shipping: validAddress }).expect(201); // no coupon: fine
   });
 });
 

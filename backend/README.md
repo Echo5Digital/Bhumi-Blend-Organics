@@ -4,7 +4,7 @@ Node.js + Express 5 + TypeScript, MongoDB (Mongoose), Cloudinary for photos, Raz
 It replaces what WooCommerce did on the old site: products, orders, coupons, payments — plus the
 login-protected API the admin panel (part of the storefront, in `../frontend/src/admin`) uses.
 
-Shoppers can check out as **guests**, like the old site, or register an account (login, saved addresses, order history). Admins log in separately.
+Shoppers need an **account** to buy: they register (with an emailed code) or log in, then check out; their orders appear in their account. There is no guest checkout. Admins log in separately.
 
 ## Try it right now (no database needed)
 
@@ -33,8 +33,9 @@ Everything disappears when you stop it. (First run downloads MongoDB, ~1 minute.
 | `JWT_SECRET` | yes | 32+ random characters; signs admin logins. `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` |
 | `CLIENT_ORIGINS` | yes in production | Websites allowed to call the API from a browser (storefront, admin), comma separated |
 | `SMTP_HOST` `SMTP_PORT` `SMTP_SECURE` `SMTP_USER` `SMTP_PASS` `MAIL_FROM` | for sign-up codes | Your email provider's SMTP details (`SMTP_HOST` + `MAIL_FROM` are the minimum). Port 587 with `SMTP_SECURE=false`, or 465 with `true`. Without them: development prints the code in the backend console; production answers `503 EMAIL_NOT_CONFIGURED` |
+| `ORDER_NOTIFY_EMAILS` | for the "New order" email | Who gets it (comma separated). Only the default: what is saved in the admin under **Settings → Emails → New order** wins. Needs the SMTP settings above to really send |
 | `CLOUDINARY_CLOUD_NAME` `_API_KEY` `_API_SECRET` | for uploads | Without them admin uploads answer `503 IMAGES_NOT_CONFIGURED` |
-| `RAZORPAY_KEY_ID` `_KEY_SECRET` | for checkout | Without them `POST /api/orders` answers `503 PAYMENTS_NOT_CONFIGURED` (no order is created) |
+| `RAZORPAY_KEY_ID` `_KEY_SECRET` | for checkout | Without them `POST /api/orders` still places the order, as **pending payment** with `payment: null` (nothing can be paid for yet; stock and coupons are untouched and the admin can only cancel it). Add the keys and new orders get a real Razorpay payment |
 | `RAZORPAY_WEBHOOK_SECRET` | recommended | Razorpay dashboard → Webhooks → URL `https://<api>/api/webhooks/razorpay`, events `payment.captured`, `order.paid`, `payment.failed` |
 | `STOREFRONT_URL` + `REVALIDATE_SECRET` | recommended | Make admin edits show on the website at once: where the storefront runs (e.g. `http://localhost:3000`) and a shared secret of 16+ characters. The SAME secret goes in `frontend/.env.local` as `REVALIDATE_SECRET`. Without them the site still picks changes up within a minute |
 | `PORT`, `TRUST_PROXY`, `JWT_EXPIRES_IN`, `CUSTOMER_JWT_EXPIRES_IN`, `CLOUDINARY_FOLDER` | no | Defaults: 4000, 0, 12h (admin login), 30d (shopper login), `bhumiblend`. Set `TRUST_PROXY=1` behind Render/Railway/Nginx so rate limits see real IPs. |
@@ -69,7 +70,8 @@ Money is in rupees. Product "cards" have the same shape as the storefront's `Pro
 | `POST /api/orders` | Place an order (below) |
 | `GET /api/orders/:number` | The shopper's order. Needs header `X-Order-Token` |
 | `POST /api/orders/:number/payment` | Razorpay popup details again (page reloaded) |
-| `POST /api/orders/:number/verify-payment` | Confirm a payment (below) |
+| `POST /api/orders/:number/verify-payment` | Confirm a payment (below). The first time an order is marked paid, the shop owner gets the "New order" email and the customer gets the "Order received" email |
+| `POST /api/orders/:number/confirm` | "Pay Now" while Razorpay isn't set up: there is nothing to pay, so this is when the order counts as placed and the owner gets the "New order" email and the customer the "Order received" email (each once per order; `409 ORDER_NEEDS_PAYMENT` when Razorpay is set up, `409 ORDER_NOT_CONFIRMABLE` for a cancelled or paid order) |
 | `POST /api/orders/:number/cancel` | The "Cancel" button; only before payment |
 | `POST /api/webhooks/razorpay` | Called by Razorpay, signature-checked |
 
@@ -133,9 +135,9 @@ extra tries; after that the sign-up is thrown away. A code only works for the ad
 Because the account is only created after the code is entered, nobody can register an address they can't read mail for.
 (Changing the email later in *Account details* is not re-verified yet.)
 
-An order lands in an account only when it is placed **while logged in** (send the shopper's token on `POST /api/orders`); a bad or
-stale token just checks out as a guest. Guest orders are deliberately **not** matched to an account by email. Now that sign-up emails
-are verified this *would* be safe if you want it later.
+`POST /api/orders` **needs the shopper's token** (`Authorization: Bearer …`): with none it answers `401 Please log in.`, with an expired
+or switched-off account `401 TOKEN_INVALID`, and no order is created. The order is saved in that shopper's account. (The admin's customer
+list and reports still handle orders without an account, for any imported from the old shop; they are not matched to accounts by email.)
 Shopper tokens and admin tokens are not interchangeable.
 
 ### Admin (all need `Authorization: Bearer <token>` except login)
@@ -151,9 +153,13 @@ Shopper tokens and admin tokens are not interchangeable.
 | `GET/PATCH /api/admin/orders/:number` | PATCH `{ status: processing|shipped|completed|cancelled|refunded, tracking:{carrier,trackingNumber} }`. Illegal changes → 409 `INVALID_STATUS_CHANGE` (unpaid orders can only be cancelled; cancelled/refunded are final). Every change writes a note |
 | `POST /api/admin/orders/:number/notes`, `DELETE …/notes/:noteId` | `{ text, customerNote }`; customer notes show on the shopper's order, private ones never do |
 | `POST /api/admin/orders/bulk` | `{ numbers:[…], status }` → `{ updated, skipped:[{number,reason}] }` |
-| `GET /api/admin/customers`, `GET/PATCH /api/admin/customers/:id` | Registered customers and guests (grouped by email) with orders, total spend, AOV, last active, location; `type`, `search`, `sort`, paging. PATCH `{ isActive }` switches an account off/on |
+| `GET /api/admin/customers`, `GET/PATCH /api/admin/customers/:id` | Registered customers and guests (grouped by email) with orders, total spend, AOV, last active, location; `type`, `search`, `sort`, paging. PATCH `{ isActive }` switches an account off/on. `DELETE …/:id` removes the account for good: the shopper can't log in, but their orders are kept (as orders with no account, i.e. guest orders) → `{ deleted, ordersKept }` |
 | `GET /api/admin/reports/sales|products|categories|coupons|customers|stock` | `?from=&to=` (default: this month so far; max one year; ranges over ~3 months group by month). Sales counts paid, uncancelled orders; refunds come off the net figure |
 | `GET/PUT /api/admin/settings` | Store address and contact details, coupons on/off, low-stock level |
+| `GET /api/admin/emails` | The two order emails and whether each is on: `new-order` (to the shop owner) and `order-received` (to the customer who ordered) |
+| `GET/PUT /api/admin/emails/:kind` | `:kind` is `new-order` or `order-received`. `{ enabled, recipients, subject, heading, additionalContent, format }` (`format` = `html` or `plain`; `recipients` only for `new-order`, since the customer's email goes to the address they gave at checkout). `{site_title}`, `{order_number}`, `{order_date}` and `{customer_name}` can be used in the text. Kept apart from the public settings, which never carry the recipients |
+| `POST /api/admin/emails/:kind/preview` | The email built from a made-up order, with the settings in the body laid over the saved ones (nothing is saved) → `{ subject, html, text, format }` |
+| `POST /api/admin/emails/:kind/test` | `{ to, …optional draft }` sends that made-up email, subject starting `[TEST]` |
 | `GET /api/admin/system` | What's connected (database, Razorpay, Cloudinary, SMTP), server info, record counts — never a secret |
 | `POST /api/admin/uploads` | multipart, field `file` (JPG/PNG/WebP/GIF/AVIF, ≤5 MB) → `{ url, publicId, width, height }` |
 | `DELETE /api/admin/uploads?publicId=` | |

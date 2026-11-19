@@ -2,7 +2,8 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { Coupon } from "../src/models/Coupon.js";
 import { Order } from "../src/models/Order.js";
 import { Product } from "../src/models/Product.js";
-import { fakeGateway, paymentSignature, startTestApp, validAddress, webhookSignature } from "./helpers.js";
+import { Customer } from "../src/models/Customer.js";
+import { adminHeader, customerHeader, fakeGateway, paymentSignature, startTestApp, validAddress, webhookSignature } from "./helpers.js";
 
 const SAFFRON = "saffron-face-cream-for-glowing-skin"; // ₹599, was ₹1,200
 const OIL = "best-ayurvedic-hair-oil"; // ₹399, was ₹499
@@ -28,7 +29,7 @@ const body = (extra: Record<string, unknown> = {}) => ({
 });
 
 async function place(extra: Record<string, unknown> = {}) {
-  const response = await ctx.api.post("/api/orders").send(body(extra));
+  const response = await ctx.api.post("/api/orders").set(await customerHeader(ctx)).send(body(extra));
   return response;
 }
 const tokenHeader = (token: string) => ({ "X-Order-Token": token });
@@ -69,6 +70,33 @@ describe("placing an order", () => {
     expect(typeof response.accessToken).toBe("string");
     // The token's hash must never leave the server.
     expect(JSON.stringify(response)).not.toContain("accessTokenHash");
+  });
+
+  it("needs a logged-in shopper: without one nothing is created", async () => {
+    const anonymous = await ctx.api.post("/api/orders").send(body());
+    expect(anonymous.status).toBe(401);
+    expect(await Order.countDocuments()).toBe(0);
+
+    // a made-up or expired token is no better than none
+    const bogus = await ctx.api.post("/api/orders").set({ Authorization: "Bearer not-a-real-token" }).send(body());
+    expect(bogus.status).toBe(401);
+    expect(bogus.body.error.code).toBe("TOKEN_INVALID");
+    expect(await Order.countDocuments()).toBe(0);
+    expect(gateway.created).toHaveLength(0); // no Razorpay payment was started either
+  });
+
+  it("refuses an admin's token: only shoppers place orders", async () => {
+    const admin = await adminHeader(ctx.api);
+    await ctx.api.post("/api/orders").set(admin).send(body()).expect(401);
+    expect(await Order.countDocuments()).toBe(0);
+  });
+
+  it("saves the order in the shopper's account", async () => {
+    const shopper = await customerHeader(ctx, "mine@example.com");
+    const { body: placed } = await ctx.api.post("/api/orders").set(shopper).send(body()).expect(201);
+    const saved = await Order.findOne({ number: placed.order.number });
+    const customer = await Customer.findOne({ email: "mine@example.com" });
+    expect(String(saved?.customer)).toBe(String(customer?._id));
   });
 
   it("numbers orders one after another", async () => {

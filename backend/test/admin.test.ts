@@ -5,7 +5,7 @@ import { Category } from "../src/models/Category.js";
 import { Coupon } from "../src/models/Coupon.js";
 import { Order } from "../src/models/Order.js";
 import { Product } from "../src/models/Product.js";
-import { adminHeader, fakeGateway, fakeImages, paymentSignature, startTestApp, validAddress } from "./helpers.js";
+import { adminHeader, customerHeader, fakeGateway, fakeImages, paymentSignature, startTestApp, validAddress } from "./helpers.js";
 
 const gateway = fakeGateway();
 const store = fakeImages();
@@ -155,7 +155,7 @@ describe("admin coupons", () => {
 
 describe("admin orders and stats", () => {
   async function placeOrder(paid: boolean) {
-    const placed = (await ctx.api.post("/api/orders").send({ items: [{ slug: "aloe-pure-shampoo", qty: 2 }], email: "buyer@example.com", shipping: validAddress })).body;
+    const placed = (await ctx.api.post("/api/orders").set(await customerHeader(ctx)).send({ items: [{ slug: "aloe-pure-shampoo", qty: 2 }], email: "buyer@example.com", shipping: validAddress })).body;
     if (paid) {
       const rzp = placed.payment.razorpayOrderId as string;
       await ctx.api

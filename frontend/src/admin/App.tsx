@@ -8,6 +8,7 @@ import { CouponEdit } from "./pages/CouponEdit";
 import { Coupons } from "./pages/Coupons";
 import { CustomerPage } from "./pages/CustomerPage";
 import { Customers } from "./pages/Customers";
+import { EmailScreen, EmailsList } from "./pages/Emails";
 import { Home } from "./pages/Home";
 import { Login } from "./pages/Login";
 import { OrderPage } from "./pages/OrderPage";
@@ -63,6 +64,8 @@ export function App() {
             <Route path="coupons/:id" element={<CouponEdit />} />
             <Route path="reports" element={<Reports />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="settings/emails" element={<EmailsList />} />
+            <Route path="settings/emails/:kind" element={<EmailScreen />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

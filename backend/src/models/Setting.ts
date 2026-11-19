@@ -22,6 +22,28 @@ const settingSchema = new Schema(
     couponsEnabled: { type: Boolean, default: true },
     /** A product with this many left (or fewer) counts as "low in stock". */
     lowStockThreshold: { type: Number, min: 0, default: 2 },
+    /**
+     * Settings → Emails → New order (see services/newOrderEmail.ts). Deliberately NOT part of
+     * `getSettings()`: the shop's public settings must never carry the owner's email addresses.
+     */
+    newOrderEmail: {
+      enabled: { type: Boolean },
+      /** Comma-separated; blank means "use ORDER_NOTIFY_EMAILS". */
+      recipients: { type: String, trim: true },
+      subject: { type: String, trim: true },
+      heading: { type: String, trim: true },
+      additionalContent: { type: String, trim: true },
+      /** "html" (the designed email) or "plain" (text only). Called `format` because a nested `type` key confuses Mongoose. */
+      format: { type: String, enum: ["html", "plain"] },
+    },
+    /** Settings → Emails → Order received (services/customerOrderEmail.ts): the email the shopper gets. No recipients: it goes to them. */
+    customerOrderEmail: {
+      enabled: { type: Boolean },
+      subject: { type: String, trim: true },
+      heading: { type: String, trim: true },
+      additionalContent: { type: String, trim: true },
+      format: { type: String, enum: ["html", "plain"] },
+    },
   },
   { timestamps: true },
 );

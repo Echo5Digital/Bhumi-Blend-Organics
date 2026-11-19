@@ -54,7 +54,7 @@ Not driven from here: a category's page design and wording (they live in the web
 | **Customers** | Registered customers and guests with orders, total spend, average order value, last active and location; CSV download; click a customer for their orders, or to switch their account off |
 | **Coupons** | Percentage or fixed, optional cap, minimum spend, start/expiry dates, usage limit; usage counts |
 | **Reports** | Sales by date (chart + totals, CSV), by product, by category, coupons, customers, stock — all follow the date range at the top |
-| **Settings** | Store name, address and contact details, coupons on/off, low-stock level |
+| **Settings** | Store name, address and contact details, coupons on/off, low-stock level. The **Emails** tab holds the two order emails: "New order" (to the shop owner) and "Order received" (to the customer who ordered). Each has on/off, subject, heading, extra text, a live preview (desktop / mobile) and a "Send a test email" button; the owner's also has its recipients |
 
 ## Not here (yet)
 

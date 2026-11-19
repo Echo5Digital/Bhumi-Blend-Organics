@@ -6,7 +6,7 @@ import { Customer } from "../src/models/Customer.js";
 import { Order } from "../src/models/Order.js";
 import { Product } from "../src/models/Product.js";
 import { Setting } from "../src/models/Setting.js";
-import { adminHeader, fakeGateway, paymentSignature, startTestApp, validAddress } from "./helpers.js";
+import { adminHeader, fakeGateway, paymentSignature, placeOrderWithoutAccount, startTestApp, validAddress } from "./helpers.js";
 
 const gateway = fakeGateway();
 let ctx: Awaited<ReturnType<typeof startTestApp>>;
@@ -29,9 +29,10 @@ type Opts = { slug?: string; qty?: number; at: string; paid?: boolean; couponCod
 
 /** Place an order, give it a date, and optionally pay for it. */
 async function order({ slug = "aloe-pure-shampoo", qty = 1, at, paid = true, couponCode, token }: Opts) {
-  const request = ctx.api.post("/api/orders");
-  if (token) request.set("Authorization", `Bearer ${token}`);
-  const response = await request.send({ items: [{ slug, qty }], email: "buyer@example.com", shipping: validAddress, couponCode });
+  const payload = { items: [{ slug, qty }], email: "buyer@example.com", shipping: validAddress, couponCode };
+  const response = token
+    ? await ctx.api.post("/api/orders").set("Authorization", `Bearer ${token}`).send(payload)
+    : await placeOrderWithoutAccount(ctx, payload);
   expect(response.status, JSON.stringify(response.body)).toBe(201);
   const number = response.body.order.number as number;
   if (paid) {

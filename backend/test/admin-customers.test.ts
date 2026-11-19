@@ -2,7 +2,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { signCustomerToken } from "../src/middleware/auth.js";
 import { Customer } from "../src/models/Customer.js";
 import { Order } from "../src/models/Order.js";
-import { adminHeader, fakeGateway, paymentSignature, startTestApp, validAddress } from "./helpers.js";
+import { adminHeader, fakeGateway, paymentSignature, placeOrderWithoutAccount, startTestApp, validAddress } from "./helpers.js";
 
 const gateway = fakeGateway();
 let ctx: Awaited<ReturnType<typeof startTestApp>>;
@@ -23,15 +23,16 @@ async function makeCustomer(email: string, firstName: string, lastName: string, 
   return { id: String(customer._id), token: signCustomerToken(ctx.env, String(customer._id)) };
 }
 
-/** Place an order (as a logged-in customer when a token is given) and optionally pay for it. */
+/** Place an order (for the customer with the given token, else one with no account on it) and optionally pay for it. */
 async function order(options: { token?: string; email?: string; slug?: string; qty?: number; paid?: boolean; city?: string; name?: [string, string] }) {
-  const request = ctx.api.post("/api/orders");
-  if (options.token) request.set("Authorization", `Bearer ${options.token}`);
-  const response = await request.send({
+  const payload = {
     items: [{ slug: options.slug ?? "aloe-pure-shampoo", qty: options.qty ?? 1 }],
     email: options.email ?? "guest@example.com",
     shipping: { ...validAddress, city: options.city ?? "Kochi", firstName: options.name?.[0] ?? "Asha", lastName: options.name?.[1] ?? "Nair" },
-  });
+  };
+  const response = options.token
+    ? await ctx.api.post("/api/orders").set("Authorization", `Bearer ${options.token}`).send(payload)
+    : await placeOrderWithoutAccount(ctx, payload);
   expect(response.status).toBe(201);
   if (options.paid !== false) {
     const rzp = response.body.payment.razorpayOrderId as string;
@@ -95,6 +96,51 @@ describe("customers list", () => {
 
   it("needs a login", async () => {
     expect((await ctx.api.get("/api/admin/customers")).status).toBe(401);
+  });
+});
+
+describe("deleting a customer", () => {
+  it("removes the account, keeps their orders as guest orders and stops their login", async () => {
+    const asha = await makeCustomer("asha@example.com", "Asha", "Nair");
+    const paid = await order({ token: asha.token, email: "asha@example.com" });
+    const unpaid = await order({ token: asha.token, email: "asha@example.com", paid: false });
+
+    const response = await ctx.api.delete(`/api/admin/customers/${asha.id}`).set(auth).expect(200);
+    expect(response.body).toEqual({ deleted: true, ordersKept: 2 });
+
+    expect(await Customer.findById(asha.id)).toBeNull();
+    const kept = await Order.find({ number: { $in: [paid, unpaid] } });
+    expect(kept).toHaveLength(2);
+    expect(kept.every((entry) => !entry.customer)).toBe(true);
+
+    // no longer a registered customer; the paid order now counts under the same email as a guest
+    const { items } = await list();
+    expect(items.map((row: { type: string; email: string }) => ({ type: row.type, email: row.email }))).toEqual([{ type: "guest", email: "asha@example.com" }]);
+
+    // the old login token stops working, and the address is free to sign up again
+    expect((await ctx.api.get("/api/account/me").set("Authorization", `Bearer ${asha.token}`)).status).toBe(401);
+    await makeCustomer("asha@example.com", "Asha", "Again");
+  });
+
+  it("touches nobody else", async () => {
+    const asha = await makeCustomer("asha@example.com", "Asha", "Nair");
+    const ben = await makeCustomer("ben@example.com", "Ben", "Ray");
+    const benOrder = await order({ token: ben.token, email: "ben@example.com" });
+    await ctx.api.delete(`/api/admin/customers/${asha.id}`).set(auth).expect(200);
+
+    expect(await Customer.findById(ben.id)).not.toBeNull();
+    expect(String((await Order.findOne({ number: benOrder }))?.customer)).toBe(ben.id);
+    expect((await list("?type=registered")).items.map((row: { email: string }) => row.email)).toEqual(["ben@example.com"]);
+  });
+
+  it("answers 404 for an unknown or malformed id, and needs an admin login", async () => {
+    const asha = await makeCustomer("asha@example.com", "Asha", "Nair");
+    expect((await ctx.api.delete("/api/admin/customers/64b64b64b64b64b64b64b64b").set(auth)).status).toBe(404);
+    expect((await ctx.api.delete("/api/admin/customers/not-an-id").set(auth)).status).toBe(404);
+    expect((await ctx.api.delete(`/api/admin/customers/${asha.id}`)).status).toBe(401);
+    // a shopper can't delete accounts (not even their own) with their own token
+    expect((await ctx.api.delete(`/api/admin/customers/${asha.id}`).set("Authorization", `Bearer ${asha.token}`)).status).toBe(401);
+    expect(await Customer.findById(asha.id)).not.toBeNull();
   });
 });
 

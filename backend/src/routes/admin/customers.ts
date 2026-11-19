@@ -9,7 +9,8 @@ import { Customer } from "../../models/Customer.js";
 import { Order } from "../../models/Order.js";
 
 // The admin's Customers screen: people with an account ("registered") and people
-// who only ever checked out as a guest, each with what they've bought.
+// whose orders carry no account (guests: old-shop imports, or a deleted account's orders),
+// each with what they've bought.
 //
 // Spend and order counts include paid orders only (not pending, cancelled or
 // refunded ones). Guests are grouped by email address.
@@ -201,6 +202,19 @@ export function adminCustomerRoutes(): Router {
       : null;
     if (!updated) throw HttpError.notFound("Customer not found.", "CUSTOMER_NOT_FOUND");
     res.json({ customer: { id: String(updated._id), isActive: updated.isActive } });
+  });
+
+  // Delete an account for good (the Customers screen's "Delete"). The shop's sales records must stay, so
+  // their orders are kept but lose the link to the account and become guest orders, as in WooCommerce.
+  // The shopper can no longer log in (a token for a missing account is refused), and the same email
+  // address can be registered again.
+  router.delete("/:id", async (req, res) => {
+    const customer = mongoose.isValidObjectId(req.params.id) ? await Customer.findById(req.params.id).select("_id") : null;
+    if (!customer) throw HttpError.notFound("Customer not found.", "CUSTOMER_NOT_FOUND");
+    // Orders first: if this stopped half-way the account would still exist, just with fewer orders on it.
+    const detached = await Order.updateMany({ customer: customer._id }, { $unset: { customer: "" } });
+    await Customer.deleteOne({ _id: customer._id });
+    res.json({ deleted: true, ordersKept: detached.modifiedCount });
   });
 
   return router;

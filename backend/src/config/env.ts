@@ -51,6 +51,11 @@ const schema = z.object({
   SMTP_PASS: optionalText,
   /** The "From" of every email, e.g. Bhumi Blend <no-reply@bhumiblend.com> */
   MAIL_FROM: optionalText,
+  /**
+   * Who gets the "New order" email (comma separated). Only the default: whatever is saved in the admin
+   * (Settings → Emails → New order) wins. Without either, no new-order email is sent.
+   */
+  ORDER_NOTIFY_EMAILS: optionalText,
 
   // So admin edits show on the storefront at once: after a change, the backend asks the storefront to
   // refresh its cached pages. Needs both; without them pages still refresh on their own every minute.

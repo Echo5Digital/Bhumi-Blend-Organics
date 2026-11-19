@@ -5,16 +5,18 @@ import type { Env } from "../config/env.js";
 import { HttpError } from "../lib/httpError.js";
 import { publicOrder, type OrderDoc } from "../lib/serialize.js";
 import { parse } from "../lib/validation.js";
-import { optionalCustomer } from "../middleware/auth.js";
+import { requireCustomer } from "../middleware/auth.js";
 import { createLimiter } from "../middleware/rateLimit.js";
 import { Order } from "../models/Order.js";
+import { silentOrderNotifier, type NewOrderNotifier } from "../services/orderNotifications.js";
 import { checkoutParams, markOrderPaid, placeOrder, placeOrderSchema, tokenMatches } from "../services/orders.js";
 import type { PaymentGateway } from "../services/payments.js";
 import { silentNotifier, type StorefrontNotifier } from "../services/storefront.js";
 
-// The shopper's side of an order. Customers check out as guests, so an order is
-// reached with its number plus the secret `X-Order-Token` returned when it was
-// placed. A wrong token looks exactly like "no such order".
+// The shopper's side of an order. Only a logged-in customer can place one (there is
+// no guest checkout), and it lands in their account. The pay / cancel / look-at-it
+// calls below are reached with the order's number plus the secret `X-Order-Token`
+// returned when it was placed. A wrong token looks exactly like "no such order".
 
 const verifySchema = z.object({
   razorpay_order_id: z.string().min(1).max(100),
@@ -22,7 +24,18 @@ const verifySchema = z.object({
   razorpay_signature: z.string().min(1).max(200),
 });
 
-export function orderRoutes({ env, gateway, notifier = silentNotifier }: { env: Env; gateway: PaymentGateway; notifier?: StorefrontNotifier }): Router {
+export function orderRoutes({
+  env,
+  gateway,
+  notifier = silentNotifier,
+  onPlaced = silentOrderNotifier,
+}: {
+  env: Env;
+  gateway: PaymentGateway;
+  notifier?: StorefrontNotifier;
+  /** Tells the shop owner a new order has come in (the "New order" email). */
+  onPlaced?: NewOrderNotifier;
+}): Router {
   const router = Router();
   const placeLimiter = createLimiter(env, { windowMinutes: 60, max: 30, message: "Too many orders from this connection. Please try again later." });
   const guessLimiter = createLimiter(env, { windowMinutes: 15, max: 120, message: "Too many attempts. Please try again later." });
@@ -37,9 +50,10 @@ export function orderRoutes({ env, gateway, notifier = silentNotifier }: { env: 
     return order;
   }
 
-  // POST /api/orders — place an order from the cart; returns what Razorpay's popup needs.
-  // A logged-in shopper (Authorization: Bearer <customer token>) gets the order in their account; anyone else checks out as a guest.
-  router.post("/orders", placeLimiter, optionalCustomer(env), async (req, res) => {
+  // POST /api/orders — place an order from the cart; returns what Razorpay's popup needs
+  // (`payment: null` while Razorpay isn't set up: the order is placed as "pending payment").
+  // Needs a logged-in shopper (Authorization: Bearer <customer token>); without one the answer is 401.
+  router.post("/orders", placeLimiter, requireCustomer(env), async (req, res) => {
     const input = parse(placeOrderSchema, req.body);
     const { order, token, payment } = await placeOrder(input, gateway, res.locals.customerId);
     res.status(201).json({ order: publicOrder(order), accessToken: token, payment });
@@ -75,9 +89,27 @@ export function orderRoutes({ env, gateway, notifier = silentNotifier }: { env: 
     if (!genuine) throw HttpError.badRequest("We couldn't verify this payment.", undefined, "INVALID_SIGNATURE");
 
     const { order: paid, changed } = await markOrderPaid(order._id, body.razorpay_payment_id);
-    // paying takes stock off the shelf, which the shop shows
-    if (changed) notifier.revalidate(["catalog"]);
+    if (changed) {
+      // paying takes stock off the shelf, which the shop shows
+      notifier.revalidate(["catalog"]);
+      await onPlaced(paid);
+    }
     res.json({ order: publicOrder(paid) });
+  });
+
+  // POST /api/orders/:number/confirm — "Pay Now" while online payment isn't set up: there is nothing to
+  // pay yet, so this is the moment the shopper has really placed the order. It tells the shop owner (the
+  // "New order" email, once per order). With Razorpay set up an order is placed by paying for it instead.
+  router.post("/orders/:number/confirm", guessLimiter, async (req, res) => {
+    const order = await loadOrder(req);
+    if (order.payment?.razorpayOrderId) {
+      throw HttpError.conflict("This order is paid for online, so it is placed when the payment goes through.", "ORDER_NEEDS_PAYMENT");
+    }
+    if (order.paymentStatus !== "pending" || order.fulfilmentStatus === "cancelled") {
+      throw HttpError.conflict("This order can't be confirmed.", "ORDER_NOT_CONFIRMABLE");
+    }
+    await onPlaced(order.toObject() as unknown as OrderDoc);
+    res.json({ order: publicOrder(order.toObject() as unknown as OrderDoc) });
   });
 
   // POST /api/orders/:number/cancel — the "Cancel" button on the pay step. Only before payment.

@@ -13,6 +13,7 @@ import { adminCustomerRoutes } from "./routes/admin/customers.js";
 import { adminOrderRoutes } from "./routes/admin/orders.js";
 import { adminProductRoutes } from "./routes/admin/products.js";
 import { adminReportRoutes } from "./routes/admin/reports.js";
+import { adminEmailRoutes } from "./routes/admin/emails.js";
 import { adminSettingsRoutes } from "./routes/admin/settings.js";
 import { adminStatsRoutes } from "./routes/admin/stats.js";
 import { adminSystemRoutes } from "./routes/admin/system.js";
@@ -23,6 +24,7 @@ import { orderRoutes } from "./routes/orders.js";
 import { razorpayWebhook } from "./routes/webhooks.js";
 import { createCloudinaryStore, type ImageStore } from "./services/images.js";
 import { createMailer, type Mailer } from "./services/mailer.js";
+import { createNewOrderNotifier } from "./services/orderNotifications.js";
 import { createRazorpayGateway, type PaymentGateway } from "./services/payments.js";
 import { createStorefrontNotifier, type StorefrontNotifier } from "./services/storefront.js";
 
@@ -62,8 +64,11 @@ export function createApp({
     }),
   );
 
+  // The "New order" email to the shop owner, sent when an order is placed (paid, or confirmed with Pay Now).
+  const newOrderEmail = createNewOrderNotifier({ env, mailer });
+
   // Razorpay signs the exact bytes it sends, so this one route reads the raw body.
-  app.post("/api/webhooks/razorpay", express.raw({ type: "application/json", limit: "1mb" }), razorpayWebhook(payments, notifier));
+  app.post("/api/webhooks/razorpay", express.raw({ type: "application/json", limit: "1mb" }), razorpayWebhook(payments, notifier, newOrderEmail));
 
   // Admin requests can carry a whole product page's content; everything else is small.
   app.use("/api/admin", express.json({ limit: "2mb" }));
@@ -83,7 +88,7 @@ export function createApp({
   app.use("/api/coupons", couponLimiter);
   app.use("/api/account", accountRoutes({ env, mailer }));
   app.use("/api", catalogRoutes());
-  app.use("/api", orderRoutes({ env, gateway: payments, notifier }));
+  app.use("/api", orderRoutes({ env, gateway: payments, notifier, onPlaced: newOrderEmail }));
 
   // Admin panel API: login is open, everything else needs a valid admin token.
   app.use("/api/admin/auth", adminAuthRoutes(env));
@@ -98,6 +103,7 @@ export function createApp({
   admin.use("/customers", adminCustomerRoutes());
   admin.use("/reports", adminReportRoutes());
   admin.use("/settings", adminSettingsRoutes(notifier));
+  admin.use("/emails", adminEmailRoutes({ env, mailer }));
   admin.use("/system", adminSystemRoutes({ env, payments, images, mailer }));
   app.use("/api/admin", admin);
 

@@ -40,10 +40,10 @@ export const placeOrderSchema = z.object({
 
 export type PlaceOrderInput = z.infer<typeof placeOrderSchema>;
 
-// ---- guest access token ---------------------------------------------------
-// Customers have no accounts, so each order gets a random secret, returned once
-// when it is placed. Seeing, paying for or cancelling the order needs it; only
-// its hash is stored.
+// ---- order access token ---------------------------------------------------
+// Each order gets a random secret, returned once when it is placed. Looking at,
+// paying for or cancelling the order through the checkout calls needs it; only its
+// hash is stored.
 
 export const newAccessToken = () => crypto.randomBytes(24).toString("base64url");
 export const hashToken = (token: string) => crypto.createHash("sha256").update(token).digest("hex");
@@ -74,10 +74,16 @@ export function checkoutParams(order: OrderDoc, gateway: PaymentGateway) {
   };
 }
 
-export async function placeOrder(input: PlaceOrderInput, gateway: PaymentGateway, customerId?: string) {
-  if (!gateway.configured) {
-    throw HttpError.unavailable("Online payments are not set up yet.", "PAYMENTS_NOT_CONFIGURED");
-  }
+/**
+ * Place an order from the cart.
+ *
+ * With Razorpay set up, the order is created together with a Razorpay order and the shopper pays in
+ * the popup (`payment` holds what it needs). Without Razorpay keys the order is still placed, as
+ * "pending payment" with `payment: null`: the shopper gets an order number and the admin sees it,
+ * but nothing can be paid for yet, so stock and coupons are untouched (they move when it is paid)
+ * and the admin can only cancel it, like any other unpaid order.
+ */
+export async function placeOrder(input: PlaceOrderInput, gateway: PaymentGateway, customerId: string) {
   if (!input.billingSameAsShipping && !input.billing) {
     throw HttpError.badRequest("Please enter a billing address.", [{ path: "billing", message: "Billing address is required." }], "VALIDATION_ERROR");
   }
@@ -111,24 +117,29 @@ export async function placeOrder(input: PlaceOrderInput, gateway: PaymentGateway
     discountTotal: fromPaise(discountPaise),
     shippingTotal: fromPaise(shippingPaise),
     total: fromPaise(totalPaise),
+    notes: gateway.configured
+      ? []
+      : [{ text: "Order placed without online payment (Razorpay isn't connected yet). Payment is still pending.", author: "System", customerNote: false }],
   });
 
-  try {
-    const gatewayOrder = await gateway.createOrder({
-      amountPaise: totalPaise,
-      receipt: `BB-${number}`,
-      notes: { orderNumber: String(number) },
-    });
-    order.set("payment.razorpayOrderId", gatewayOrder.id);
-    await order.save();
-  } catch (error) {
-    // No payment can ever be made for this order, so don't leave it looking open.
-    await Order.updateOne({ _id: order._id }, { $set: { fulfilmentStatus: "cancelled" } });
-    throw error;
+  if (gateway.configured) {
+    try {
+      const gatewayOrder = await gateway.createOrder({
+        amountPaise: totalPaise,
+        receipt: `BB-${number}`,
+        notes: { orderNumber: String(number) },
+      });
+      order.set("payment.razorpayOrderId", gatewayOrder.id);
+      await order.save();
+    } catch (error) {
+      // No payment can ever be made for this order, so don't leave it looking open.
+      await Order.updateOne({ _id: order._id }, { $set: { fulfilmentStatus: "cancelled" } });
+      throw error;
+    }
   }
 
   const saved = order.toObject() as unknown as OrderDoc;
-  return { order: saved, token, payment: checkoutParams(saved, gateway) };
+  return { order: saved, token, payment: gateway.configured ? checkoutParams(saved, gateway) : null };
 }
 
 // ---- recording a payment --------------------------------------------------

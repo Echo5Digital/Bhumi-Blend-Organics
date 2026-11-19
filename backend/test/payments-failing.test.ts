@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { Order } from "../src/models/Order.js";
-import { fakeGateway, startTestApp, validAddress } from "./helpers.js";
+import { customerHeader, fakeGateway, startTestApp, validAddress } from "./helpers.js";
 
 describe("Razorpay refuses to create the payment", () => {
   let ctx: Awaited<ReturnType<typeof startTestApp>>;
@@ -12,6 +12,7 @@ describe("Razorpay refuses to create the payment", () => {
   it("answers with a safe 500, and doesn't leave the order looking open", async () => {
     const response = await ctx.api
       .post("/api/orders")
+      .set(await customerHeader(ctx))
       .send({ items: [{ slug: "aloe-pure-shampoo", qty: 1 }], email: "a@b.co", shipping: validAddress });
     expect(response.status).toBe(500);
     expect(JSON.stringify(response.body)).not.toContain("gateway down");

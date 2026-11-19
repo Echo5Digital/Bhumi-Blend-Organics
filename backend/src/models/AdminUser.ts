@@ -1,7 +1,6 @@
 import { Schema, model, type InferSchemaType } from "mongoose";
 
-// Someone who can log in to the admin panel. Customers have no accounts —
-// the store checks out as a guest, like the old WooCommerce site did.
+// Someone who can log in to the admin panel. (Shoppers are separate: see Customer.)
 const adminUserSchema = new Schema(
   {
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },

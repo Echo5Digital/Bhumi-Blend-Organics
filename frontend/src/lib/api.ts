@@ -30,9 +30,11 @@ type RequestOptions = {
   body?: unknown;
   /** A logged-in visitor's token (lib/auth.ts). */
   token?: string;
+  /** Extra headers, e.g. the `X-Order-Token` that lets this browser cancel an order it placed. */
+  headers?: Record<string, string>;
 };
 
-export async function api<T>(path: string, { method = "GET", body, token }: RequestOptions = {}): Promise<T> {
+export async function api<T>(path: string, { method = "GET", body, token, headers }: RequestOptions = {}): Promise<T> {
   let response: Response;
   try {
     response = await fetch(`${API_URL}/api${path}`, {
@@ -40,6 +42,7 @@ export async function api<T>(path: string, { method = "GET", body, token }: Requ
       headers: {
         ...(body !== undefined && { "Content-Type": "application/json" }),
         ...(token && { Authorization: `Bearer ${token}` }),
+        ...headers,
       },
       body: body === undefined ? undefined : JSON.stringify(body),
       cache: "no-store",

@@ -2,7 +2,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { Coupon } from "../src/models/Coupon.js";
 import { Order } from "../src/models/Order.js";
 import { Product } from "../src/models/Product.js";
-import { adminHeader, fakeGateway, paymentSignature, startTestApp, validAddress } from "./helpers.js";
+import { adminHeader, customerHeader, fakeGateway, paymentSignature, startTestApp, validAddress } from "./helpers.js";
 
 const gateway = fakeGateway();
 let ctx: Awaited<ReturnType<typeof startTestApp>>;
@@ -22,7 +22,7 @@ beforeEach(async () => {
 type Placed = { number: number; token: string; razorpayOrderId: string };
 
 async function place(options: { slug?: string; qty?: number; shipping?: Partial<typeof validAddress>; email?: string } = {}): Promise<Placed> {
-  const response = await ctx.api.post("/api/orders").send({
+  const response = await ctx.api.post("/api/orders").set(await customerHeader(ctx)).send({
     items: [{ slug: options.slug ?? "aloe-pure-shampoo", qty: options.qty ?? 1 }],
     email: options.email ?? "buyer@example.com",
     shipping: { ...validAddress, ...options.shipping },
@@ -231,14 +231,14 @@ describe("stock", () => {
     await pay(second);
     expect(await stockOf("aloe-pure-shampoo")).toMatchObject({ stockQuantity: 0, inStock: false });
 
-    const sold = await ctx.api.post("/api/orders").send({ items: [{ slug: "aloe-pure-shampoo", qty: 1 }], email: "a@b.co", shipping: validAddress });
+    const sold = await ctx.api.post("/api/orders").set(await customerHeader(ctx)).send({ items: [{ slug: "aloe-pure-shampoo", qty: 1 }], email: "a@b.co", shipping: validAddress });
     expect(sold.status).toBe(409);
     expect(sold.body.error.code).toBe("OUT_OF_STOCK");
   });
 
   it("refuses an order for more than is left", async () => {
     await Product.updateOne({ slug: "aloe-pure-shampoo" }, { stockQuantity: 2 });
-    const response = await ctx.api.post("/api/orders").send({ items: [{ slug: "aloe-pure-shampoo", qty: 3 }], email: "a@b.co", shipping: validAddress });
+    const response = await ctx.api.post("/api/orders").set(await customerHeader(ctx)).send({ items: [{ slug: "aloe-pure-shampoo", qty: 3 }], email: "a@b.co", shipping: validAddress });
     expect(response.status).toBe(409);
     expect(response.body.error.code).toBe("INSUFFICIENT_STOCK");
     expect(response.body.error.message).toContain("Only 2 of Aloe Pure Shampoo are left");

@@ -3,7 +3,10 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 import mongoose from "mongoose";
 import request from "supertest";
 import { createApp } from "../src/app.js";
-import { loadEnv } from "../src/config/env.js";
+import { loadEnv, type Env } from "../src/config/env.js";
+import { signCustomerToken } from "../src/middleware/auth.js";
+import { Customer } from "../src/models/Customer.js";
+import { Order } from "../src/models/Order.js";
 import { createRazorpayGateway, type PaymentGateway } from "../src/services/payments.js";
 import { HttpError } from "../src/lib/httpError.js";
 import type { ImageStore } from "../src/services/images.js";
@@ -92,7 +95,7 @@ export function fakeNotifier() {
 
 /** A whole app on its own empty in-memory MongoDB, with the catalogue loaded. */
 export async function startTestApp(
-  options: { payments?: PaymentGateway; images?: ImageStore; mailer?: Mailer; notifier?: StorefrontNotifier; seed?: boolean } = {},
+  options: { payments?: PaymentGateway; images?: ImageStore; mailer?: Mailer; notifier?: StorefrontNotifier; seed?: boolean; env?: Record<string, string> } = {},
 ) {
   const mongo = await MongoMemoryServer.create();
   const env = loadEnv({
@@ -100,6 +103,7 @@ export async function startTestApp(
     MONGODB_URI: mongo.getUri("bhumiblend-test"),
     JWT_SECRET: "test-secret-test-secret-test-secret-test-secret",
     CLIENT_ORIGINS: "http://localhost:3000",
+    ...options.env,
   });
   await mongoose.connect(env.MONGODB_URI);
   if (options.seed !== false) await seedCatalogue();
@@ -122,6 +126,32 @@ export async function adminHeader(api: ReturnType<typeof request>) {
   await upsertAdmin({ ...login, name: "Boss" });
   const response = await api.post("/api/admin/auth/login").send(login);
   return { Authorization: `Bearer ${response.body.token as string}` };
+}
+
+/**
+ * A logged-in shopper's header (the shopper is created on the spot, once per email). Placing an
+ * order needs one: there is no guest checkout.
+ */
+export async function customerHeader(ctx: { env: Env }, email = "shopper@example.com") {
+  const customer = await Customer.findOneAndUpdate(
+    { email },
+    { $setOnInsert: { email, firstName: "Test", lastName: "Shopper", passwordHash: "not-a-real-hash" } },
+    { upsert: true, returnDocument: "after" },
+  );
+  return { Authorization: `Bearer ${signCustomerToken(ctx.env, String(customer._id))}` };
+}
+
+/**
+ * An order with no account on it, like one imported from the old shop (the admin's customer
+ * list and reports still handle those). The API no longer takes guest orders, so this places it
+ * as a throwaway shopper, then detaches the order and removes the shopper.
+ */
+export async function placeOrderWithoutAccount(ctx: { api: ReturnType<typeof request>; env: Env }, payload: object) {
+  const email = `throwaway-${crypto.randomUUID()}@example.com`;
+  const response = await ctx.api.post("/api/orders").set(await customerHeader(ctx, email)).send(payload);
+  if (response.status === 201) await Order.collection.updateOne({ number: response.body.order.number }, { $unset: { customer: "" } });
+  await Customer.deleteOne({ email });
+  return response;
 }
 
 /** What Razorpay's popup returns after a real payment. */

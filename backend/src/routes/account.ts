@@ -13,12 +13,11 @@ import type { Mailer } from "../services/mailer.js";
 import { OTP_LENGTH, resendCode, startRegistration, verifyCode } from "../services/registration.js";
 
 // Shopper accounts: register (with an emailed one-time code), log in, edit
-// details, keep an address book, see past orders. Accounts are optional —
-// checkout still works for guests.
+// details, keep an address book, see past orders. An account is needed to buy:
+// checkout (POST /api/orders) requires a login and the order joins that account.
 //
-// Orders only join an account when they're placed while logged in. Guest orders
-// are NOT matched to an account by email, even now that the email is verified:
-// an order placed as a guest stays the guest's until we decide otherwise.
+// Orders without an account (only possible for any imported from the old shop) are
+// NOT matched to an account by email, even though the email is verified.
 
 const name = (label: string) => z.string().trim().min(1, `Please enter your ${label}.`).max(60);
 // 72 is bcrypt's limit: anything longer is silently ignored by the hash.

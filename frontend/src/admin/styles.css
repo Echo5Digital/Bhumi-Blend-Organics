@@ -747,6 +747,94 @@ table.list .empty {
   color: var(--muted);
   text-align: center;
 }
+/* a row's icon button at the far right (the Customers screen's bin); it stays in view when a wide table scrolls sideways */
+table.list th.row-icon,
+table.list td.row-icon {
+  position: sticky;
+  right: 0;
+  width: 1%;
+  padding: 8px 14px 8px 8px;
+  background: #fff;
+  text-align: right;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+table.list thead th.row-icon {
+  background: var(--accent-wash);
+}
+table.list tbody tr:hover td.row-icon {
+  background: var(--accent-wash);
+}
+.icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: #000;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+.icon-button:hover {
+  background: #f8d9d9;
+}
+.icon-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Settings > Emails: the live preview of an email */
+.email-preview {
+  max-width: 760px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.email-preview-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.email-test {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.email-subject {
+  margin: 0 0 10px;
+  font-weight: 600;
+}
+.email-frame {
+  max-width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+  background: #f5f1e6;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.email-frame iframe {
+  display: block;
+  width: 100%;
+  min-height: 400px;
+  border: 0;
+}
+.email-plain {
+  margin: 0;
+  padding: 20px;
+  background: #fff;
+  font: 13px/1.6 ui-monospace, Consolas, monospace;
+  white-space: pre-wrap;
+}
 .row-actions {
   margin-top: 2px;
   font-size: 12px;

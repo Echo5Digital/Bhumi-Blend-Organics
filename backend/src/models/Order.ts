@@ -26,9 +26,9 @@ const orderSchema = new Schema(
   {
     /** The number the shopper sees: 10001, 10002, ... */
     number: { type: Number, required: true, unique: true },
-    /** SHA-256 of the secret that lets the shopper look at / pay for / cancel this guest order. */
+    /** SHA-256 of the secret that lets the shopper look at / pay for / cancel this order. */
     accessTokenHash: { type: String, required: true, select: false },
-    /** Set when the shopper was logged in; guest orders leave it empty. */
+    /** The customer who placed it. Every new order has one (checkout needs a login); only orders imported from the old shop can be without. */
     customer: { type: Schema.Types.ObjectId, ref: "Customer", index: true },
     email: { type: String, required: true, lowercase: true, trim: true },
     items: { type: [itemSchema], required: true },
@@ -64,6 +64,10 @@ const orderSchema = new Schema(
     },
     /** True once this order's items have been taken off the products' stock (so cancelling can give them back). */
     stockReduced: { type: Boolean, default: false },
+    /** When the "New order" email went out (set before sending, so it can only ever be sent once). */
+    newOrderEmailSentAt: { type: Date },
+    /** The same for the "Order received" email to the customer. */
+    customerEmailSentAt: { type: Date },
     /** Notes on the order: private ones for the team, and ones the customer is meant to see. */
     notes: {
       type: [

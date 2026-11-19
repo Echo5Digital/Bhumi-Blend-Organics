@@ -2,6 +2,7 @@ import type { RequestHandler } from "express";
 import { HttpError } from "../lib/httpError.js";
 import { toPaise } from "../lib/money.js";
 import { Order } from "../models/Order.js";
+import { silentOrderNotifier, type NewOrderNotifier } from "../services/orderNotifications.js";
 import { markOrderPaid } from "../services/orders.js";
 import type { PaymentGateway } from "../services/payments.js";
 import { silentNotifier, type StorefrontNotifier } from "../services/storefront.js";
@@ -20,7 +21,7 @@ type RazorpayEvent = {
   };
 };
 
-export function razorpayWebhook(gateway: PaymentGateway, notifier: StorefrontNotifier = silentNotifier): RequestHandler {
+export function razorpayWebhook(gateway: PaymentGateway, notifier: StorefrontNotifier = silentNotifier, onPlaced: NewOrderNotifier = silentOrderNotifier): RequestHandler {
   return async (req, res) => {
     const raw: unknown = req.body;
     if (!Buffer.isBuffer(raw) || !gateway.verifyWebhookSignature(raw, req.get("x-razorpay-signature"))) {
@@ -42,8 +43,11 @@ export function razorpayWebhook(gateway: PaymentGateway, notifier: StorefrontNot
       if (event.event === "payment.captured" || event.event === "order.paid") {
         // Only accept a payment for the full amount of this order.
         if (payment.amount === toPaise(order.total)) {
-          const { changed } = await markOrderPaid(order._id, payment.id);
-          if (changed) notifier.revalidate(["catalog"]);
+          const { order: paid, changed } = await markOrderPaid(order._id, payment.id);
+          if (changed) {
+            notifier.revalidate(["catalog"]);
+            await onPlaced(paid);
+          }
         } else {
           console.error(`Razorpay webhook: amount ${payment.amount} does not match order #${order.number}`);
         }

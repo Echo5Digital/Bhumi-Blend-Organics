@@ -1,7 +1,7 @@
 import { Schema, model, type InferSchemaType } from "mongoose";
 import { addressSchema } from "./schemas.js";
 
-// A shopper with an account (registering is optional — guests can still check out).
+// A shopper with an account. An account is needed to place an order.
 const customerSchema = new Schema(
   {
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },

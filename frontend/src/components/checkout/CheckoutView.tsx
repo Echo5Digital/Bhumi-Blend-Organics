@@ -3,23 +3,26 @@
 import Link from "next/link";
 import { useMemo, useState, type FormEvent } from "react";
 import type { Product } from "@/data/products";
+import { AuthForms } from "@/components/account/AuthForms";
 import { ApiError, api } from "@/lib/api";
+import { logout, useSession } from "@/lib/auth";
 import { useCart } from "@/lib/cart";
 import {
   ADDRESS_FIELDS,
-  createPlaceholderOrder,
   emptyAddress,
   formatAddress,
+  placeOrder,
   validateAddress,
   validateEmail,
   type Address,
   type AddressErrors,
+  type PlacedOrder,
 } from "@/lib/checkout";
 import { useHydrated } from "@/lib/persistent-store";
 import { AddressFields } from "./AddressFields";
 import { Checkbox, OptionCard, TextField } from "./Fields";
 import { OrderSummary, type AppliedCoupon, type SummaryRow } from "./OrderSummary";
-import { PayStep, type PlacedOrder } from "./PayStep";
+import { PayStep } from "./PayStep";
 
 type FormState = {
   email: string;
@@ -51,10 +54,15 @@ function focusLater(id: string) {
 // note on the left, the order summary on the right. What is bought is the
 // cart (lib/cart.ts) — "Buy It Now" on a product just puts it there first.
 //
-// The form lives in memory only: there is no account or backend yet, so
-// nothing is saved and nothing is sent. "Buy It Now" validates, then shows the
-// pay step (PayStep). Like the cart, it only exists in the browser, so the
-// server HTML is an empty placeholder until the page is interactive.
+// Buying needs an account: a visitor who isn't logged in gets the login / register
+// card here instead of the form (the cart and anything typed are kept, and the form
+// appears the moment they log in).
+//
+// The form lives in memory only (nothing is saved in the browser). "Buy It Now"
+// validates it, then asks the backend to place the order — which gives it its
+// real number — and shows the pay step (PayStep). Like the cart, the page only
+// exists in the browser, so the server HTML is an empty placeholder until it is
+// interactive.
 export function CheckoutView({
   catalogue,
   sizes,
@@ -64,8 +72,12 @@ export function CheckoutView({
   sizes: Record<string, string>;
 }) {
   const { lines } = useCart();
+  const session = useSession();
   const hydrated = useHydrated();
   const [form, setForm] = useState<FormState>(initialForm);
+  // "Buy It Now" is waiting for the backend, or it said no (stock ran out, a coupon expired...).
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   // The shipping address collapses to a one-line card (with Edit) once saved.
   const [editingShipping, setEditingShipping] = useState(true);
   const [touched, setTouched] = useState<ReadonlySet<string>>(new Set());
@@ -83,7 +95,6 @@ export function CheckoutView({
     return product ? [{ product, qty: line.qty, size: sizes[line.slug] }] : [];
   });
   const subtotal = rows.reduce((total, row) => total + row.product.price * row.qty, 0);
-  const total = Math.max(0, subtotal - (coupon?.discount ?? 0));
 
   const emailError = validateEmail(form.email);
   const shippingErrors = validateAddress(form.shipping);
@@ -129,9 +140,11 @@ export function CheckoutView({
     setEditingShipping(false);
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submitting || !session) return;
     setAttempted(true);
+    setSubmitError("");
 
     const firstBadShipping = ADDRESS_FIELDS.find((field) => shippingErrors[field]);
     const firstBadBilling = ADDRESS_FIELDS.find((field) => billingErrors[field]);
@@ -149,7 +162,33 @@ export function CheckoutView({
       return;
     }
 
-    setPlaced(createPlaceholderOrder(total));
+    setSubmitting(true);
+    try {
+      const order = await placeOrder(
+        {
+          items: rows.map((row) => ({ slug: row.product.slug, qty: row.qty })),
+          email: form.email.trim(),
+          shipping: form.shipping,
+          billingSameAsShipping: form.billingSame,
+          billing: form.billingSame ? undefined : form.billing,
+          note: form.addNote && form.note.trim() ? form.note.trim() : undefined,
+          couponCode: coupon?.code,
+        },
+        session.token,
+      );
+      setPlaced(order);
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) {
+        // The login ran out (or the account was switched off): back to the login card, form kept.
+        logout();
+        return;
+      }
+      // Show the backend's own reason ("... is out of stock", a field it didn't accept), else a general one.
+      const detail = error instanceof ApiError ? Object.values(error.fields)[0] ?? error.message : "";
+      setSubmitError(detail || "We couldn't place your order just now. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -166,6 +205,9 @@ export function CheckoutView({
 
         {!hydrated ? (
           <div aria-hidden="true" className="min-h-[480px]" />
+        ) : placed ? (
+          // Checked before the empty cart: once the order is received the cart is emptied on purpose.
+          <PayStep order={placed} onCancel={() => setPlaced(null)} />
         ) : rows.length === 0 ? (
           <div className="mx-auto flex max-w-[420px] flex-col items-center py-6 text-center md:py-10">
             <h2 className="font-system text-[22px] leading-snug font-medium text-[#1e1e1e]">
@@ -181,8 +223,20 @@ export function CheckoutView({
               Continue shopping
             </Link>
           </div>
-        ) : placed ? (
-          <PayStep order={placed} onCancel={() => setPlaced(null)} />
+        ) : !session ? (
+          <div className="mx-auto max-w-[480px]">
+            <div className="text-center">
+              <h2 className="font-system text-[22px] leading-snug font-medium text-[#1e1e1e]">
+                Log in to place your order
+              </h2>
+              <p className="mt-3 font-system text-[15px] leading-7 text-[#555]">
+                You need an account to buy. Log in, or create one — your cart will be waiting here.
+              </p>
+            </div>
+            <div className="mt-8">
+              <AuthForms />
+            </div>
+          </div>
         ) : (
           <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-12">
             <form noValidate onSubmit={handleSubmit}>
@@ -321,10 +375,22 @@ export function CheckoutView({
 
               <button
                 type="submit"
-                className="mt-5 h-[60px] w-full cursor-pointer rounded-[4px] bg-brand-gold font-system text-[18px] font-medium text-white transition-colors duration-300 hover:bg-brand-gold-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-gold"
+                disabled={submitting}
+                className="mt-5 h-[60px] w-full cursor-pointer rounded-[4px] bg-brand-gold font-system text-[18px] font-medium text-white transition-colors duration-300 hover:bg-brand-gold-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-gold disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Buy It Now <span aria-hidden="true">→</span>
+                {submitting ? (
+                  "Placing your order…"
+                ) : (
+                  <>
+                    Buy It Now <span aria-hidden="true">→</span>
+                  </>
+                )}
               </button>
+              {submitError && (
+                <p role="alert" className="mt-3 font-system text-[14px] leading-5 text-[#cc1818]">
+                  {submitError}
+                </p>
+              )}
             </form>
 
             {/* On phones the summary comes first, so the total is seen before paying. */}

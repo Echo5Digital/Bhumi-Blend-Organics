@@ -8,6 +8,18 @@ import { formatDate, money } from "../lib/format";
 import type { CustomerRow, Paged } from "../lib/types";
 import { useApi } from "../lib/useApi";
 
+/** A bin (waste-basket) icon, for the delete button at the end of each row. */
+function BinIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3.5 6h17" />
+      <path d="M9 6V4h6v2" />
+      <path d="M5.5 6l1 14h11l1-14" />
+      <path d="M10 10.5v6M14 10.5v6" />
+    </svg>
+  );
+}
+
 // WooCommerce → Customers: everyone who has bought (or signed up), with what they've spent.
 export function Customers() {
   useTitle("Customers");
@@ -20,6 +32,9 @@ export function Customers() {
   const dir = (params.get("dir") ?? "desc") as "asc" | "desc";
   const [searchText, setSearchText] = useState(search);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  // The id of the customer being deleted right now (its button waits).
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   const update = (changes: Record<string, string | null>) =>
     setParams((previous) => {
@@ -34,7 +49,26 @@ export function Customers() {
 
   const query = new URLSearchParams({ type, page: String(page), limit: "25", sort, dir });
   if (search) query.set("search", search);
-  const { data, error: loadError, loading } = useApi<Paged<CustomerRow>>(`/admin/customers?${query}`);
+  const { data, error: loadError, loading, reload } = useApi<Paged<CustomerRow>>(`/admin/customers?${query}`);
+
+  /** Delete a registered customer's account. Their orders are kept (as guest orders). */
+  async function deleteCustomer(row: CustomerRow) {
+    if (!row.id) return;
+    const who = row.name || row.email;
+    if (!window.confirm(`Delete ${who}?\n\nTheir account is removed for good and they can no longer log in. Their orders stay in Orders, as guest orders.\n\nThis can't be undone.`)) return;
+    setError("");
+    setNotice("");
+    setDeleting(row.id);
+    try {
+      const result = await api<{ deleted: boolean; ordersKept: number }>(`/admin/customers/${row.id}`, { method: "DELETE", token });
+      setNotice(`Deleted ${who}.${result.ordersKept > 0 ? ` Their ${result.ordersKept === 1 ? "order was" : `${result.ordersKept} orders were`} kept.` : ""}`);
+      reload();
+    } catch (caught) {
+      setError(caught instanceof ApiError ? caught.message : "The customer couldn't be deleted.");
+    } finally {
+      setDeleting(null);
+    }
+  }
 
   const toggleSort = (field: string) => update({ sort: field, dir: sort === field && dir === "desc" ? "asc" : "desc" });
 
@@ -61,6 +95,7 @@ export function Customers() {
       </div>
       <div className="page">
         {error && <Notice kind="error" onDismiss={() => setError("")}>{error}</Notice>}
+        {notice && <Notice kind="success" onDismiss={() => setNotice("")}>{notice}</Notice>}
         <ErrorNotice error={loadError} />
 
         <div className="toolbar" style={{ alignItems: "flex-end" }}>
@@ -107,12 +142,15 @@ export function Customers() {
                   <th>City</th>
                   <th>Region</th>
                   <th>Postal code</th>
+                  <th className="row-icon">
+                    <span className="sr-only">Actions</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {(data?.items.length ?? 0) === 0 && (
                   <tr>
-                    <td colSpan={11} className="empty">
+                    <td colSpan={12} className="empty">
                       {loading ? "Loading customers…" : "No customers found."}
                     </td>
                   </tr>
@@ -142,6 +180,20 @@ export function Customers() {
                     <td>{row.city ?? "—"}</td>
                     <td>{row.state ?? "—"}</td>
                     <td>{row.postcode ?? "—"}</td>
+                    <td className="row-icon">
+                      {row.id && (
+                        <button
+                          type="button"
+                          className="icon-button"
+                          aria-label={`Delete ${row.name || row.email}`}
+                          title="Delete customer"
+                          disabled={deleting === row.id}
+                          onClick={() => deleteCustomer(row)}
+                        >
+                          <BinIcon />
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

@@ -1,7 +1,9 @@
 // Shared bits for the /checkout page: the address shape, its validation, the
-// list of Indian states and the rupee formatter. No state lives here and
-// nothing is stored — the page keeps the form in memory (there is no account
-// or backend yet, so there is nowhere safe to keep a visitor's address).
+// list of Indian states, the rupee formatter and the calls that place and cancel
+// an order. No state lives here and nothing is stored in the browser — the page
+// keeps the form in memory, and the order itself is recorded by the backend.
+
+import { api } from "@/lib/api";
 
 export const rupees = new Intl.NumberFormat("en-IN", {
   style: "currency",
@@ -117,17 +119,64 @@ export function validateAddress(address: Address): AddressErrors {
   return errors;
 }
 
+/** What the backend needs to place an order (POST /api/orders). */
+export type OrderInput = {
+  items: { slug: string; qty: number }[];
+  email: string;
+  shipping: Address;
+  billingSameAsShipping: boolean;
+  billing?: Address;
+  note?: string;
+  couponCode?: string;
+};
+
+/** What the Razorpay popup needs. The backend sends none (null) while Razorpay isn't set up. */
+export type PaymentParams = { keyId?: string; razorpayOrderId?: string; amountPaise: number; currency: string };
+
+/** An order the backend has recorded, as the pay step shows it. */
+export type PlacedOrder = {
+  number: number;
+  /** "November 19, 2026" */
+  date: string;
+  total: number;
+  /** The secret that lets this browser cancel the order (sent as `X-Order-Token`). */
+  accessToken: string;
+  /** What the Razorpay popup needs; null while online payment isn't set up. */
+  payment: PaymentParams | null;
+};
+
 /**
- * The order shown on the pay step. Placeholder: there is no backend to number
- * or record orders yet, so the number is made up in the browser. Swap this for
- * the real "create order" call when the backend exists.
+ * Place the order with the backend, which prices the cart itself (so what is charged can't be
+ * tampered with) and numbers it. It needs the logged-in shopper's token (there is no guest
+ * checkout): the order is saved in their account, and with a missing or expired token the
+ * backend answers 401 and records nothing.
  */
-export function createPlaceholderOrder(total: number) {
+export async function placeOrder(input: OrderInput, token: string): Promise<PlacedOrder> {
+  const response = await api<{
+    order: { number: number; createdAt: string; total: number };
+    accessToken: string;
+    payment: PaymentParams | null;
+  }>("/orders", { method: "POST", body: input, token });
   return {
-    number: String(Math.floor(10000 + Math.random() * 90000)),
-    date: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
-    total,
+    number: response.order.number,
+    date: new Date(response.order.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
+    total: response.order.total,
+    accessToken: response.accessToken,
+    payment: response.payment,
   };
+}
+
+/**
+ * "Pay Now" while online payment isn't set up: nothing can be paid yet, so this is the moment the
+ * order counts as placed. The backend tells the shop owner (the "New order" email).
+ */
+export async function confirmOrder(order: PlacedOrder): Promise<void> {
+  await api(`/orders/${order.number}/confirm`, { method: "POST", headers: { "X-Order-Token": order.accessToken } });
+}
+
+/** The pay step's "Cancel": marks the order cancelled (only possible before it is paid). */
+export async function cancelOrder(order: PlacedOrder): Promise<void> {
+  await api(`/orders/${order.number}/cancel`, { method: "POST", headers: { "X-Order-Token": order.accessToken } });
 }
 
 /** "line 1, line 2, City 682001, Kerala, India, 9876543210" — the one-line summary on the address card. */

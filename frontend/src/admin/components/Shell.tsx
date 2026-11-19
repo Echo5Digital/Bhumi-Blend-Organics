@@ -55,7 +55,16 @@ export function Shell() {
     { label: "Customers", to: "/customers", icon: "customers", match: (path) => path.startsWith("/customers") },
     { label: "Coupons", to: "/coupons", icon: "coupons", match: (path) => path.startsWith("/coupons") },
     { label: "Reports", to: "/reports", icon: "reports", match: (path) => path.startsWith("/reports") },
-    { label: "Settings", to: "/settings", icon: "settings", match: (path) => path.startsWith("/settings") },
+    {
+      label: "Settings",
+      to: "/settings",
+      icon: "settings",
+      match: (path) => path.startsWith("/settings"),
+      submenu: [
+        { label: "General", to: "/settings" },
+        { label: "Emails", to: "/settings/emails" },
+      ],
+    },
   ];
 
   return (

@@ -6,7 +6,7 @@ import { Order } from "../src/models/Order.js";
 import { Product } from "../src/models/Product.js";
 import { Setting } from "../src/models/Setting.js";
 import { createStorefrontNotifier } from "../src/services/storefront.js";
-import { adminHeader, fakeGateway, fakeNotifier, paymentSignature, startTestApp, validAddress, webhookSignature } from "./helpers.js";
+import { adminHeader, customerHeader, fakeGateway, fakeNotifier, paymentSignature, startTestApp, validAddress, webhookSignature } from "./helpers.js";
 
 // ---- the notifier itself: a real HTTP call to a tiny fake storefront -------------
 
@@ -147,7 +147,7 @@ describe("admin edits that change what the shop shows", () => {
 
 describe("order activity that moves stock", () => {
   async function place() {
-    const response = await ctx.api.post("/api/orders").send({ items: [{ slug: "aloe-pure-shampoo", qty: 1 }], email: "a@b.co", shipping: validAddress }).expect(201);
+    const response = await ctx.api.post("/api/orders").set(await customerHeader(ctx)).send({ items: [{ slug: "aloe-pure-shampoo", qty: 1 }], email: "a@b.co", shipping: validAddress }).expect(201);
     return { number: response.body.order.number as number, token: response.body.accessToken as string, rzp: response.body.payment.razorpayOrderId as string };
   }
   const verify = (order: { number: number; token: string; rzp: string }) =>
