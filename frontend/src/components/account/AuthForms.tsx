@@ -13,8 +13,9 @@ type Errors = Record<string, string>;
 const MIN_PASSWORD = 8;
 const CODE_LENGTH = 6;
 
-// What a visitor sees on /my-account when they aren't logged in: one card with a
-// Login / Register switch.
+// What a visitor sees on /my-account when they aren't logged in: one card. It opens on the login
+// form; the link under the button ("New to Bhumi Blend? Create an account" / "Already have an
+// account? Log in") switches between logging in and registering.
 //
 // Registering takes two steps. The details go to the backend, which emails a
 // 6-digit code; the account is only created when that code is entered. A
@@ -186,36 +187,11 @@ export function AuthForms() {
     }
   }
 
-  const tab = (value: Mode, label: string) => (
-    <button
-      type="button"
-      role="tab"
-      id={`auth-tab-${value}`}
-      aria-selected={mode === value}
-      aria-controls="auth-panel"
-      onClick={() => switchTo(value)}
-      className={`h-12 flex-1 cursor-pointer font-system text-[14px] font-semibold tracking-[0.08em] uppercase transition-colors duration-300 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-gold ${
-        mode === value
-          ? "bg-white text-brand-gold-dark shadow-[inset_0_-2px_0_#ce8e22]"
-          : "bg-[#f7f7f7] text-[#555] hover:text-brand-gold-dark"
-      }`}
-    >
-      {label}
-    </button>
-  );
-
   return (
     <div className="mx-auto w-full max-w-[480px] overflow-hidden rounded-2xl border border-[#eadcb6] bg-white shadow-[0_18px_36px_-28px_rgba(120,85,20,0.5)]">
-      <div role="tablist" aria-label="Login or register" className="flex border-b border-[#eadcb6]">
-        {tab("login", "Login")}
-        {tab("register", "Register")}
-      </div>
-
       {verifying ? (
         <form
-          id="auth-panel"
-          role="tabpanel"
-          aria-labelledby="auth-tab-register"
+          aria-label="Verify your email"
           noValidate
           onSubmit={submitCode}
           className="space-y-4 p-6 sm:p-8"
@@ -284,9 +260,7 @@ export function AuthForms() {
         </form>
       ) : (
         <form
-          id="auth-panel"
-          role="tabpanel"
-          aria-labelledby={`auth-tab-${mode}`}
+          aria-label={mode === "login" ? "Log in" : "Create an account"}
           noValidate
           onSubmit={submitDetails}
           className="space-y-4 p-6 sm:p-8"
