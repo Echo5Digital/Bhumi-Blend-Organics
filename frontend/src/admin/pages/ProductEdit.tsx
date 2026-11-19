@@ -1,10 +1,13 @@
-import { useRef, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router";
-import { Field, ErrorNotice, Loading, Notice, PageTitle, useTitle } from "../components/ui";
-import { ApiError, api, imageSrc, uploadImage } from "../lib/api";
+import { ImageField, type Image } from "../components/ImageField";
+import { PageContentEditor } from "../components/PageContentEditor";
+import { BinIcon, Field, ErrorNotice, Loading, Notice, PageTitle, useTitle } from "../components/ui";
+import { ApiError, api } from "../lib/api";
 import { useAuth } from "../lib/auth";
 import { slugify } from "../lib/format";
 import type { Category, Product } from "../lib/types";
+import { contentFromDetails, contentToDetails, type ContentError, type ContentTab } from "../lib/pageContent";
 import { useApi } from "../lib/useApi";
 
 // Home-page rows a product can appear in (the storefront's "Best Sellers" and "Skin Care Essentials").
@@ -12,59 +15,6 @@ const COLLECTIONS = [
   { key: "best-sellers", label: "Home page: Best Sellers" },
   { key: "skin-care-essentials", label: "Home page: Skin Care Essentials" },
 ];
-
-type Image = { url: string; publicId?: string };
-
-/** A photo picker: paste an address, or upload a file (goes to Cloudinary). */
-function ImageField({ label, image, onChange, error, required }: { label: string; image: Image | null; onChange: (image: Image | null) => void; error?: string; required?: boolean }) {
-  const { token } = useAuth();
-  const file = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-  const [problem, setProblem] = useState("");
-
-  async function upload(chosen: File | undefined) {
-    if (!chosen) return;
-    setUploading(true);
-    setProblem("");
-    try {
-      const stored = await uploadImage(chosen, token);
-      onChange({ url: stored.url, publicId: stored.publicId });
-    } catch (caught) {
-      setProblem(caught instanceof ApiError ? caught.message : "The upload failed.");
-    } finally {
-      setUploading(false);
-      if (file.current) file.current.value = "";
-    }
-  }
-
-  return (
-    <div className="field">
-      <label className="label">
-        {label}
-        {required && " *"}
-      </label>
-      <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-        {image?.url ? <img className="thumb" style={{ width: 84, height: 84 }} src={imageSrc(image.url)} alt="" /> : <div className="thumb" style={{ width: 84, height: 84, display: "grid", placeItems: "center", color: "#000", fontSize: 12 }}>No photo</div>}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <input type="text" aria-label={`${label} address`} placeholder="https://… or /photo.jpg" value={image?.url ?? ""} className={error ? "invalid" : ""} onChange={(event) => onChange(event.target.value ? { url: event.target.value } : null)} />
-          <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
-            <input ref={file} type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" className="sr-only" id={`upload-${label}`} onChange={(event) => void upload(event.target.files?.[0])} />
-            <button type="button" className="btn" disabled={uploading} onClick={() => file.current?.click()}>
-              {uploading ? "Uploading…" : "Upload a photo"}
-            </button>
-            {image && !required && (
-              <button type="button" className="link-button danger" onClick={() => onChange(null)}>
-                Remove
-              </button>
-            )}
-          </div>
-          {problem && <p className="field-error">{problem}</p>}
-          {error && <p className="field-error">{error}</p>}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function ProductForm({ initial, categories }: { initial: Product | null; categories: Category[] }) {
   const { token } = useAuth();
@@ -89,11 +39,14 @@ function ProductForm({ initial, categories }: { initial: Product | null; categor
   const [hoverImage, setHoverImage] = useState<Image | null>(initial?.hoverImage ?? null);
   const [chosenCategories, setChosenCategories] = useState(new Set(initial?.categories.map((entry) => entry.category) ?? []));
   const [chosenCollections, setChosenCollections] = useState(new Set(initial?.collections.map((entry) => entry.key) ?? []));
-  const [detailsText, setDetailsText] = useState(initial?.details ? JSON.stringify(initial.details, null, 2) : "");
+  const [content, setContent] = useState(() => contentFromDetails(initial?.details));
+  const [contentTab, setContentTab] = useState<ContentTab>("description");
+  const [contentError, setContentError] = useState<ContentError>(null);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<{ kind: "success" | "error"; text: string } | null>(justCreated ? { kind: "success", text: justCreated } : null);
   const [busy, setBusy] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const toggle = (set: Set<string>, setter: (value: Set<string>) => void, key: string, on: boolean) => {
     const next = new Set(set);
@@ -113,19 +66,19 @@ function ProductForm({ initial, categories }: { initial: Product | null; categor
     if (!image?.url) found.image = "Add a main photo.";
     if (trackStock && (stockQuantity.trim() === "" || !Number.isInteger(Number(stockQuantity)) || Number(stockQuantity) < 0)) found.stockQuantity = "Enter a whole number, 0 or more.";
 
+    // The three tabs' text boxes become the page's stored content; what to fix is shown on its tab.
     let details: Record<string, unknown> | null = null;
-    if (detailsText.trim()) {
-      try {
-        const parsed: unknown = JSON.parse(detailsText);
-        if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) throw new Error("not an object");
-        details = parsed as Record<string, unknown>;
-      } catch {
-        found.details = "This isn't valid JSON. Fix it, or clear the box to leave the page content empty.";
-      }
+    const built = contentToDetails(content, name.trim());
+    if ("error" in built) {
+      setContentError(built.error);
+      if (built.error.tab !== "other") setContentTab(built.error.tab);
+    } else {
+      setContentError(null);
+      details = built.details;
     }
     setErrors(found);
-    if (Object.keys(found).length > 0) {
-      setMessage({ kind: "error", text: "Please fix the highlighted fields." });
+    if (Object.keys(found).length > 0 || "error" in built) {
+      setMessage({ kind: "error", text: "error" in built ? `Please fix the product page content: ${built.error.text}` : "Please fix the highlighted fields." });
       return;
     }
 
@@ -185,11 +138,14 @@ function ProductForm({ initial, categories }: { initial: Product | null; categor
 
   async function remove() {
     if (!initial || !window.confirm(`Delete "${initial.name}" for good? Orders already placed keep their copy of it. To just take it off the shop, untick Published instead.`)) return;
+    setDeleting(true);
+    setMessage(null);
     try {
       await api(`/admin/products/${initial.id}`, { method: "DELETE", token });
       navigate("/products", { replace: true });
     } catch (caught) {
       setMessage({ kind: "error", text: caught instanceof ApiError ? caught.message : "Something went wrong." });
+      setDeleting(false);
     }
   }
 
@@ -280,30 +236,11 @@ function ProductForm({ initial, categories }: { initial: Product | null; categor
               <div className="body stack">
                 <ImageField label="Main photo" image={image} onChange={setImage} error={errors.image} required />
                 <ImageField label="Photo shown on hover" image={hoverImage} onChange={setHoverImage} />
-                <p className="hint">Photos you upload are stored on Cloudinary. The extra gallery photos of the product page live in the page content below.</p>
+                <p className="hint">Photos you upload are stored on Cloudinary. The extra gallery photos of the product page are under “Show other page content (advanced)” at the bottom of this page.</p>
               </div>
             </section>
 
-            <section className="card">
-              <div className="card-head">
-                <h2>Product page content (advanced)</h2>
-              </div>
-              <div className="body">
-                <p className="hint" style={{ marginTop: 0 }}>
-                  Everything on the product page below the buttons — description, ingredients, how to use, FAQs, gallery, related products — is stored as JSON. Edit it carefully; leave it empty for a bare page.
-                </p>
-                <textarea
-                  aria-label="Product page content as JSON"
-                  rows={14}
-                  spellCheck={false}
-                  value={detailsText}
-                  className={errors.details ? "invalid" : ""}
-                  style={{ fontFamily: "ui-monospace, Consolas, monospace", fontSize: 12 }}
-                  onChange={(event) => setDetailsText(event.target.value)}
-                />
-                {errors.details && <p className="field-error">{errors.details}</p>}
-              </div>
-            </section>
+            <PageContentEditor value={content} onChange={setContent} tab={contentTab} onTab={setContentTab} error={contentError} />
           </div>
 
           <aside>
@@ -327,9 +264,12 @@ function ProductForm({ initial, categories }: { initial: Product | null; categor
                   )}
                 </div>
                 {!creating && (
-                  <button type="button" className="link-button danger" onClick={remove} style={{ textAlign: "left" }}>
-                    Delete product
-                  </button>
+                  <div style={{ borderTop: "1px solid var(--card-border)", paddingTop: 14 }}>
+                    <button type="button" className="btn danger" onClick={remove} disabled={busy || deleting} style={{ gap: 8, width: "100%" }}>
+                      <BinIcon />
+                      {deleting ? "Deleting…" : "Delete product"}
+                    </button>
+                  </div>
                 )}
               </div>
             </section>

@@ -50,7 +50,8 @@ export type ProductDetail = {
     name: string;
     origin?: string;
     tag?: string;
-    image: string;
+    /** Left out for a card that is text only. */
+    image?: string;
     text: string;
   }[];
   /** Line shown under the Organic badge, above the five icons. */

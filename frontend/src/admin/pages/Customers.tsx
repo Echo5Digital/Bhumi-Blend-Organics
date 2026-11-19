@@ -1,24 +1,12 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
-import { ErrorNotice, Notice, Pagination, SortHeader, useTitle } from "../components/ui";
+import { BinIcon, ErrorNotice, Notice, Pagination, SortHeader, useTitle } from "../components/ui";
 import { ApiError, api } from "../lib/api";
 import { useAuth } from "../lib/auth";
 import { downloadCsv } from "../lib/csv";
 import { formatDate, money } from "../lib/format";
 import type { CustomerRow, Paged } from "../lib/types";
 import { useApi } from "../lib/useApi";
-
-/** A bin (waste-basket) icon, for the delete button at the end of each row. */
-function BinIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M3.5 6h17" />
-      <path d="M9 6V4h6v2" />
-      <path d="M5.5 6l1 14h11l1-14" />
-      <path d="M10 10.5v6M14 10.5v6" />
-    </svg>
-  );
-}
 
 // WooCommerce → Customers: everyone who has bought (or signed up), with what they've spent.
 export function Customers() {

@@ -405,18 +405,21 @@ async function ProductContent({
                       className={`space-y-5 sm:space-y-6 ${detail.ingredientsHeading ? "mt-8" : "mt-12"}`}
                     >
                       {detail.ingredients.map((ingredient, index) => (
-                        <Reveal key={ingredient.name} delay={(index % 3) * 120}>
+                        <Reveal key={`${index}-${ingredient.name}`} delay={(index % 3) * 120}>
                           <article className="flex flex-col gap-5 rounded-[22px] bg-white p-4 shadow-[0_22px_44px_-30px_rgba(120,85,20,0.55)] ring-1 ring-[#eadcb6] sm:flex-row sm:items-center sm:gap-8 sm:p-6">
-                            {/* Source photo is 228×152: full width on phones, native size from sm up. */}
-                            <div className="relative aspect-[3/2] w-full shrink-0 overflow-hidden rounded-2xl sm:h-[152px] sm:w-[228px]">
-                              <Image
-                                src={ingredient.image}
-                                alt={ingredient.name}
-                                fill
-                                sizes="(min-width: 640px) 228px, 100vw"
-                                className="object-cover"
-                              />
-                            </div>
+                            {/* Source photo is 228×152: full width on phones, native size from sm up.
+                                A card added in the admin without a photo is just text. */}
+                            {ingredient.image && (
+                              <div className="relative aspect-[3/2] w-full shrink-0 overflow-hidden rounded-2xl sm:h-[152px] sm:w-[228px]">
+                                <Image
+                                  src={ingredient.image}
+                                  alt={ingredient.name}
+                                  fill
+                                  sizes="(min-width: 640px) 228px, 100vw"
+                                  className="object-cover"
+                                />
+                              </div>
+                            )}
                             <div className="min-w-0">
                               {ingredient.tag && (
                                 <p className="mb-1.5 flex items-center gap-3 font-sans text-[12px] font-semibold tracking-[2.5px] text-brand-gold-dark uppercase">
@@ -497,9 +500,11 @@ async function ProductContent({
                       label: "Usage Instructions",
                       content: (
                         <>
-                          <p className="font-sans text-[12px] font-semibold tracking-[3px] text-brand-gold-dark uppercase sm:text-[13px]">
-                            {detail.usage.eyebrow}
-                          </p>
+                          {detail.usage.eyebrow && (
+                            <p className="font-sans text-[12px] font-semibold tracking-[3px] text-brand-gold-dark uppercase sm:text-[13px]">
+                              {detail.usage.eyebrow}
+                            </p>
+                          )}
                           <h2 className="mt-3 font-serif text-[28px] leading-tight font-medium text-[#222] sm:text-[36px]">
                             {detail.usage.title}
                           </h2>
@@ -508,7 +513,7 @@ async function ProductContent({
                           <ol className="mt-9 max-w-[760px]">
                             {detail.usage.steps.map((step, index) => (
                               <li
-                                key={step.label}
+                                key={`${index}-${step.label}`}
                                 className="grid grid-cols-[auto_1fr] gap-x-5 border-b border-[#efe5c9] py-5 first:pt-0 last:border-b-0"
                               >
                                 <span
@@ -518,9 +523,11 @@ async function ProductContent({
                                   {String(index + 1).padStart(2, "0")}
                                 </span>
                                 <div>
-                                  <h3 className="font-sans text-[12px] font-semibold tracking-[2.5px] text-brand-gold-dark uppercase">
-                                    {step.label}
-                                  </h3>
+                                  {step.label && (
+                                    <h3 className="font-sans text-[12px] font-semibold tracking-[2.5px] text-brand-gold-dark uppercase">
+                                      {step.label}
+                                    </h3>
+                                  )}
                                   <p className="mt-1.5 font-system text-[16px] leading-[1.7] text-[#444] sm:text-[17px]">
                                     {step.text}
                                   </p>
@@ -639,9 +646,9 @@ async function ProductContent({
 
                           {/* Native <details>: opens and closes without any script. */}
                           <div className="mt-9 max-w-[880px] space-y-3">
-                            {detail.faqs.map((faq) => (
+                            {detail.faqs.map((faq, index) => (
                               <details
-                                key={faq.question}
+                                key={`${index}-${faq.question}`}
                                 className="group rounded-2xl bg-white shadow-[0_14px_30px_-24px_rgba(120,85,20,0.5)] ring-1 ring-[#eadcb6] open:ring-[#C89B3C]/60"
                               >
                                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-2xl px-5 py-4 font-serif text-[17px] leading-snug text-[#222] marker:content-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-gold sm:px-6 sm:py-5 sm:text-[19px] [&::-webkit-details-marker]:hidden">

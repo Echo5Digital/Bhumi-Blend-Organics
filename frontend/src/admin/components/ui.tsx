@@ -40,6 +40,18 @@ export function Loading({ text = "Loading…" }: { text?: string }) {
   return <div className="spinner-line">{text}</div>;
 }
 
+/** A bin (waste-basket) icon, for delete buttons. */
+export function BinIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3.5 6h17" />
+      <path d="M9 6V4h6v2" />
+      <path d="M5.5 6l1 14h11l1-14" />
+      <path d="M10 10.5v6M14 10.5v6" />
+    </svg>
+  );
+}
+
 export function StatusBadge({ status }: { status: OrderStatus }) {
   return <span className={`badge ${status}`}>{ORDER_STATUS_LABELS[status] ?? status}</span>;
 }
