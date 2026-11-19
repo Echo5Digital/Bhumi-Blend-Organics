@@ -39,7 +39,7 @@
   --series-1: #b8791f;
 
   --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-  --serif: "Playfair Display", Georgia, "Times New Roman", serif;
+  --serif: var(--font-playfair), "Playfair Display", Georgia, "Times New Roman", serif;
 }
 
 * {
@@ -1731,4 +1731,459 @@ table.items .num {
   background: none;
   color: #000;
   cursor: pointer;
+}
+
+/* ---- dashboard (Home) --------------------------------------------------
+   Everything here is scoped by the dx- prefix so it cannot reach the other screens. */
+.dx {
+  --dx-track: #f3e8cd;
+  --dx-fill: #b8791f;
+}
+.dx-card,
+.dx-hero {
+  background: #fff;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* the hero: today on the left, 14 days of sales on the right, the month underneath */
+.dx-hero {
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.dx-hero-main {
+  display: grid;
+  grid-template-columns: 380px minmax(0, 1fr);
+}
+.dx-today {
+  display: flex;
+  flex-direction: column;
+  padding: 28px;
+  background: var(--accent-wash);
+  border-right: 1px solid var(--line);
+}
+.dx-eyebrow {
+  font-size: 13px;
+  font-weight: 600;
+}
+.dx-figure {
+  margin-top: 10px;
+  font-size: 52px;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+.dx-delta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-top: 14px;
+  font-size: 13px;
+}
+.dx-chip {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #efece4;
+  font-size: 12px;
+  font-weight: 700;
+}
+.dx-chip.up {
+  background: #d8efdf;
+}
+.dx-chip.down {
+  background: #f8d9d9;
+}
+.dx-trio {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 28px;
+}
+.dx-trio a {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 10px 12px 12px;
+  background: #fff;
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  color: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.dx-trio a:hover {
+  border-color: var(--accent-soft);
+  box-shadow: var(--shadow-hover);
+  text-decoration: none;
+}
+.dx-trio strong {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+.dx-trio span {
+  font-size: 12px;
+}
+.dx-trend {
+  min-width: 0;
+  padding: 24px 24px 12px 20px;
+}
+.dx-trend-head h2,
+.dx-card-head h2 {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 600;
+}
+.dx-trend-head p,
+.dx-card-head p {
+  margin: 2px 0 0;
+  font-size: 12px;
+}
+.dx-trend-head {
+  margin: 0 0 10px 8px;
+}
+
+.dx-month {
+  display: grid;
+  grid-template-columns: 150px repeat(5, minmax(0, 1fr));
+  border-top: 1px solid var(--line);
+}
+.dx-month-title {
+  display: flex;
+  align-items: center;
+  padding: 18px 28px;
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 600;
+}
+.dx-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 16px 20px;
+  border-left: 1px solid var(--line);
+}
+.dx-stat span {
+  font-size: 12px;
+}
+.dx-stat strong {
+  font-size: 20px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+/* the two rows of cards under the hero */
+.dx-row {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.dx-card {
+  min-width: 0;
+  padding: 22px;
+}
+.dx-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.dx-card-action a {
+  font-size: 13px;
+  white-space: nowrap;
+}
+.dx-card-action a,
+.dx-list a:not(.dx-stage),
+.dx-ended a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.dx-empty {
+  margin: 0;
+  padding: 4px 0;
+}
+
+/* order pipeline */
+.dx-stages {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+.dx-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 14px;
+  background: var(--stripe);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  color: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.dx-stage:hover {
+  border-color: var(--accent-soft);
+  box-shadow: var(--shadow-hover);
+  text-decoration: none;
+}
+.dx-stage:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -14px;
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  border-top: 2px solid var(--accent);
+  border-right: 2px solid var(--accent);
+  transform: rotate(45deg);
+}
+.dx-stage strong {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.dx-stage span:not(.dx-meter) {
+  font-size: 13px;
+}
+.dx-stage .dx-meter {
+  margin-top: 12px;
+}
+.dx-ended {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+.dx-ended a {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #f4f1e8;
+  font-size: 12px;
+}
+.dx-ended a:hover {
+  background: var(--accent-tint);
+}
+.dx-ended strong {
+  margin-left: 4px;
+}
+
+/* thin meter: a lighter track of the same gold, the fill on top */
+.dx-meter {
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--dx-track);
+  overflow: hidden;
+}
+.dx-meter > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--dx-fill);
+}
+
+/* lists: stock, latest orders, best sellers */
+.dx-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dx-list li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+.dx-list li:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+.dx-list li:last-child {
+  padding-bottom: 0;
+}
+.dx-list .grow {
+  flex: 1;
+  min-width: 0;
+}
+.dx-list .grow > a {
+  display: block;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dx-list .dx-meter {
+  margin-top: 8px;
+}
+.dx-list strong {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.dx-sub {
+  display: block;
+  font-size: 12px;
+}
+.dx-flag {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #f8d9d9;
+  font-size: 12px;
+  font-weight: 700;
+}
+.dx-rank {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent-tint);
+  font-size: 13px;
+  font-weight: 700;
+}
+.dx-amount {
+  text-align: right;
+}
+
+/* the day columns */
+.dx-bars {
+  position: relative;
+  width: 100%;
+}
+.dx-bars svg {
+  display: block;
+  overflow: visible;
+}
+.dx-bars .grid {
+  stroke: var(--viz-grid);
+  stroke-width: 1;
+}
+.dx-bars .axis {
+  stroke: var(--viz-axis);
+  stroke-width: 1;
+}
+.dx-bars text {
+  fill: #000;
+  font-family: var(--font);
+  font-size: 11px;
+}
+.dx-bars text.today {
+  font-weight: 700;
+}
+.dx-bars .bar {
+  fill: var(--series-1);
+  transition: opacity 0.15s;
+}
+.dx-bars .bar.dim {
+  opacity: 0.35;
+}
+.dx-tip {
+  position: absolute;
+  z-index: 5;
+  min-width: 120px;
+  padding: 8px 10px;
+  background: #fff;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(70, 48, 10, 0.16);
+  pointer-events: none;
+  transform: translate(-50%, -100%);
+  font-size: 12px;
+}
+.dx-tip .v {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+@media (max-width: 1080px) {
+  .dx-hero-main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dx-today {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .dx-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dx-month {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .dx-month-title {
+    grid-column: 1 / -1;
+    padding: 16px 20px 4px;
+  }
+  .dx-stat:nth-child(3n + 2) {
+    border-left: 0;
+  }
+  .dx-stat:nth-child(n + 5) {
+    border-top: 1px solid var(--line);
+  }
+}
+@media (max-width: 560px) {
+  .dx-today {
+    padding: 20px;
+  }
+  .dx-figure {
+    font-size: 40px;
+  }
+  .dx-trend {
+    padding: 18px 12px 8px 8px;
+  }
+  .dx-trend-head {
+    margin-left: 10px;
+  }
+  .dx-card {
+    padding: 18px 16px;
+  }
+  .dx-row {
+    gap: 12px;
+  }
+  .dx-stages {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .dx-stage:not(:last-child)::after {
+    display: none;
+  }
+  .dx-month {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dx-stat {
+    padding: 14px 16px;
+    border-top: 1px solid var(--line);
+  }
+  .dx-stat:nth-child(3n + 2) {
+    border-left: 1px solid var(--line);
+  }
+  .dx-stat:nth-child(even) {
+    border-left: 0;
+  }
+  .dx-stat:last-child {
+    grid-column: 1 / -1;
+    border-left: 0;
+  }
+  .dx-stat strong {
+    font-size: 17px;
+  }
+  .dx-orders li {
+    flex-wrap: wrap;
+  }
+  .dx-orders .grow {
+    flex-basis: 100%;
+  }
+  .dx-orders strong {
+    margin-left: auto;
+  }
 }

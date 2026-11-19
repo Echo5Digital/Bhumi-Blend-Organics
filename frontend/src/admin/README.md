@@ -1,36 +1,39 @@
 # Bhumi Blend — admin panel
 
 The shop's back office, rebuilt from the WooCommerce admin: **Dashboard, Orders, Products (+ Categories), Customers,
-Coupons, Reports, Settings** — in the shop's white-and-gold look, laid out like WooCommerce so it feels familiar. It is a plain React
-app (Vite + TypeScript) that talks to the backend in `../backend`; it has no data of its own.
+Coupons, Reports, Settings** — in the shop's white-and-gold look. It talks to the backend in `../../../backend` and has no
+data of its own.
+
+It is **part of the storefront**, not a separate app: this folder holds the screens, and `src/app/adminecho5/` serves them
+at `/adminecho5` (locally <http://localhost:3000/adminecho5>, in production `https://yourshop.com/adminecho5`). One
+`npm run dev` / `npm run build` in `frontend/` covers the shop and the admin together, and a deploy ships both.
 
 ## Run it
 
 1. Start the backend (`cd backend && npm run dev`, listens on port 4000).
 2. Make yourself a login, once: `cd backend && npm run admin:create -- --email you@example.com --name "Your Name"`
    (it prints a generated password; or add `--password "…"`, 10+ characters).
-3. `cd admin && npm install && npm run build`, and keep the storefront running (`cd frontend && npm run dev`).
-   Open **<http://localhost:3000/adminecho5>** and log in.
+3. `cd frontend && npm run dev`, open **<http://localhost:3000/adminecho5>** and log in. Changes to the admin's code
+   reload instantly.
 
-The admin is not a separate website: `npm run build` writes it into `frontend/public/adminecho5/`, and the storefront
-(`frontend/next.config.ts`) serves everything under `/adminecho5` from there. So the address is the shop's own address plus
-`/adminecho5` — in production `https://yourshop.com/adminecho5`. Run `npm run build` again after changing the admin's code
-(the built copy is not committed; build it on every deploy, before the storefront's own build).
+## How it fits into the storefront
 
-To work on the admin with hot reload, `npm run dev` starts a stand-alone copy at <http://localhost:3001/adminecho5/>.
+- `src/app/adminecho5/layout.tsx` is a **second root layout** (the shop's is `src/app/(site)/layout.tsx`), so the admin has its
+  own `<html>` and its own stylesheet (`styles.css` here). The shop's header and Tailwind styles never reach it, and the
+  admin's styles never reach the shop. Going between the two is a normal page load.
+- `src/app/adminecho5/[[...slug]]/page.tsx` catches every address under `/adminecho5` and mounts `App.tsx` in the browser
+  only (`client.tsx`); the admin's own router (`react-router`, base path `/adminecho5`) then shows the right screen.
 
-Settings (optional — the defaults work locally): copy `.env.example` to `.env.local`. These are baked in when you build.
+## Settings
+
+The admin reads one variable, the same one the storefront uses — set it in `frontend/.env.local` (and in Vercel):
 
 | Variable | Default | What it is |
 | --- | --- | --- |
-| `VITE_API_URL` | `http://localhost:4000` | Where the backend is |
-| `VITE_STOREFRONT_URL` | `http://localhost:3000` | For "View on site" links, and to show product photos that are still stored as storefront paths |
+| `NEXT_PUBLIC_API_URL` | `http://localhost:4000` | Where the backend is (in production, the Render address) |
 
-The backend must allow the address the admin is opened from. That is the storefront's own address, so `CLIENT_ORIGINS` in
-`backend/.env` (which already lists `http://localhost:3000`) covers it; `http://localhost:3001` is only needed for `npm run dev`.
-In production `CLIENT_ORIGINS` needs your real shop address (it already must, for the storefront).
-
-`npm run typecheck` checks the code.
+The backend must allow the address the admin is opened from. That is the shop's own address, so `CLIENT_ORIGINS` in
+`backend/.env` covers it (it already has to list the shop for the storefront).
 
 ## What you change here shows on the website
 
@@ -44,7 +47,7 @@ Not driven from here: a category's page design and wording (they live in the web
 
 | Screen | |
 | --- | --- |
-| **Dashboard** | Today's sales and orders, orders waiting, low stock, active products and categories; a 14-day sales trend; orders by status; this month's figures; and lists of orders waiting to be processed and stock running low or out |
+| **Dashboard** | Today's sales (against yesterday) with a 14-day sales column chart and this month's figures; orders to process and low stock; the order pipeline by stage; stock watch; the latest orders; and this month's best sellers |
 | **Orders** | Status tabs with counts, search (number / name / email), filter by month and by registered customer, sortable table, **bulk status changes**. Click an order: change its status (only legal changes are offered), add tracking, see addresses/items/totals, and a notes timeline (private notes, notes the customer can see, automatic ones) |
 | **Products** | Filter by status, stock and category; sort; hide/publish in one click. Edit: price and offer price, SKU, size, **stock count** (paid orders take from it), photos (upload goes to Cloudinary), categories, home-page rows, and the product page content as JSON |
 | **Categories** | Add, rename, reorder, hide, delete |
@@ -61,12 +64,14 @@ Editing a product's page content is raw JSON for now (a form for the description
 ## Code map
 
 ```
-src/
-  main.tsx, App.tsx       routes (everything but /login needs a login)
+src/admin/
+  App.tsx                 routes (everything but /login needs a login)
   lib/                    api (fetch + errors), auth (login state), useApi (loading data), format, csv, types
-  components/             Shell (menu + top bar), ui (notices, pagination, sort headers), charts, DateRange
+  components/             Shell (menu + top bar), ui (notices, pagination, sort headers), charts, DateRange,
+                          dashboard (the dashboard's own column chart and meters)
   pages/                  one file per screen
   styles.css              the whole look (white + gold, black text); colours are tokens at the top
+src/app/adminecho5/       the route that serves it (layout + catch-all page)
 ```
 
 Charts are drawn by hand (no chart library): a 2px line with a hover crosshair and tooltip that also works with the arrow

@@ -1,7 +1,7 @@
 import { useRef, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router";
 import { Field, ErrorNotice, Loading, Notice, PageTitle, useTitle } from "../components/ui";
-import { ApiError, STOREFRONT_URL, api, imageSrc, uploadImage } from "../lib/api";
+import { ApiError, api, imageSrc, uploadImage } from "../lib/api";
 import { useAuth } from "../lib/auth";
 import { slugify } from "../lib/format";
 import type { Category, Product } from "../lib/types";
@@ -321,7 +321,7 @@ function ProductForm({ initial, categories }: { initial: Product | null; categor
                     {busy ? "Saving…" : creating ? "Create product" : "Save changes"}
                   </button>
                   {!creating && initial.isActive && (
-                    <a className="btn" href={`${STOREFRONT_URL}/product/${initial.slug}`} target="_blank" rel="noreferrer">
+                    <a className="btn" href={`/product/${initial.slug}`} target="_blank" rel="noreferrer">
                       View on site
                     </a>
                   )}

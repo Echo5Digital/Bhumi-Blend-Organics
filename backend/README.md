@@ -2,7 +2,7 @@
 
 Node.js + Express 5 + TypeScript, MongoDB (Mongoose), Cloudinary for photos, Razorpay for payments.
 It replaces what WooCommerce did on the old site: products, orders, coupons, payments — plus the
-login-protected API the admin panel (`../admin`, later) will use.
+login-protected API the admin panel (part of the storefront, in `../frontend/src/admin`) uses.
 
 Shoppers can check out as **guests**, like the old site, or register an account (login, saved addresses, order history). Admins log in separately.
 

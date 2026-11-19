@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { ErrorNotice, Notice, PageTitle, Pagination, SortHeader, useTitle } from "../components/ui";
-import { ApiError, STOREFRONT_URL, api, imageSrc } from "../lib/api";
+import { ApiError, api, imageSrc } from "../lib/api";
 import { useAuth } from "../lib/auth";
 import { formatDate, money } from "../lib/format";
 import type { Category, Product, ProductList } from "../lib/types";
@@ -163,7 +163,7 @@ export function Products() {
                     </span>
                     {product.isActive && (
                       <span>
-                        <a href={`${STOREFRONT_URL}/product/${product.slug}`} target="_blank" rel="noreferrer">
+                        <a href={`/product/${product.slug}`} target="_blank" rel="noreferrer">
                           View
                         </a>
                       </span>

@@ -1,5 +1,5 @@
-# Repo-wide ignores. Each app (frontend/, and later backend/ and admin/) keeps its
-# own .gitignore for its framework-specific files.
+# Repo-wide ignores. Each app (frontend/, which also holds the admin panel, and backend/)
+# keeps its own .gitignore for its framework-specific files.
 
 # dependencies
 node_modules/

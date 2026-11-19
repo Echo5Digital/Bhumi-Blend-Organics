@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router";
-import { STOREFRONT_URL } from "../lib/api";
 import { useAuth } from "../lib/auth";
 import type { OrderList } from "../lib/types";
 import { useApi } from "../lib/useApi";
@@ -68,14 +67,14 @@ export function Shell() {
           </svg>
         </button>
         <Link className="brand" to="/" aria-label="Bhumi Blend dashboard">
-          <img src={`${import.meta.env.BASE_URL}logo.png`} alt="" width={40} height={38} />
+          <img src="/bb_logo_.png" alt="" width={40} height={38} />
           <span className="name">
             Bhumi Blend
             <small>Admin</small>
           </span>
         </Link>
         <span className="spacer" />
-        <a className="view-site" href={STOREFRONT_URL} target="_blank" rel="noreferrer">
+        <a className="view-site" href="/" target="_blank" rel="noreferrer">
           View store
         </a>
         <span className="user">

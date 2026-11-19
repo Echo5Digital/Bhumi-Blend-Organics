@@ -1,8 +1,8 @@
-// Talks to the backend (../backend). Addresses come from VITE_API_URL and
-// VITE_STOREFRONT_URL (see .env.example); both default to local development.
+// Talks to the backend (../../../backend). Its address comes from NEXT_PUBLIC_API_URL, the same
+// variable the storefront uses, and defaults to local development. The admin is served by the
+// storefront itself, so links to the shop are plain paths ("/product/…") and need no address.
 
-export const API_URL = (import.meta.env.VITE_API_URL ?? "http://localhost:4000").replace(/\/+$/, "");
-export const STOREFRONT_URL = (import.meta.env.VITE_STOREFRONT_URL ?? "http://localhost:3000").replace(/\/+$/, "");
+export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000").replace(/\/+$/, "");
 
 /** What the backend sends back when something is wrong, ready to show. */
 export class ApiError extends Error {
@@ -67,10 +67,10 @@ export async function uploadImage(file: File, token: string | null) {
 }
 
 /**
- * A photo address that works in the admin. Photos not yet moved to Cloudinary are
- * stored as storefront paths ("/Hair-Oil.jpg"), which only exist on the storefront.
+ * A photo address that works in the admin. Photos not yet moved to Cloudinary are stored as
+ * storefront paths ("/Hair-Oil.jpg"); the admin is served by the storefront, so those open as they are.
  */
 export function imageSrc(url: string | undefined): string | undefined {
   if (!url) return undefined;
-  return url.startsWith("/") ? `${STOREFRONT_URL}${encodeURI(url)}` : url;
+  return url.startsWith("/") ? encodeURI(url) : url;
 }
