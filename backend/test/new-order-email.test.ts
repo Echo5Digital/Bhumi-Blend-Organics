@@ -58,16 +58,23 @@ describe("the email itself", () => {
     expect(subject).not.toMatch(/[\r\n]/);
   });
 
-  it("links to the order in the admin and uses the logo only when the shop has a public https address", () => {
+  it("links to the order in the admin, and carries the logo (bb_logo_.png) inside the email whatever the shop's address is", () => {
     const local = renderNewOrderEmail(sampleOrder(), settings, { ...context, storefrontUrl: "http://localhost:3000" });
     expect(local.html).toContain("http://localhost:3000/adminecho5/orders/20001");
-    expect(local.html).not.toContain("bb_logo_.png"); // a phone can't open localhost
+    expect(local.html).toContain('src="cid:bb-logo"');
+    expect(local.html).not.toContain("BHUMI BLEND</div>"); // not the text logo
+    expect(local.attachments).toEqual([expect.objectContaining({ filename: "bb_logo_.png", cid: "bb-logo", contentType: "image/png" })]);
 
     const live = renderNewOrderEmail(sampleOrder(), settings, { ...context, storefrontUrl: "https://bhumiblend.example" });
-    expect(live.html).toContain("https://bhumiblend.example/bb_logo_.png");
     expect(live.html).toContain("https://bhumiblend.example/adminecho5/orders/20001");
+    expect(live.html).toContain('src="cid:bb-logo"');
+    expect(live.html).not.toContain("https://bhumiblend.example/bb_logo_.png"); // it isn't loaded from the website
+    expect(live.attachments).toHaveLength(1);
 
-    expect(renderNewOrderEmail(sampleOrder(), settings, context).html).not.toContain("View order in admin");
+    // with no shop address at all it is the same: the logo needs no address
+    const bare = renderNewOrderEmail(sampleOrder(), settings, context);
+    expect(bare.html).not.toContain("View order in admin");
+    expect(bare.html).toContain('src="cid:bb-logo"');
   });
 });
 
@@ -131,6 +138,9 @@ describe("Settings → Emails → New order (admin)", () => {
     expect(preview.body.html).toContain("Fresh heading #20001");
     expect(preview.body.html).toContain("Extra words");
     expect(preview.body.format).toBe("html");
+    // the logo is in the page itself (a browser can't open the cid: picture of the real email)
+    expect(preview.body.html).toContain('src="data:image/png;base64,');
+    expect(preview.body.html).not.toContain("cid:");
     expect((await ctx.api.get("/api/admin/emails/new-order").set(auth)).body.settings.heading).toBe("");
   });
 
@@ -140,12 +150,15 @@ describe("Settings → Emails → New order (admin)", () => {
     expect(mail.outbox).toHaveLength(1);
     expect(mail.outbox[0]).toMatchObject({ to: "me@example.com", subject: "[TEST] [Bhumi Blend Organics]: New order #20001" });
     expect(mail.outbox[0]!.html).toContain("Test heading");
+    expect(mail.outbox[0]!.html).toContain('src="cid:bb-logo"');
+    expect(mail.outbox[0]!.attachments).toEqual([expect.objectContaining({ filename: "bb_logo_.png", cid: "bb-logo" })]);
     expect((await ctx.api.post("/api/admin/emails/new-order/test").set(auth).send({ to: "nope" })).status).toBe(400);
   });
 
   it("sends plain text only when the type is plain", async () => {
     await ctx.api.post("/api/admin/emails/new-order/test").set(auth).send({ to: "me@example.com", format: "plain" }).expect(200);
     expect(mail.outbox[0]!.html).toBeUndefined();
+    expect(mail.outbox[0]!.attachments).toBeUndefined(); // no picture without the HTML that shows it
     expect(mail.outbox[0]!.text).toContain("WHAT WAS ORDERED");
   });
 
@@ -195,6 +208,9 @@ describe("online payment not set up: the email goes out when the shopper confirm
     expect(mail.outbox).toHaveLength(1);
     expect(mail.outbox[0]).toMatchObject({ to: "owner@example.com", subject: `[Bhumi Blend Organics]: New order #${order.number}` });
     expect(mail.outbox[0]!.html).toContain("Payment pending");
+    // the real email, as sent, carries the logo
+    expect(mail.outbox[0]!.html).toContain('src="cid:bb-logo"');
+    expect(mail.outbox[0]!.attachments).toEqual([expect.objectContaining({ filename: "bb_logo_.png", cid: "bb-logo", contentType: "image/png" })]);
     expect(await notes(order.number)).toContain("New-order email sent to owner@example.com.");
   });
 

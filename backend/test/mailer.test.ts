@@ -3,7 +3,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { loadEnv } from "../src/config/env.js";
 import { HttpError } from "../src/lib/httpError.js";
 import { verificationEmail } from "../src/services/emailTemplates.js";
+import { logoAttachment } from "../src/services/emailLogo.js";
 import { createMailer } from "../src/services/mailer.js";
+import { renderWelcomeEmail, sampleCustomer } from "../src/services/welcomeEmail.js";
 
 // The real SMTP code is exercised against a tiny SMTP server running inside the test,
 // so these prove an email genuinely goes out over SMTP — without needing an account.
@@ -87,6 +89,24 @@ describe("sending through SMTP", () => {
     expect(mail!.raw).toContain("Subject: 482915 is your Bhumi Blend verification code");
     expect(mail!.raw).toContain("Hi Asha");
     expect(mail!.raw).toContain("text/html");
+  });
+
+  it("carries the logo inside the welcome email as an inline picture", async () => {
+    const smtp = await startSmtp();
+    closers.push(smtp.close);
+    const mailer = createMailer({ ...base, NODE_ENV: "production", SMTP_HOST: "127.0.0.1", SMTP_PORT: smtp.port, MAIL_FROM: "Bhumi Blend <no-reply@example.com>" });
+    const welcome = renderWelcomeEmail(sampleCustomer(), { enabled: true, recipients: "", subject: "", heading: "", additionalContent: "", format: "html" }, { siteName: "Bhumi Blend Organics", storefrontUrl: "http://localhost:3000" });
+
+    await mailer.send({ to: "john@example.com", subject: welcome.subject, text: welcome.text, html: welcome.html, attachments: welcome.attachments });
+
+    const raw = smtp.received[0]!.raw;
+    expect(raw).toContain("Subject: Welcome to Bhumi Blend Organics! Your account is ready");
+    expect(raw).toContain("multipart/related"); // the HTML and its picture travel together
+    expect(raw).toContain("Content-Type: image/png");
+    expect(raw).toContain("Content-ID: <bb-logo>"); // what <img src="cid:bb-logo"> points at
+    expect(raw).toContain("Content-Disposition: inline");
+    // the PNG's own bytes, base64-encoded, are in the message (its first line is enough to tell)
+    expect(raw.replace(/\r?\n/g, "")).toContain(logoAttachment()!.content.toString("base64").slice(0, 64));
   });
 
   it("logs in with the SMTP username and password when they're set", async () => {

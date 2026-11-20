@@ -1,4 +1,5 @@
 import { Setting } from "../models/Setting.js";
+import { withLogo } from "./emailLogo.js";
 import {
   addressBlock,
   addressLines,
@@ -49,7 +50,8 @@ export async function loadCustomerOrderEmail(): Promise<NewOrderEmailSettings> {
   };
 }
 
-export function renderCustomerOrderEmail(order: EmailOrder, settings: NewOrderEmailSettings, context: RenderContext): RenderedEmail {
+export function renderCustomerOrderEmail(order: EmailOrder, settings: NewOrderEmailSettings, shop: RenderContext): RenderedEmail {
+  const { context, attachments } = withLogo(shop); // the logo travels inside the email
   const customer = nameOf(order.shipping) || order.email;
   const firstName = order.shipping.firstName.trim() || "there";
   const placedOn = formatDateTime(order.createdAt);
@@ -120,5 +122,5 @@ export function renderCustomerOrderEmail(order: EmailOrder, settings: NewOrderEm
     context,
   });
 
-  return { subject, html, text };
+  return { subject, html, text, ...(attachments && { attachments }) };
 }

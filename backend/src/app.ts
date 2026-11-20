@@ -27,6 +27,7 @@ import { createMailer, type Mailer } from "./services/mailer.js";
 import { createNewOrderNotifier } from "./services/orderNotifications.js";
 import { createRazorpayGateway, type PaymentGateway } from "./services/payments.js";
 import { createStorefrontNotifier, type StorefrontNotifier } from "./services/storefront.js";
+import { createWelcomeNotifier } from "./services/welcomeEmail.js";
 
 export type AppDeps = {
   env: Env;
@@ -86,7 +87,7 @@ export function createApp({
 
   const couponLimiter = createLimiter(env, { windowMinutes: 15, max: 60, message: "Too many coupon checks. Please try again later." });
   app.use("/api/coupons", couponLimiter);
-  app.use("/api/account", accountRoutes({ env, mailer }));
+  app.use("/api/account", accountRoutes({ env, mailer, onRegistered: createWelcomeNotifier({ env, mailer }) }));
   app.use("/api", catalogRoutes());
   app.use("/api", orderRoutes({ env, gateway: payments, notifier, onPlaced: newOrderEmail }));
 

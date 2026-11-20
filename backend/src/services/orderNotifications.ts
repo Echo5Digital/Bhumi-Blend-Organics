@@ -58,7 +58,7 @@ async function deliver(order: OrderDoc, mailer: Mailer, { flag, name, settings, 
   const list = to.join(", ");
   try {
     const message = await render();
-    await mailer.send({ to: list, subject: message.subject, text: message.text, ...(settings.format === "html" && { html: message.html }) });
+    await mailer.send({ to: list, subject: message.subject, text: message.text, ...(settings.format === "html" && { html: message.html, ...(message.attachments && { attachments: message.attachments }) }) });
     await addNote(order._id, mailer.configured ? `${name} email sent to ${list}.` : `${name} email prepared for ${list}, but email isn't set up on the server yet (SMTP), so it was only printed in the server's log.`);
   } catch (error) {
     // Let a later event (a payment, another confirm) try again, and tell the team why this one didn't go.

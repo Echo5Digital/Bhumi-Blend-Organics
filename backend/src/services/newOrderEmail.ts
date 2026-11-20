@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { Env } from "../config/env.js";
 import { Setting } from "../models/Setting.js";
+import { withLogo } from "./emailLogo.js";
 import {
   addressBlock,
   addressLines,
@@ -112,7 +113,8 @@ export function sampleOrder(): EmailOrder {
 
 // ---- building the message ---------------------------------------------------
 
-export function renderNewOrderEmail(order: EmailOrder, settings: NewOrderEmailSettings, context: RenderContext): RenderedEmail {
+export function renderNewOrderEmail(order: EmailOrder, settings: NewOrderEmailSettings, shop: RenderContext): RenderedEmail {
+  const { context, attachments } = withLogo(shop); // the logo travels inside the email
   const customer = nameOf(order.shipping) || order.email;
   const placedOn = formatDateTime(order.createdAt);
   const vars = { site_title: context.siteName, order_number: String(order.number), order_date: placedOn, customer_name: customer };
@@ -173,5 +175,5 @@ export function renderNewOrderEmail(order: EmailOrder, settings: NewOrderEmailSe
     context,
   });
 
-  return { subject, html, text };
+  return { subject, html, text, ...(attachments && { attachments }) };
 }

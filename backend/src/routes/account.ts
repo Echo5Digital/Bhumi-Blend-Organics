@@ -11,6 +11,7 @@ import { Customer } from "../models/Customer.js";
 import { Order } from "../models/Order.js";
 import type { Mailer } from "../services/mailer.js";
 import { OTP_LENGTH, resendCode, startRegistration, verifyCode } from "../services/registration.js";
+import { silentWelcomeNotifier, type WelcomeNotifier } from "../services/welcomeEmail.js";
 
 // Shopper accounts: register (with an emailed one-time code), log in, edit
 // details, keep an address book, see past orders. An account is needed to buy:
@@ -60,7 +61,17 @@ const emailTaken = () =>
   HttpError.conflict("An account with this email already exists. Please log in instead.", "EMAIL_TAKEN");
 const isDuplicateKey = (error: unknown) => (error as { code?: number }).code === 11000;
 
-export function accountRoutes({ env, mailer }: { env: Env; mailer: Mailer }): Router {
+/** How long a new shopper's login may wait for their welcome email to be handed to the mail server. */
+const WELCOME_WAIT_MS = 3000;
+
+/** Waits for `work` but no longer than `ms`; if it is slower it just carries on in the background. */
+async function waitUpTo(work: Promise<unknown>, ms: number) {
+  let timer: NodeJS.Timeout | undefined;
+  await Promise.race([work, new Promise<void>((resolve) => (timer = setTimeout(resolve, ms)))]);
+  clearTimeout(timer);
+}
+
+export function accountRoutes({ env, mailer, onRegistered = silentWelcomeNotifier }: { env: Env; mailer: Mailer; onRegistered?: WelcomeNotifier }): Router {
   const router = Router();
   const registerLimiter = createLimiter(env, { windowMinutes: 60, max: 10, message: "Too many sign-ups from this connection. Please try again later." });
   const verifyLimiter = createLimiter(env, { windowMinutes: 15, max: 20, message: "Too many attempts. Please wait a few minutes." });
@@ -79,6 +90,8 @@ export function accountRoutes({ env, mailer }: { env: Env; mailer: Mailer }): Ro
   router.post("/register/verify", verifyLimiter, async (req, res) => {
     const { email, code } = parse(verifySchema, req.body);
     const customer = await verifyCode(email, code, { env });
+    // The account exists now: send the welcome email. It never throws, and a slow mail server can't hold the login up.
+    await waitUpTo(onRegistered({ email: customer.email, firstName: customer.firstName, lastName: customer.lastName }), WELCOME_WAIT_MS);
     res.status(201).json({
       token: signCustomerToken(env, String(customer._id)),
       customer: publicCustomer(customer.toObject() as unknown as CustomerDoc),

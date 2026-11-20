@@ -40,6 +40,16 @@ describe("the customer's email itself", () => {
     expect(html).not.toContain("Customer</div>"); // the owner's "Customer" card is for the shop, not the customer
   });
 
+  it("carries the logo (bb_logo_.png) inside the email, whatever the shop's address is", () => {
+    for (const storefrontUrl of [undefined, "http://localhost:3000", "https://shop.example"]) {
+      const message = renderCustomerOrderEmail(sampleOrder(), settings, { ...context, storefrontUrl });
+      expect(message.html).toContain('src="cid:bb-logo"');
+      expect(message.html).not.toContain("BHUMI BLEND</div>"); // not the text logo
+      expect(message.html).not.toContain("/bb_logo_.png"); // and not loaded from the website
+      expect(message.attachments).toEqual([expect.objectContaining({ filename: "bb_logo_.png", cid: "bb-logo", contentType: "image/png" })]);
+    }
+  });
+
   it("links to the customer's orders in their account, and offers the shop's contact details", () => {
     const withLinks = renderCustomerOrderEmail(sampleOrder(), settings, { ...context, storefrontUrl: "https://shop.example", contactEmail: "hello@shop.example", contactPhone: "98470 00000" });
     expect(withLinks.html).toContain("https://shop.example/my-account/orders");
@@ -91,11 +101,12 @@ describe("Settings → Emails (admin) with two emails", () => {
     mail.outbox.length = 0;
   });
 
-  it("lists both emails", async () => {
+  it("lists the emails", async () => {
     const { body } = await ctx.api.get("/api/admin/emails").set(auth).expect(200);
     expect(body.emails).toEqual([
       { key: "new-order", title: "New order", description: expect.any(String), enabled: true, recipients: "owner-default@example.com" },
       { key: "order-received", title: "Order received", description: expect.any(String), enabled: true, recipients: "" },
+      { key: "welcome", title: "New account", description: expect.any(String), enabled: true, recipients: "" },
     ]);
     expect((await ctx.api.get("/api/admin/emails")).status).toBe(401);
     expect((await ctx.api.get("/api/admin/emails").set(await customerHeader(ctx))).status).toBe(401);
@@ -130,6 +141,8 @@ describe("Settings → Emails (admin) with two emails", () => {
     expect(preview.body.html).toContain("Fresh heading");
     expect(preview.body.html).toContain("Hi Asha,");
     expect(preview.body.html).toContain("A little extra");
+    expect(preview.body.html).toContain('src="data:image/png;base64,'); // the logo, in the page for the browser
+    expect(preview.body.html).not.toContain("cid:");
     expect((await ctx.api.get("/api/admin/emails/order-received").set(auth)).body.settings.heading).toBe("");
   });
 
@@ -138,6 +151,7 @@ describe("Settings → Emails (admin) with two emails", () => {
     expect(mail.outbox).toHaveLength(1);
     expect(mail.outbox[0]).toMatchObject({ to: "me@example.com", subject: "[TEST] Your Bhumi Blend Organics order has been received!" });
     expect(mail.outbox[0]!.html).toContain("Test heading");
+    expect(mail.outbox[0]!.attachments).toEqual([expect.objectContaining({ cid: "bb-logo" })]);
   });
 
   it("answers 404 for an email that doesn't exist", async () => {
@@ -189,6 +203,11 @@ describe("online payment not set up: both emails go out when the shopper confirm
     expect(mail.outbox[1]!.subject).toBe("Your Bhumi Blend Organics order has been received!");
     expect(mail.outbox[1]!.html).toContain("Hi Asha,");
     expect(mail.outbox[1]!.html).toContain("Aloe Pure Shampoo");
+    // both emails, as sent, carry the logo inside them
+    for (const message of mail.outbox) {
+      expect(message.html).toContain('src="cid:bb-logo"');
+      expect(message.attachments).toEqual([expect.objectContaining({ filename: "bb_logo_.png", cid: "bb-logo", contentType: "image/png" })]);
+    }
     const written = await notes(order.number);
     expect(written).toContain(`New-order email sent to ${OWNER}.`);
     expect(written).toContain("Order-received email sent to buyer@example.com.");

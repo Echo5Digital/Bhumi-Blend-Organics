@@ -6,9 +6,10 @@ import { useAuth } from "../lib/auth";
 import { useApi } from "../lib/useApi";
 import { SettingsTabs } from "./Settings";
 
-// Settings → Emails: the emails the shop sends when an order is placed. Two of them:
-//   "New order"       goes to the shop owner (the recipients are set here)
+// Settings → Emails: the emails the shop sends. Three of them:
+//   "New order"       goes to the shop owner when an order is placed (the recipients are set here)
 //   "Order received"  goes to the customer who placed the order
+//   "New account"     goes to a customer when they create an account
 // Each has the same screen, mirroring WooCommerce's: switch it on or off, its subject / heading / extra
 // text, and a live preview with a "send a test email" button.
 
@@ -19,8 +20,13 @@ type Payload = {
   key: string;
   title: string;
   description: string;
-  /** false for the customer's email: it goes to the customer, so there is no recipient to type. */
+  /** false for the customer's emails: they go to the customer, so there is no recipient to type. */
   recipientsEditable: boolean;
+  /** The sentence under the screen's title, and what to show as the recipient when it can't be typed. */
+  intro: string;
+  recipientLine: string;
+  /** What the preview is built from: "a sample order", "a sample new customer". */
+  sample: string;
   settings: NewOrderSettings;
   /** What an empty field falls back to. */
   defaults: { recipients: string; subject: string; heading: string };
@@ -192,7 +198,7 @@ function NewOrderForm({ initial }: { initial: Payload }) {
         </h2>
       </div>
       <p className="hint" style={{ marginTop: 0 }}>
-        {initial.recipientsEditable ? "New order emails are sent to the chosen recipient(s) when a new order is received." : "This email goes to the customer, at the address they entered at checkout, right after they place an order."}
+        {initial.intro}
       </p>
       {!initial.emailConfigured && <NoSmtpNotice />}
 
@@ -223,7 +229,7 @@ function NewOrderForm({ initial }: { initial: Payload }) {
             ) : (
               <tr>
                 <th>Recipient</th>
-                <td>The customer who placed the order (the email address they entered at checkout).</td>
+                <td>{initial.recipientLine}</td>
               </tr>
             )}
             <tr>
@@ -281,7 +287,7 @@ function NewOrderForm({ initial }: { initial: Payload }) {
         Email preview
       </h2>
       <p className="hint" style={{ marginTop: 0 }}>
-        Preview your email template. It shows a sample order and updates as you type. You can also check it on a phone and send yourself a test email.
+        Preview your email template. It shows {initial.sample} and updates as you type. You can also check it on a phone and send yourself a test email.
       </p>
       <section className="email-preview">
         <div className="email-preview-bar">
@@ -332,7 +338,7 @@ function NewOrderForm({ initial }: { initial: Payload }) {
   );
 }
 
-/** One email's screen (/settings/emails/new-order or /settings/emails/order-received). */
+/** One email's screen (/settings/emails/new-order, /order-received or /welcome). */
 export function EmailScreen() {
   const { kind } = useParams();
   const { data, error } = useApi<Payload>(`/admin/emails/${encodeURIComponent(kind ?? "")}`);
@@ -343,7 +349,7 @@ export function EmailScreen() {
       <SettingsTabs />
       <ErrorNotice error={error} />
       {!data && !error && <Loading />}
-      {/* keyed by the email, so moving between the two never carries one's text over to the other */}
+      {/* keyed by the email, so moving between them never carries one's text over to another */}
       {data && <NewOrderForm key={data.key} initial={data} />}
     </div>
   );

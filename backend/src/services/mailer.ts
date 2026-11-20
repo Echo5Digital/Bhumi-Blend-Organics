@@ -11,7 +11,10 @@ import { HttpError } from "../lib/httpError.js";
 // - No SMTP, production    → `configured` is false and sending fails with 503, so
 //                            the site never pretends to have emailed a code.
 
-export type MailMessage = { to: string; subject: string; text: string; html?: string };
+/** A picture carried inside the email itself and used in its HTML as `<img src="cid:...">`, so it shows even with no web address to load it from. */
+export type MailAttachment = { filename: string; content: Buffer; cid: string; contentType: string };
+
+export type MailMessage = { to: string; subject: string; text: string; html?: string; attachments?: MailAttachment[] };
 
 export interface Mailer {
   readonly configured: boolean;

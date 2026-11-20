@@ -121,7 +121,7 @@ Building the website for production (`next build`) reads the catalogue, so this 
 | | |
 | --- | --- |
 | `POST /api/account/register` | **Step 1.** `{ firstName, lastName, email, password }` (password 8–72 chars) → `202 { status, email, expiresInSeconds: 600, resendAfterSeconds: 30 }` and a 6-digit code is **emailed**. No account exists yet. 409 `EMAIL_TAKEN` if the email already has one |
-| `POST /api/account/register/verify` | **Step 2.** `{ email, code }` → `201 { token, customer }` — the account is created, verified and logged in. Errors: `OTP_INVALID` (says how many tries are left), `OTP_EXPIRED`, `OTP_TOO_MANY_ATTEMPTS`, `OTP_NOT_FOUND` (sign-up expired: register again) |
+| `POST /api/account/register/verify` | **Step 2.** `{ email, code }` → `201 { token, customer }` — the account is created, verified and logged in. The new customer is also sent the "New account" welcome email (subject "Welcome to {site_title}! Your account is ready"; the logo travels inside it; switch it off or reword it under **Settings → Emails → New account**; a slow or failing mail server never stops the sign-up). Errors: `OTP_INVALID` (says how many tries are left), `OTP_EXPIRED`, `OTP_TOO_MANY_ATTEMPTS`, `OTP_NOT_FOUND` (sign-up expired: register again) |
 | `POST /api/account/register/resend` | `{ email }` → a fresh code; the old one stops working. 429 `OTP_COOLDOWN` (`details.retryAfterSeconds`) if asked within 30 s; 429 `OTP_SEND_LIMIT` after 5 codes |
 | `POST /api/account/login` | `{ email, password }` → `{ token, customer }`. A wrong email and a wrong password give the same 401 |
 | `GET /api/account/me` | The logged-in shopper (header `Authorization: Bearer <token>`) |
@@ -156,9 +156,9 @@ Shopper tokens and admin tokens are not interchangeable.
 | `GET /api/admin/customers`, `GET/PATCH /api/admin/customers/:id` | Registered customers and guests (grouped by email) with orders, total spend, AOV, last active, location; `type`, `search`, `sort`, paging. PATCH `{ isActive }` switches an account off/on. `DELETE …/:id` removes the account for good: the shopper can't log in, but their orders are kept (as orders with no account, i.e. guest orders) → `{ deleted, ordersKept }` |
 | `GET /api/admin/reports/sales|products|categories|coupons|customers|stock` | `?from=&to=` (default: this month so far; max one year; ranges over ~3 months group by month). Sales counts paid, uncancelled orders; refunds come off the net figure |
 | `GET/PUT /api/admin/settings` | Store address and contact details, coupons on/off, low-stock level |
-| `GET /api/admin/emails` | The two order emails and whether each is on: `new-order` (to the shop owner) and `order-received` (to the customer who ordered) |
-| `GET/PUT /api/admin/emails/:kind` | `:kind` is `new-order` or `order-received`. `{ enabled, recipients, subject, heading, additionalContent, format }` (`format` = `html` or `plain`; `recipients` only for `new-order`, since the customer's email goes to the address they gave at checkout). `{site_title}`, `{order_number}`, `{order_date}` and `{customer_name}` can be used in the text. Kept apart from the public settings, which never carry the recipients |
-| `POST /api/admin/emails/:kind/preview` | The email built from a made-up order, with the settings in the body laid over the saved ones (nothing is saved) → `{ subject, html, text, format }` |
+| `GET /api/admin/emails` | The emails and whether each is on: `new-order` (to the shop owner), `order-received` (to the customer who ordered) and `welcome` (to a customer who just created an account) |
+| `GET/PUT /api/admin/emails/:kind` | `:kind` is `new-order`, `order-received` or `welcome`. `{ enabled, recipients, subject, heading, additionalContent, format }` (`format` = `html` or `plain`; `recipients` only for `new-order`, since the customer emails go to the customer's own address). `{site_title}`, `{order_number}`, `{order_date}` and `{customer_name}` can be used in the order emails' text; `{site_title}` and `{customer_name}` in the welcome email's. Kept apart from the public settings, which never carry the recipients |
+| `POST /api/admin/emails/:kind/preview` | The email built from made-up data (a sample order, or a sample new customer), with the settings in the body laid over the saved ones (nothing is saved) → `{ subject, html, text, format }` (the welcome email's logo is put into the `html` so a browser can show it) |
 | `POST /api/admin/emails/:kind/test` | `{ to, …optional draft }` sends that made-up email, subject starting `[TEST]` |
 | `GET /api/admin/system` | What's connected (database, Razorpay, Cloudinary, SMTP), server info, record counts — never a secret |
 | `POST /api/admin/uploads` | multipart, field `file` (JPG/PNG/WebP/GIF/AVIF, ≤5 MB) → `{ url, publicId, width, height }` |
@@ -177,7 +177,8 @@ src/
   middleware/          auth (JWT), errors, rateLimit
 scripts/               seed, create-admin, upload-images, dev-memory, export-seed
 seed/catalogue.json    the storefront's catalogue, exported from frontend/src/data
-test/                  205 tests (incl. emails sent through a real in-test SMTP server) on an in-memory MongoDB (no keys or network needed)
+assets/bb_logo_.png    the logo, a copy of frontend/public/bb_logo_.png, carried inside every email (welcome, new order, order received; keep the two in step)
+test/                  289 tests (incl. emails sent through a real in-test SMTP server) on an in-memory MongoDB (no keys or network needed)
 ```
 
 `npm run seed:export` regenerates `seed/catalogue.json` from `frontend/src/data` — only needed if those

@@ -3,6 +3,9 @@
 // the totals and the address cards. Table-based HTML with inline styles, because that is what Gmail,
 // Outlook and phones all render the same way.
 
+import type { MailAttachment } from "./mailer.js";
+import { LOGO_CID } from "./emailLogo.js";
+
 export type AddressLike = {
   firstName: string;
   lastName: string;
@@ -39,9 +42,14 @@ export type RenderContext = {
   /** The shop's contact details from Settings → General, shown to customers ("Questions? ..."). */
   contactEmail?: string;
   contactPhone?: string;
+  /** Show the logo from a copy carried inside the email (`cid:bb-logo`, see emailLogo.ts) instead of loading it from the shop's website. */
+  inlineLogo?: boolean;
+  /** The logo's height in pixels (60 when not set). */
+  logoHeight?: number;
 };
 
-export type RenderedEmail = { subject: string; html: string; text: string };
+/** A built email. `attachments` are the pictures its HTML refers to as `cid:...`; send them along with it. */
+export type RenderedEmail = { subject: string; html: string; text: string; attachments?: MailAttachment[] };
 
 export const GOLD = "#ce8e22";
 export const GOLD_DARK = "#b8791f";
@@ -158,8 +166,12 @@ export const heroBlock = (kicker: string, heading: string, below: string) =>
   `${label(kicker)}<h1 class="h1" style="margin:10px 0 0;font-family:${SERIF};font-size:32px;line-height:1.2;font-weight:700;color:${INK};">${esc(heading)}</h1>${below}`;
 
 function logo(context: RenderContext) {
+  const height = context.logoHeight ?? 60;
+  if (context.inlineLogo) {
+    return `<img src="cid:${LOGO_CID}" alt="${esc(context.siteName)}" height="${height}" style="display:block;margin:0 auto;height:${height}px;border:0;">`;
+  }
   return context.storefrontUrl?.startsWith("https://")
-    ? `<img src="${esc(context.storefrontUrl)}/bb_logo_.png" alt="${esc(context.siteName)}" height="60" style="display:block;margin:0 auto;height:60px;border:0;">`
+    ? `<img src="${esc(context.storefrontUrl)}/bb_logo_.png" alt="${esc(context.siteName)}" height="${height}" style="display:block;margin:0 auto;height:${height}px;border:0;">`
     : `<div style="font-family:${SERIF};font-size:24px;font-weight:700;letter-spacing:0.18em;color:${GOLD_DARK};">BHUMI BLEND</div><div style="margin-top:4px;font-size:10px;letter-spacing:0.32em;color:#9a7a3a;">ORGANICS</div>`;
 }
 

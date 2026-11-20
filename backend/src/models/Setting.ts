@@ -44,6 +44,14 @@ const settingSchema = new Schema(
       additionalContent: { type: String, trim: true },
       format: { type: String, enum: ["html", "plain"] },
     },
+    /** Settings → Emails → New account (services/welcomeEmail.ts): the welcome email a new customer gets. No recipients: it goes to them. */
+    welcomeEmail: {
+      enabled: { type: Boolean },
+      subject: { type: String, trim: true },
+      heading: { type: String, trim: true },
+      additionalContent: { type: String, trim: true },
+      format: { type: String, enum: ["html", "plain"] },
+    },
   },
   { timestamps: true },
 );
