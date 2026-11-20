@@ -7,9 +7,8 @@ import { ShopProducts } from "@/components/ShopProducts";
 import { getCatalogue } from "@/lib/catalog";
 
 export const metadata: Metadata = {
-  title: "Shop | Bhumi Blend Organics",
-  description:
-    "Browse the complete Bhumi Blend Organics collection — Ayurvedic skin care, hair care, body care and combo sets crafted with nature.",
+  title: "Shop - Bhumi Blend Organics",
+  description: "Products Archive - Bhumi Blend Organics",
 };
 
 // The products are read behind <Suspense> so a cold cache never blocks the page

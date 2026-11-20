@@ -220,9 +220,9 @@ export const categories: Category[] = [
   },
   {
     slug: "combo",
-    metaTitle: "Combo Sets | Bhumi Blend Organics",
+    metaTitle: "Combo - Bhumi Blend Organics",
     metaDescription:
-      "Complete Ayurvedic routines in curated bundles: skin care kits, soap sets and gift boxes from Bhumi Blend Organics, designed for visible results and better value.",
+      "Shop Ayurvedic beauty combo packs at Bhumi Blend. Explore natural skincare kits for hydration, radiance, and daily nourishment.",
     eyebrow: "Complete Care Solutions",
     heading: "Your Daily Self-Care,",
     headingAccent: "Simplified",

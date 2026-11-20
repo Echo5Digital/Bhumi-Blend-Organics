@@ -8,7 +8,7 @@ import { getContact } from "@/lib/catalog";
 export const metadata: Metadata = {
   title: "Contact Us | Bhumi Blend Organics",
   description:
-    "Call, email or chat with Bhumi Blend Organics, and find our office in Kaloor, Kochi.",
+    "Have questions or need help? Contact Us the Bhumi Blend for inquiries about our organic beauty products and Ayurvedic skincare in India. We’re here to assist you.",
 };
 
 const iconProps = {
