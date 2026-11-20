@@ -1,9 +1,22 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Suspense } from "react";
 import { CategoryMenu } from "@/components/CategoryMenu";
 import { HeaderActions } from "@/components/HeaderActions";
 import { MobileMenu } from "@/components/MobileMenu";
 import { navLinkClass } from "@/components/navLinkClass";
+import { getMenuCategories } from "@/lib/catalog";
+
+// The two menus list the categories made in the admin after the built-in ones. They load
+// behind <Suspense> (the menus show without them meanwhile; the extras sit in closed panels,
+// so nothing visibly changes) and never fail: no backend just means no extra links.
+async function CategoryMenuWithMore() {
+  const { more, photos } = await getMenuCategories();
+  return <CategoryMenu more={more} photos={photos} />;
+}
+async function MobileMenuWithMore() {
+  return <MobileMenu more={(await getMenuCategories()).more} />;
+}
 
 // Nav links point at "/#section" (not just "#section") so they still land on
 // the homepage section when clicked from any other page.
@@ -14,7 +27,9 @@ export function Header() {
           hamburger | centred logo | the same three icons. 3 columns either way
           so the middle item sits on the page centre. */}
       <div className="mx-auto grid max-w-[1290px] grid-cols-[1fr_auto_1fr] items-center px-6">
-        <MobileMenu />
+        <Suspense fallback={<MobileMenu />}>
+          <MobileMenuWithMore />
+        </Suspense>
 
         <Link
           href="/"
@@ -42,7 +57,9 @@ export function Header() {
           <Link href="/shop" className={navLinkClass}>
             Shop
           </Link>
-          <CategoryMenu />
+          <Suspense fallback={<CategoryMenu />}>
+            <CategoryMenuWithMore />
+          </Suspense>
           <Link href="/product-category/combo" className={navLinkClass}>
             Combo
           </Link>

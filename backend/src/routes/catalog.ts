@@ -48,6 +48,7 @@ export function catalogRoutes(): Router {
         slug: category.slug,
         name: category.name,
         description: category.description ?? undefined,
+        image: category.image?.url,
       })),
     });
   });

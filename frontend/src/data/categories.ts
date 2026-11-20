@@ -39,7 +39,7 @@ export type Category = {
   headingAccent: string;
   intro: string;
   ctaLabel: string;
-  /** Banner photo (file in /public) and its description. */
+  /** Banner photo (file in /public) and its description. Empty = no photo: a plain cream banner. */
   bannerImage: string;
   bannerAlt: string;
   /** Where the photo sits inside the banner box, as an object-position value. */
@@ -275,4 +275,29 @@ export const categories: Category[] = [
 
 export function getCategory(slug: string): Category | undefined {
   return categories.find((category) => category.slug === slug);
+}
+
+/**
+ * The page of a category made in the admin, which has no hand-made design: a plain cream
+ * banner with its name and description, then its products. (hair, face, body and combo keep
+ * their own designs above.)
+ */
+export function categoryFromAdmin(entry: { slug: string; name: string; description?: string }): Category {
+  const about = entry.description?.trim() ?? "";
+  return {
+    slug: entry.slug,
+    metaTitle: `${entry.name} | Bhumi Blend Organics`,
+    metaDescription: about || `Shop ${entry.name} from Bhumi Blend Organics.`,
+    eyebrow: "Our Collection",
+    heading: entry.name,
+    headingAccent: "",
+    intro: about,
+    ctaLabel: `Shop ${entry.name}`,
+    bannerImage: "",
+    bannerAlt: "",
+    bannerFocus: "50% 50%",
+    bannerPhotoLeft: 0,
+    listHeading: entry.name,
+    products: [],
+  };
 }

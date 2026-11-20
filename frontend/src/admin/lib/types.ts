@@ -82,7 +82,7 @@ export type Product = {
 };
 export type ProductList = Paged<Product> & { counts: { all: number; active: number; hidden: number } };
 
-export type Category = { id: string; slug: string; name: string; description?: string; position: number; isActive: boolean };
+export type Category = { id: string; slug: string; name: string; description?: string; /** The photo on its card in the shop's Category menu. */ image?: { url: string; publicId?: string }; position: number; isActive: boolean };
 
 export type Coupon = {
   id: string;

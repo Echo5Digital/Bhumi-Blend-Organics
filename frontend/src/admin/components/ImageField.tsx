@@ -5,7 +5,7 @@ import { useAuth } from "../lib/auth";
 export type Image = { url: string; publicId?: string };
 
 /** A photo picker: paste an address, or upload a file (goes to Cloudinary). */
-export function ImageField({ label, image, onChange, error, required }: { label: string; image: Image | null; onChange: (image: Image | null) => void; error?: string; required?: boolean }) {
+export function ImageField({ label, image, onChange, error, required, onUploading }: { label: string; image: Image | null; onChange: (image: Image | null) => void; error?: string; required?: boolean; /** Tells the form while a file is being sent (saving then would leave it out). */ onUploading?: (uploading: boolean) => void }) {
   const { token } = useAuth();
   const file = useRef<HTMLInputElement>(null);
   const inputId = useId();
@@ -15,6 +15,7 @@ export function ImageField({ label, image, onChange, error, required }: { label:
   async function upload(chosen: File | undefined) {
     if (!chosen) return;
     setUploading(true);
+    onUploading?.(true);
     setProblem("");
     try {
       const stored = await uploadImage(chosen, token);
@@ -23,6 +24,7 @@ export function ImageField({ label, image, onChange, error, required }: { label:
       setProblem(caught instanceof ApiError ? caught.message : "The upload failed.");
     } finally {
       setUploading(false);
+      onUploading?.(false);
       if (file.current) file.current.value = "";
     }
   }
@@ -37,7 +39,7 @@ export function ImageField({ label, image, onChange, error, required }: { label:
         {image?.url ? <img className="thumb" style={{ width: 84, height: 84 }} src={imageSrc(image.url)} alt="" /> : <div className="thumb" style={{ width: 84, height: 84, display: "grid", placeItems: "center", color: "#000", fontSize: 12 }}>No photo</div>}
         <div style={{ flex: 1, minWidth: 0 }}>
           <input type="text" aria-label={`${label} address`} placeholder="https://… or /photo.jpg" value={image?.url ?? ""} className={error ? "invalid" : ""} onChange={(event) => onChange(event.target.value ? { url: event.target.value } : null)} />
-          <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px 8px", marginTop: 6 }}>
             <input ref={file} type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" className="sr-only" id={inputId} onChange={(event) => void upload(event.target.files?.[0])} />
             <button type="button" className="btn" disabled={uploading} onClick={() => file.current?.click()}>
               {uploading ? "Uploading…" : "Upload a photo"}

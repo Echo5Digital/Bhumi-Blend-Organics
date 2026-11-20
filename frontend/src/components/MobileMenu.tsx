@@ -19,10 +19,12 @@ const links = [
 
 // Renders the hamburger button (a cell of the header grid) and the dropdown
 // panel, which is positioned against the sticky <header>, right under it.
-export function MobileMenu() {
+// `more`: categories made in the admin, listed after Combo.
+export function MobileMenu({ more = [] }: { more?: { name: string; href: string }[] }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
   const loggedIn = useSession() !== null;
+  const items = [...links.slice(0, 6), ...more.map((category) => ({ label: category.name, href: category.href })), ...links.slice(6)];
 
   useEffect(() => {
     if (!open) return;
@@ -61,8 +63,8 @@ export function MobileMenu() {
         className="absolute inset-x-0 top-full border-b border-[#eee] bg-white shadow-[0_16px_28px_-18px_rgba(0,0,0,0.35)] md:hidden"
       >
         <ul className="px-6 py-2">
-          {links.map((link) => (
-            <li key={link.label} className="border-b border-[#f1f1f1] last:border-0">
+          {items.map((link) => (
+            <li key={link.href} className="border-b border-[#f1f1f1] last:border-0">
               <Link
                 href={link.href}
                 onClick={() => setOpen(false)}

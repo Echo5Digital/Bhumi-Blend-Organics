@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router";
+import { ImageField, type Image } from "../components/ImageField";
 import { ErrorNotice, Field, Loading, Notice, PageTitle, useTitle } from "../components/ui";
 import { ApiError, api } from "../lib/api";
 import { useAuth } from "../lib/auth";
@@ -18,11 +19,13 @@ export function Categories() {
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
   const [description, setDescription] = useState("");
+  const [image, setImage] = useState<Image | null>(null);
   const [position, setPosition] = useState("0");
   const [isActive, setIsActive] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   function reset() {
     setEditing(null);
@@ -30,6 +33,7 @@ export function Categories() {
     setSlug("");
     setSlugTouched(false);
     setDescription("");
+    setImage(null);
     setPosition("0");
     setIsActive(true);
     setErrors({});
@@ -41,6 +45,7 @@ export function Categories() {
     setSlug(category.slug);
     setSlugTouched(true);
     setDescription(category.description ?? "");
+    setImage(category.image ?? null);
     setPosition(String(category.position));
     setIsActive(category.isActive);
     setErrors({});
@@ -60,7 +65,16 @@ export function Categories() {
 
     setBusy(true);
     try {
-      const body = { name: name.trim(), slug: slug.trim(), position: Number(position), isActive, description: editing ? description.trim() || null : description.trim() || undefined };
+      // For a new category a blank field is simply left out; when editing, blank clears it (null).
+      const photo = image?.url.trim() ? { url: image.url.trim(), ...(image.publicId && { publicId: image.publicId }) } : null;
+      const body = {
+        name: name.trim(),
+        slug: slug.trim(),
+        position: Number(position),
+        isActive,
+        description: editing ? description.trim() || null : description.trim() || undefined,
+        image: editing ? photo : (photo ?? undefined),
+      };
       if (editing) await api(`/admin/categories/${editing.id}`, { method: "PATCH", token, body });
       else await api("/admin/categories", { method: "POST", token, body });
       setMessage({ kind: "success", text: editing ? "Category updated." : "Category added." });
@@ -187,6 +201,10 @@ export function Categories() {
               <Field label="Description" htmlFor="cat-description">
                 <textarea id="cat-description" rows={3} value={description} onChange={(event) => setDescription(event.target.value)} />
               </Field>
+              <div>
+                <ImageField label="Photo for the Category menu" image={image} onChange={setImage} error={errors["image.url"]} onUploading={setUploadingPhoto} />
+                <p className="hint">The picture on this category's card in the shop's Category menu. A tall photo (about 4 wide by 5 high) fits best. Leave empty for a card with just the name.</p>
+              </div>
               <Field label="Order" htmlFor="cat-position" error={errors.position} hint="Smaller numbers come first in the menu.">
                 <input id="cat-position" type="number" min="0" step="1" value={position} className={errors.position ? "invalid" : ""} onChange={(event) => setPosition(event.target.value)} />
               </Field>
@@ -195,8 +213,8 @@ export function Categories() {
                 Visible in the shop
               </label>
               <div style={{ display: "flex", gap: 8 }}>
-                <button type="submit" className="btn primary" disabled={busy}>
-                  {editing ? "Update category" : "Add new category"}
+                <button type="submit" className="btn primary" disabled={busy || uploadingPhoto}>
+                  {uploadingPhoto ? "Uploading…" : editing ? "Update category" : "Add new category"}
                 </button>
                 {editing && (
                   <button type="button" className="btn" onClick={reset}>

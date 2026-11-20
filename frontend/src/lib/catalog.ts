@@ -1,4 +1,5 @@
 import { cacheLife, cacheTag } from "next/cache";
+import { getCategory } from "@/data/categories";
 import { contact as builtInContact } from "@/data/contact";
 import type { ProductDetail } from "@/data/productDetails";
 import type { Product } from "@/data/products";
@@ -62,6 +63,41 @@ export async function getCategoryProducts(slug: string): Promise<Product[]> {
   cacheLife("minutes");
   cacheTag("catalog");
   return allProducts(`category=${encodeURIComponent(slug)}`);
+}
+
+/** A category made in the admin (name and description are what its page and menu link show; `image` is its card photo in the Category menu). */
+export type CategoryEntry = { slug: string; name: string; description?: string; image?: string };
+
+/** The categories switched on in the admin, in the admin's order. */
+export async function getCategories(): Promise<CategoryEntry[]> {
+  "use cache";
+  cacheLife("minutes");
+  cacheTag("catalog");
+  const result = await load<{ items: CategoryEntry[] }>("/categories");
+  return result?.items ?? [];
+}
+
+export type MenuCategories = {
+  /** Categories with no hand-made page (hair, face, body and combo are already in the menus), with their card photo if they have one. */
+  more: { name: string; href: string; image?: string }[];
+  /** Photos set in the admin for hair, face and body, replacing the picture the Category menu comes with (keyed by slug). */
+  photos: Record<string, string>;
+};
+
+/**
+ * For the menus. A header must never take a page down, so a backend that can't be reached
+ * just means no extra links and the built-in pictures.
+ */
+export async function getMenuCategories(): Promise<MenuCategories> {
+  try {
+    const entries = await getCategories();
+    return {
+      more: entries.filter((entry) => !getCategory(entry.slug)).map((entry) => ({ name: entry.name, href: `/product-category/${entry.slug}`, ...(entry.image && { image: entry.image }) })),
+      photos: Object.fromEntries(entries.flatMap((entry) => (getCategory(entry.slug) && entry.image ? [[entry.slug, entry.image]] : []))),
+    };
+  } catch {
+    return { more: [], photos: {} };
+  }
 }
 
 type ApiProduct = Product & {

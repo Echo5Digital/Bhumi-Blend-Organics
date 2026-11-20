@@ -12,21 +12,23 @@ const base = z.object({
   slug: slugSchema,
   name: z.string().trim().min(1).max(100),
   description: z.string().trim().max(500),
+  image: z.object({ url: z.string().trim().min(1).max(600), publicId: z.string().trim().max(300).optional() }),
   position: z.number().int().min(0),
   isActive: z.boolean(),
 });
 const createSchema = base.partial().required({ slug: true, name: true });
 const updateSchema = z
-  .object({ ...base.partial().shape, description: base.shape.description.nullable().optional() })
+  .object({ ...base.partial().shape, description: base.shape.description.nullable().optional(), image: base.shape.image.nullable().optional() })
   .refine((data) => Object.keys(data).length > 0, "Send at least one field to change.");
 
 const lookup = (idOrSlug: string) => (mongoose.isValidObjectId(idOrSlug) ? { _id: idOrSlug } : { slug: idOrSlug });
 
-const view = (category: { _id: unknown; slug: string; name: string; description?: string | null; position: number; isActive: boolean }) => ({
+const view = (category: { _id: unknown; slug: string; name: string; description?: string | null; image?: { url: string; publicId?: string | null } | null; position: number; isActive: boolean }) => ({
   id: String(category._id),
   slug: category.slug,
   name: category.name,
   description: category.description ?? undefined,
+  image: category.image ? { url: category.image.url, ...(category.image.publicId && { publicId: category.image.publicId }) } : undefined,
   position: category.position,
   isActive: category.isActive,
 });

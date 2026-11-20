@@ -27,7 +27,33 @@ const categories = [
 const OPEN_DELAY_MS = 100;
 const CLOSE_DELAY_MS = 300;
 
-export function CategoryMenu() {
+// A photo chosen in the admin. Next can only resize addresses it knows (our own files and
+// Cloudinary); anything else is shown as it is, and a bad address just shows no picture
+// instead of breaking the header, which every page has.
+function MenuPhoto({ src }: { src: string }) {
+  const resizable = src.startsWith("/") || src.startsWith("https://res.cloudinary.com/");
+  return (
+    <div className="relative aspect-[274/320] w-full overflow-hidden bg-white">
+      {resizable ? (
+        <Image src={src} alt="" fill sizes="214px" className="object-cover" />
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={src} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+      )}
+    </div>
+  );
+}
+
+// `more`: categories made in the admin, after the three above; with no photo they are a
+// plain card (a name and "Shop Now"). `photos`: pictures chosen in the admin for the three
+// above (keyed by slug), used instead of the ones this menu comes with.
+export function CategoryMenu({
+  more = [],
+  photos = {},
+}: {
+  more?: { name: string; href: string; image?: string }[];
+  photos?: Record<string, string>;
+}) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -109,18 +135,29 @@ export function CategoryMenu() {
             : "invisible translate-y-[10px] opacity-0"
         }`}
       >
-        {categories.map((category) => (
-          <div key={category.name}>
-            <div className="p-[15px]">
-              <Image
-                src={category.image}
-                alt=""
-                width={274}
-                height={320}
-                sizes="214px"
-                className="block h-auto w-full"
-              />
-            </div>
+        {[
+          ...categories.map((category) => ({ ...category, photo: photos[category.href.split("/").pop() ?? ""] })),
+          ...more.map((category) => ({ ...category, image: "", photo: category.image })),
+        ].map((category) => (
+          <div key={category.href}>
+            {category.photo ? (
+              <div className="p-[15px]">
+                <MenuPhoto src={category.photo} />
+              </div>
+            ) : (
+              category.image && (
+                <div className="p-[15px]">
+                  <Image
+                    src={category.image}
+                    alt=""
+                    width={274}
+                    height={320}
+                    sizes="214px"
+                    className="block h-auto w-full"
+                  />
+                </div>
+              )
+            )}
             <div className="p-[15px]">
               <h2 className="font-system text-[28px] leading-[42px] font-bold text-[#1a202c]">
                 {category.name}

@@ -8,18 +8,27 @@ import { CategoryWhyChoose } from "@/components/CategoryWhyChoose";
 import { Footer } from "@/components/Footer";
 import { ShopProducts } from "@/components/ShopProducts";
 import { TrustBar } from "@/components/TrustBar";
-import { categories, getCategory, type Category } from "@/data/categories";
-import { getCategoryProducts } from "@/lib/catalog";
+import { categories, categoryFromAdmin, getCategory, type Category } from "@/data/categories";
+import { getCategories, getCategoryProducts } from "@/lib/catalog";
 
 export function generateStaticParams() {
   return categories.map((category) => ({ slug: category.slug }));
+}
+
+// hair, face, body and combo have a designed page; any other category switched on in the
+// admin gets the plain one, so a category made there shows up without a developer.
+async function findCategory(slug: string): Promise<Category | undefined> {
+  const designed = getCategory(slug);
+  if (designed) return designed;
+  const entry = (await getCategories()).find((item) => item.slug === slug);
+  return entry && categoryFromAdmin(entry);
 }
 
 export async function generateMetadata({
   params,
 }: PageProps<"/product-category/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const category = getCategory(slug);
+  const category = await findCategory(slug);
   if (!category) return {};
 
   return {
@@ -34,7 +43,63 @@ export async function generateMetadata({
 // the cream by a fade. `bannerPhotoLeft` is 0 when the photo fills the whole
 // banner (the fade covers its plain left side), or the percent where the photo
 // starts when it only takes the right part and fades in at its own left edge.
+function BannerText({ category }: { category: Category }) {
+  return (
+    // Narrower on small desktops so the text never runs onto the photo.
+    <div className="max-w-[540px] lg:max-w-[min(540px,42vw)]">
+      <p className="mb-4 flex items-center gap-3 font-sans text-[12px] font-semibold tracking-[3px] text-brand-gold-dark uppercase sm:text-[13px] lg:mb-5">
+        <span aria-hidden="true" className="h-px w-8 bg-brand-gold" />
+        {category.eyebrow}
+      </p>
+      <h1 className="font-serif text-[34px] leading-[1.14] font-medium text-[#222] sm:text-[44px] lg:text-[clamp(40px,3.8vw,60px)]">
+        {category.heading}
+        {category.headingAccent && (
+          <>
+            {" "}
+            <span className="bg-gradient-to-r from-[#a96a12] to-[#d9a63f] bg-clip-text text-transparent">
+              {category.headingAccent}
+            </span>
+          </>
+        )}
+      </h1>
+      <span aria-hidden="true" className="mt-5 block h-[3px] w-14 rounded-full bg-brand-gold" />
+      {category.intro && (
+        <p className="mt-5 max-w-[30em] font-system text-[16px] leading-7 text-[#4a4036] lg:text-[18px] lg:leading-8">
+          {category.intro}
+        </p>
+      )}
+      <Link
+        href="#products"
+        className="group mt-7 inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#e6bd62] to-[#C89B3C] px-8 py-3.5 font-sans text-[15px] font-semibold text-[#2a1a05] shadow-[0_14px_28px_-14px_rgba(184,121,31,0.85)] transition-[filter,transform] duration-300 hover:-translate-y-0.5 hover:brightness-105 lg:mt-8"
+      >
+        {category.ctaLabel}
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          className="h-4 w-4 fill-none stroke-current transition-transform duration-300 group-hover:translate-y-0.5"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </Link>
+    </div>
+  );
+}
+
 function CategoryBanner({ category }: { category: Category }) {
+  // A category made in the admin has no photo: the same text on the page's cream.
+  if (!category.bannerImage) {
+    return (
+      <section className="bg-brand-cream">
+        <div className="mx-auto max-w-[1290px] px-6 py-14 sm:py-16 lg:py-20">
+          <BannerText category={category} />
+        </div>
+      </section>
+    );
+  }
+
   const photoLeft = category.bannerPhotoLeft;
   const photoRight = photoLeft > 0;
 
@@ -74,39 +139,7 @@ function CategoryBanner({ category }: { category: Category }) {
       </div>
 
       <div className="relative mx-auto -mt-2 max-w-[1290px] px-6 pb-12 sm:pb-14 lg:mt-0 lg:flex lg:h-full lg:items-center lg:pb-0">
-        {/* Narrower on small desktops so the text never runs onto the photo. */}
-        <div className="max-w-[540px] lg:max-w-[min(540px,42vw)]">
-          <p className="mb-4 flex items-center gap-3 font-sans text-[12px] font-semibold tracking-[3px] text-brand-gold-dark uppercase sm:text-[13px] lg:mb-5">
-            <span aria-hidden="true" className="h-px w-8 bg-brand-gold" />
-            {category.eyebrow}
-          </p>
-          <h1 className="font-serif text-[34px] leading-[1.14] font-medium text-[#222] sm:text-[44px] lg:text-[clamp(40px,3.8vw,60px)]">
-            {category.heading}{" "}
-            <span className="bg-gradient-to-r from-[#a96a12] to-[#d9a63f] bg-clip-text text-transparent">
-              {category.headingAccent}
-            </span>
-          </h1>
-          <span aria-hidden="true" className="mt-5 block h-[3px] w-14 rounded-full bg-brand-gold" />
-          <p className="mt-5 max-w-[30em] font-system text-[16px] leading-7 text-[#4a4036] lg:text-[18px] lg:leading-8">
-            {category.intro}
-          </p>
-          <Link
-            href="#products"
-            className="group mt-7 inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-[#e6bd62] to-[#C89B3C] px-8 py-3.5 font-sans text-[15px] font-semibold text-[#2a1a05] shadow-[0_14px_28px_-14px_rgba(184,121,31,0.85)] transition-[filter,transform] duration-300 hover:-translate-y-0.5 hover:brightness-105 lg:mt-8"
-          >
-            {category.ctaLabel}
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 24 24"
-              className="h-4 w-4 fill-none stroke-current transition-transform duration-300 group-hover:translate-y-0.5"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="m6 9 6 6 6-6" />
-            </svg>
-          </Link>
-        </div>
+        <BannerText category={category} />
       </div>
     </section>
   );
@@ -129,7 +162,7 @@ async function CategoryContent({
   params,
 }: Pick<PageProps<"/product-category/[slug]">, "params">) {
   const { slug } = await params;
-  const category = getCategory(slug);
+  const category = await findCategory(slug);
   if (!category) notFound();
   // The banner and wording are this page's design; the products in it come from the backend.
   const products = await getCategoryProducts(slug);
