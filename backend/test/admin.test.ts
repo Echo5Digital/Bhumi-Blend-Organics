@@ -131,6 +131,24 @@ describe("admin categories", () => {
     expect(product?.categories.some((c) => c.category === "gifts")).toBe(false);
     expect((await ctx.api.post("/api/admin/categories").set(auth).send({ slug: "hair", name: "Dup" })).status).toBe(409);
   });
+
+  it("keeps a photo for the storefront's Category menu: set, returned publicly, replaced and cleared", async () => {
+    const photo = { url: "https://res.cloudinary.com/test/image/upload/bhumiblend/menu.jpg", publicId: "bhumiblend/menu" };
+    const created = await ctx.api.post("/api/admin/categories").set(auth).send({ slug: "men", name: "Men's Care", image: photo }).expect(201);
+    expect(created.body.category.image).toEqual(photo);
+    const publicList = (await ctx.api.get("/api/categories")).body.items as { slug: string; image?: string }[];
+    expect(publicList.find((c) => c.slug === "men")?.image).toBe(photo.url);
+    expect(publicList.find((c) => c.slug === "hair")?.image).toBeUndefined(); // no photo = the storefront's own picture
+
+    // a pasted address has no publicId; renaming leaves the photo alone
+    await ctx.api.patch("/api/admin/categories/men").set(auth).send({ image: { url: "/menu.jpg" } }).expect(200);
+    await ctx.api.patch("/api/admin/categories/men").set(auth).send({ name: "Men" }).expect(200);
+    expect((await ctx.api.get("/api/admin/categories").set(auth)).body.items.find((c: { slug: string }) => c.slug === "men").image).toEqual({ url: "/menu.jpg" });
+
+    await ctx.api.patch("/api/admin/categories/men").set(auth).send({ image: null }).expect(200);
+    expect((await ctx.api.get("/api/categories")).body.items.find((c: { slug: string }) => c.slug === "men").image).toBeUndefined();
+    expect((await ctx.api.post("/api/admin/categories").set(auth).send({ slug: "bad", name: "Bad", image: { url: "" } })).status).toBe(400);
+  });
 });
 
 describe("admin coupons", () => {
@@ -185,23 +203,40 @@ describe("admin image uploads", () => {
   it("sends a photo to the image store and returns its address", async () => {
     const response = await ctx.api.post("/api/admin/uploads").set(auth).attach("file", jpeg, { filename: "a.jpg", contentType: "image/jpeg" }).expect(201);
     expect(response.body).toMatchObject({ url: expect.stringContaining("res.cloudinary.com"), publicId: "bhumiblend/new-photo" });
+    expect(response.body.kind).toBe("image");
     expect(store.uploaded).toEqual([jpeg.length]);
+    expect(store.kinds).toEqual(["image"]);
   });
 
-  it("refuses non-images, missing files and huge files", async () => {
+  it("sends a video to the image store as a video and returns its still frame", async () => {
+    const mp4 = Buffer.alloc(2048, 1);
+    const response = await ctx.api.post("/api/admin/uploads").set(auth).attach("file", mp4, { filename: "clip.mp4", contentType: "video/mp4" }).expect(201);
+    expect(response.body).toMatchObject({ kind: "video", url: expect.stringContaining("/video/upload/"), poster: expect.stringMatching(/\.jpg$/) });
+    await ctx.api.post("/api/admin/uploads").set(auth).attach("file", mp4, { filename: "clip.webm", contentType: "video/webm" }).expect(201);
+    expect(store.kinds).toEqual(["image", "video", "video"]);
+  });
+
+  it("refuses other files, missing files and files over the size limit", async () => {
     const text = await ctx.api.post("/api/admin/uploads").set(auth).attach("file", Buffer.from("hello"), { filename: "a.txt", contentType: "text/plain" });
     expect(text.status).toBe(415);
     expect(text.body.error.code).toBe("UNSUPPORTED_FILE");
+    const mov = await ctx.api.post("/api/admin/uploads").set(auth).attach("file", Buffer.alloc(1024), { filename: "clip.mov", contentType: "video/quicktime" });
+    expect(mov.status).toBe(415);
     expect((await ctx.api.post("/api/admin/uploads").set(auth)).status).toBe(400);
     const big = await ctx.api.post("/api/admin/uploads").set(auth).attach("file", Buffer.alloc(5 * 1024 * 1024 + 10), { filename: "big.jpg", contentType: "image/jpeg" });
     expect(big.status).toBe(413);
-    expect(store.uploaded).toHaveLength(1); // none of those reached the store
+    expect(big.body.error.code).toBe("FILE_TOO_LARGE");
+    // a 5 MB photo is too big, but a video of the same size is fine
+    await ctx.api.post("/api/admin/uploads").set(auth).attach("file", Buffer.alloc(5 * 1024 * 1024 + 10), { filename: "ok.mp4", contentType: "video/mp4" }).expect(201);
+    const hugeVideo = await ctx.api.post("/api/admin/uploads").set(auth).attach("file", Buffer.alloc(50 * 1024 * 1024 + 10), { filename: "huge.mp4", contentType: "video/mp4" });
+    expect(hugeVideo.status).toBe(413);
+    expect(store.uploaded).toHaveLength(4); // only the first photo and the three videos reached the store
   });
 
   it("needs a login", async () => {
     const response = await ctx.api.post("/api/admin/uploads").attach("file", jpeg, { filename: "a.jpg", contentType: "image/jpeg" });
     expect(response.status).toBe(401);
-    expect(store.uploaded).toHaveLength(1);
+    expect(store.uploaded).toHaveLength(4);
   });
 
   it("deletes a photo by its id", async () => {

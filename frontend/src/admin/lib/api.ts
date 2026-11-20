@@ -59,12 +59,17 @@ export async function api<T>(path: string, { method = "GET", body, token }: Opti
   return parse<T>(await send(path, init, token));
 }
 
-/** Upload a photo (admin only); the backend stores it on Cloudinary and returns its address. */
-export async function uploadImage(file: File, token: string | null) {
+export type UploadedMedia = { url: string; publicId: string; kind: "image" | "video"; width?: number; height?: number; /** A video's still frame. */ poster?: string };
+
+/** Upload a photo or video (admin only); the backend stores it on Cloudinary and returns its address. */
+export async function uploadMedia(file: File, token: string | null) {
   const form = new FormData();
   form.append("file", file);
-  return parse<{ url: string; publicId: string; width?: number; height?: number }>(await send("/admin/uploads", { method: "POST", body: form }, token));
+  return parse<UploadedMedia>(await send("/admin/uploads", { method: "POST", body: form }, token));
 }
+
+/** Upload a photo (admin only). */
+export const uploadImage = uploadMedia;
 
 /**
  * A photo address that works in the admin. Photos not yet moved to Cloudinary are stored as

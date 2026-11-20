@@ -33,7 +33,7 @@ export const errorHandler: ErrorRequestHandler = (error, _req, res, _next) => {
   if (parserType === "entity.too.large") return send(413, "PAYLOAD_TOO_LARGE", "The request is too large.");
 
   if (error instanceof multer.MulterError) {
-    if (error.code === "LIMIT_FILE_SIZE") return send(413, "FILE_TOO_LARGE", "That image is too large (5 MB at most).");
+    if (error.code === "LIMIT_FILE_SIZE") return send(413, "FILE_TOO_LARGE", "That file is too large (photos 5 MB at most, videos 50 MB).");
     return send(400, "UPLOAD_ERROR", "The upload could not be read.");
   }
 

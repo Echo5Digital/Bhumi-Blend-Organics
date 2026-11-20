@@ -2339,6 +2339,101 @@ table.items .num {
   font-weight: 600;
 }
 
+/* ---- product page gallery editor: tiles in order (the photo frame is 3:4, like the shop's) ---- */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.gallery-tile {
+  overflow: hidden;
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  background: #fff;
+  cursor: grab;
+}
+.gallery-tile.dragging {
+  opacity: 0.45;
+}
+.gallery-tile.over {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.gallery-media {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  background: #fcfaf4;
+}
+.gallery-media img,
+.gallery-media video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+.gallery-num,
+.gallery-badge {
+  position: absolute;
+  top: 6px;
+  color: #000;
+  font-size: 12px;
+  font-weight: 700;
+}
+.gallery-num {
+  left: 6px;
+  display: grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+.gallery-badge {
+  right: 6px;
+  padding: 1px 8px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 11px;
+  font-weight: 600;
+}
+.gallery-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+.gallery-tools span {
+  display: inline-flex;
+  gap: 12px;
+}
+.gallery-tools .link-button:disabled {
+  opacity: 0.35;
+  cursor: default;
+  text-decoration: none;
+}
+.gallery-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+}
+.gallery-address {
+  display: flex;
+  gap: 8px;
+}
+.gallery-address input {
+  flex: 1;
+  min-width: 0;
+}
+
 /* ---- FAQ cards in the product page editor: the look of the shop's FAQ accordion ---- */
 .faq-title {
   font-family: var(--serif);

@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from "react";
 import { Field } from "./ui";
+import { DescriptionEditor } from "./DescriptionEditor";
 import { ImageField } from "./ImageField";
 import { newFaq, type ContentError, type ContentTab, type PageContent } from "../lib/pageContent";
 
@@ -64,8 +65,9 @@ const TABS: { id: ContentTab; label: string }[] = [
   { id: "faq", label: "FAQ" },
 ];
 
-export function PageContentEditor({ value, onChange, tab, onTab, error }: { value: PageContent; onChange: (next: PageContent) => void; tab: ContentTab; onTab: (tab: ContentTab) => void; error: ContentError }) {
-  const set = (patch: Partial<PageContent>) => onChange({ ...value, ...patch });
+export function PageContentEditor({ value, onChange, tab, onTab, error, onBusy }: { value: PageContent; onChange: (update: (current: PageContent) => PageContent) => void; tab: ContentTab; onTab: (tab: ContentTab) => void; error: ContentError; /** Tells the form while a description photo is being uploaded. */ onBusy?: (busy: boolean) => void }) {
+  // Changes are applied to the latest content (an upload can finish after other boxes were edited).
+  const set = (patch: Partial<PageContent>) => onChange((current) => ({ ...current, ...patch }));
   const [showOther, setShowOther] = useState(false);
   // Which FAQ cards are open for editing (kept here so switching tabs doesn't close them).
   const [openFaqs, setOpenFaqs] = useState<Set<string>>(new Set());
@@ -103,10 +105,7 @@ export function PageContentEditor({ value, onChange, tab, onTab, error }: { valu
             <Field label="Small heading above the text (optional)" htmlFor="pc-desc-heading">
               <input id="pc-desc-heading" type="text" value={value.descriptionHeading} onChange={(event) => set({ descriptionHeading: event.target.value })} />
             </Field>
-            <Field label="Description" htmlFor="pc-desc" hint="Leave a blank line between paragraphs.">
-              <textarea id="pc-desc" rows={9} value={value.description} onChange={(event) => set({ description: event.target.value })} />
-            </Field>
-            <ImageField label="Wide photo under the description (optional)" image={value.descriptionImage ? { url: value.descriptionImage } : null} onChange={(image) => set({ descriptionImage: image?.url ?? "", descriptionImageAlt: "" })} />
+            <DescriptionEditor description={value.description} photos={value.descriptionPhotos} onChange={onChange} onBusy={onBusy} />
 
             <SubHead hint="Cards with a photo, a name and a text, one under the other: the ingredients, or anything else you want to show off.">Photo cards</SubHead>
             <div className="field-grid">
@@ -303,7 +302,7 @@ export function PageContentEditor({ value, onChange, tab, onTab, error }: { valu
         {otherOpen && (
           <div style={{ marginTop: 10 }}>
             <p className="hint" style={{ marginTop: 0 }}>
-              Everything else on the product page that these tabs don't cover (the extra gallery photos, tagline, highlights, “Why choose” points, badges, related products) is kept here as JSON. Edit it carefully, or leave it alone.
+              Everything else on the product page that these tabs don't cover (the tagline, highlights, “Why choose” points, badges, related products) is kept here as JSON. Edit it carefully, or leave it alone.
             </p>
             <textarea
               aria-label="Other product page content as JSON"

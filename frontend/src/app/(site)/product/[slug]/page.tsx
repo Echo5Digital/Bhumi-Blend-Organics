@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
+import { Fragment, Suspense } from "react";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { Reveal } from "@/components/Reveal";
@@ -10,6 +10,7 @@ import { ProductGallery } from "@/components/product/ProductGallery";
 import { CheckIcon, StarIcon } from "@/components/product/ProductIcons";
 import { ProductTabs } from "@/components/product/ProductTabs";
 import { PurchasePanel } from "@/components/product/PurchasePanel";
+import type { ProductDetail } from "@/data/productDetails";
 import { getCatalogue, getProductPage } from "@/lib/catalog";
 
 const rupees = new Intl.NumberFormat("en-IN", {
@@ -50,6 +51,29 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
+// A photo inside the description text. With its size known it is shown whole, at its own
+// proportions and at most 720px tall; without it, it gets the wide frame (like the photo
+// under the description).
+function InTextPhoto({ photo }: { photo: NonNullable<ProductDetail["descriptionImages"]>[number] }) {
+  const ratio = photo.width && photo.height ? photo.width / photo.height : null;
+  return (
+    <div className="py-3">
+      <div
+        className={`relative overflow-hidden rounded-[18px] shadow-[0_26px_50px_-32px_rgba(120,85,20,0.55)] ring-1 ring-[#eadcb6] sm:rounded-[24px] ${ratio ? "" : "aspect-[1536/658]"}`}
+        style={ratio ? { aspectRatio: String(ratio), width: `min(100%, ${Math.round(720 * ratio)}px)` } : undefined}
+      >
+        <Image
+          src={photo.src}
+          alt={photo.alt}
+          fill
+          sizes="(min-width: 1024px) 980px, 100vw"
+          className="object-cover"
+        />
+      </div>
+    </div>
+  );
+}
+
 // Shown only while the product streams in (for example a slug that wasn't
 // prerendered); same footprint as the real hero so nothing jumps.
 function ProductSkeleton() {
@@ -86,8 +110,13 @@ async function ProductContent({
   // The products a kit is made of, from the catalogue (price and photo stay in one place).
   const bundleItems = page.bundle.map(({ item, quantity }) => ({ item, quantity, hasPage: true }));
   const { rating } = detail;
-  // A product with no description text (the live page's tab is empty) gets no Description tab.
-  const hasDescription = detail.description.length > 0;
+  // Photos placed inside the description text: those that come after the first `index` paragraphs
+  // (a number beyond the last paragraph means the end).
+  const textPhotos = detail.descriptionImages ?? [];
+  const photosAfter = (index: number) =>
+    textPhotos.filter((photo) => Math.min(photo.after, detail.description.length) === index);
+  // A product with no description text and no photo in it (the live page's tab is empty) gets no Description tab.
+  const hasDescription = detail.description.length > 0 || textPhotos.length > 0;
   // The highlighted offer (a coupon, or a bonus), shown above or below the pitch line.
   const offerBox = detail.offer ? (
     <div className="mt-6 rounded-2xl border border-[#e2d5b6] bg-[#fbf3de] px-5 py-4">
@@ -312,8 +341,16 @@ async function ProductContent({
                             {detail.descriptionHeading}
                           </p>
                         )}
-                        {detail.description.map((paragraph) => (
-                          <p key={paragraph}>{paragraph}</p>
+                        {photosAfter(0).map((photo) => (
+                          <InTextPhoto key={photo.src} photo={photo} />
+                        ))}
+                        {detail.description.map((paragraph, index) => (
+                          <Fragment key={index}>
+                            <p>{paragraph}</p>
+                            {photosAfter(index + 1).map((photo) => (
+                              <InTextPhoto key={photo.src} photo={photo} />
+                            ))}
+                          </Fragment>
                         ))}
                       </div>
 

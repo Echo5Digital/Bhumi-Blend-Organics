@@ -29,8 +29,9 @@ export type ProductDetail = {
   /** For a kit: the products it is made of (from the catalogue), shown under the pitch. */
   bundle?: { slug: string; quantity: number }[];
   rating: { value: number; count: number };
-  /** Product photo and hover photo first, then the four extra photos. */
-  gallery: { src: string; alt: string; fit?: "contain" }[];
+  /** Product photo and hover photo first, then the four extra photos. A `kind: "video"` entry is a
+      video file (`poster` = its still frame, when there is one). */
+  gallery: { src: string; alt: string; fit?: "contain"; kind?: "video"; poster?: string }[];
   whyChoose: string[];
   /** The "Description" section. */
   description: string[];
@@ -38,6 +39,10 @@ export type ProductDetail = {
   descriptionHeading?: string;
   /** A wide photo shown under the description text (optional). */
   descriptionImage?: { src: string; alt: string };
+  /** Photos inside the description text (optional): each shows after its first `after` paragraphs
+      (0 = before the first). With `width` and `height` it is shown whole at its own proportions;
+      without them it gets the wide frame, like `descriptionImage`. */
+  descriptionImages?: { after: number; src: string; alt: string; width?: number; height?: number }[];
   /** A checklist of key benefits after the description (optional). */
   keyBenefits?: { title?: string; points: string[]; outro?: string };
   /** A short statement card after the description (optional). */

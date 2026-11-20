@@ -41,10 +41,15 @@ export function fakeGateway(options: { configured?: boolean; failCreate?: boolea
 export function fakeImages() {
   const removed: string[] = [];
   const uploaded: number[] = [];
+  const kinds: string[] = [];
   const images: ImageStore = {
     configured: true,
-    async upload(file) {
+    async upload(file, options) {
       uploaded.push(file.length);
+      kinds.push(options?.kind ?? "image");
+      if (options?.kind === "video") {
+        return { url: "https://res.cloudinary.com/test/video/upload/bhumiblend/new-clip.mp4", publicId: "bhumiblend/new-clip", poster: "https://res.cloudinary.com/test/video/upload/bhumiblend/new-clip.jpg" };
+      }
       return { url: "https://res.cloudinary.com/test/image/upload/bhumiblend/new-photo.jpg", publicId: "bhumiblend/new-photo", width: 800, height: 600 };
     },
     async uploadFile() {
@@ -54,7 +59,7 @@ export function fakeImages() {
       removed.push(publicId);
     },
   };
-  return { images, removed, uploaded };
+  return { images, removed, uploaded, kinds };
 }
 
 /** Records the emails instead of sending them. `failNext()` makes the next send fail, like an SMTP outage. */

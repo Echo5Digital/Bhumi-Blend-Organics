@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { loadEnv } from "../src/config/env.js";
 import { normalizePhone } from "../src/lib/validation.js";
 import { toUpdate } from "../src/lib/updates.js";
+import { videoPoster } from "../src/services/images.js";
 import { collectLocalImagePaths, publicIdFor, replaceLocalImagePaths } from "../scripts/lib/image-paths.js";
 
 const goodEnv = {
@@ -47,6 +48,13 @@ describe("PATCH helper", () => {
   it("sets values, clears nulls and leaves out what wasn't sent", () => {
     expect(toUpdate({ price: 5, regularPrice: null, name: undefined })).toEqual({ $set: { price: 5 }, $unset: { regularPrice: "" } });
     expect(toUpdate({})).toEqual({});
+  });
+});
+
+describe("video still frames", () => {
+  it("swaps the file ending for .jpg, which Cloudinary answers with the first frame", () => {
+    expect(videoPoster("https://res.cloudinary.com/demo/video/upload/v1/bhumiblend/clip_x1.mp4")).toBe("https://res.cloudinary.com/demo/video/upload/v1/bhumiblend/clip_x1.jpg");
+    expect(videoPoster("https://res.cloudinary.com/demo/video/upload/v1/bhumiblend/clip.webm?_a=1")).toBe("https://res.cloudinary.com/demo/video/upload/v1/bhumiblend/clip.jpg?_a=1");
   });
 });
 

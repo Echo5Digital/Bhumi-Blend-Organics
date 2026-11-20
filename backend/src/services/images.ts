@@ -6,12 +6,20 @@ import { HttpError } from "../lib/httpError.js";
 // tests never upload anything. Until the three CLOUDINARY_* keys are in `.env`,
 // `configured` is false and uploads answer 503.
 
-export type StoredImage = { url: string; publicId: string; width?: number; height?: number; bytes?: number };
+/** What an upload gives back. A video also has `poster`, a still frame to show before it plays. */
+export type StoredImage = { url: string; publicId: string; width?: number; height?: number; bytes?: number; poster?: string };
+
+export type MediaKind = "image" | "video";
+
+/** Cloudinary serves the first frame of a video when its address ends in .jpg instead of .mp4. */
+export function videoPoster(videoUrl: string): string {
+  return videoUrl.replace(/\.[a-z0-9]+(?=$|\?)/i, ".jpg");
+}
 
 export interface ImageStore {
   readonly configured: boolean;
-  /** Upload a file held in memory (an admin's upload from the browser). */
-  upload(file: Buffer, options?: { folder?: string }): Promise<StoredImage>;
+  /** Upload a file held in memory (an admin's upload from the browser): a photo, or with `kind: "video"` a video. */
+  upload(file: Buffer, options?: { folder?: string; kind?: MediaKind }): Promise<StoredImage>;
   /** Upload a file from disk under a fixed id (the one-off migration of the existing photos). */
   uploadFile(path: string, options: { publicId: string }): Promise<StoredImage>;
   remove(publicId: string): Promise<void>;
@@ -54,17 +62,23 @@ export function createCloudinaryStore(
 
     async upload(file, options = {}) {
       requireConfigured();
+      const kind = options.kind ?? "image";
       return new Promise<StoredImage>((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
           {
             folder: options.folder ?? env.CLOUDINARY_FOLDER,
-            resource_type: "image",
+            resource_type: kind,
             unique_filename: true,
             overwrite: false,
+            // A video can take a while to send; the default is one minute.
+            ...(kind === "video" && { timeout: 180_000 }),
           },
           (error, result) => {
             if (error || !result) reject(error ?? new Error("Cloudinary returned no result"));
-            else resolve(toStored(result));
+            else {
+              const stored = toStored(result);
+              resolve(kind === "video" ? { ...stored, poster: videoPoster(stored.url) } : stored);
+            }
           },
         );
         stream.end(file);

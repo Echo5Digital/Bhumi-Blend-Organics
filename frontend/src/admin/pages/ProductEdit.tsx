@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router";
+import { GalleryEditor } from "../components/GalleryEditor";
 import { ImageField, type Image } from "../components/ImageField";
 import { PageContentEditor } from "../components/PageContentEditor";
 import { BinIcon, Field, ErrorNotice, Loading, Notice, PageTitle, useTitle } from "../components/ui";
@@ -7,7 +8,7 @@ import { ApiError, api } from "../lib/api";
 import { useAuth } from "../lib/auth";
 import { slugify } from "../lib/format";
 import type { Category, Product } from "../lib/types";
-import { contentFromDetails, contentToDetails, type ContentError, type ContentTab } from "../lib/pageContent";
+import { contentFromDetails, contentToDetails, type ContentError, type ContentTab, type GalleryItem } from "../lib/pageContent";
 import { useApi } from "../lib/useApi";
 
 // Home-page rows a product can appear in (the storefront's "Best Sellers" and "Skin Care Essentials").
@@ -42,11 +43,20 @@ function ProductForm({ initial, categories }: { initial: Product | null; categor
   const [content, setContent] = useState(() => contentFromDetails(initial?.details));
   const [contentTab, setContentTab] = useState<ContentTab>("description");
   const [contentError, setContentError] = useState<ContentError>(null);
+  const [galleryBusy, setGalleryBusy] = useState(false);
+  const [descriptionBusy, setDescriptionBusy] = useState(false);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<{ kind: "success" | "error"; text: string } | null>(justCreated ? { kind: "success", text: justCreated } : null);
   const [busy, setBusy] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  // What the product page shows until a gallery is chosen: the main photo, then the hover photo
+  // (their alt text is filled in with the product name when saved).
+  const automaticGallery: GalleryItem[] = [
+    ...(image?.url ? [{ key: "auto-main", src: image.url, alt: "" }] : []),
+    ...(hoverImage?.url && hoverImage.url !== image?.url ? [{ key: "auto-hover", src: hoverImage.url, alt: "" }] : []),
+  ];
 
   const toggle = (set: Set<string>, setter: (value: Set<string>) => void, key: string, on: boolean) => {
     const next = new Set(set);
@@ -236,11 +246,25 @@ function ProductForm({ initial, categories }: { initial: Product | null; categor
               <div className="body stack">
                 <ImageField label="Main photo" image={image} onChange={setImage} error={errors.image} required />
                 <ImageField label="Photo shown on hover" image={hoverImage} onChange={setHoverImage} />
-                <p className="hint">Photos you upload are stored on Cloudinary. The extra gallery photos of the product page are under “Show other page content (advanced)” at the bottom of this page.</p>
+                <p className="hint">These two are for the shop lists: the main photo on every card, the other when the card is pointed at. Photos you upload are stored on Cloudinary.</p>
               </div>
             </section>
 
-            <PageContentEditor value={content} onChange={setContent} tab={contentTab} onTab={setContentTab} error={contentError} />
+            <section className="card">
+              <div className="card-head">
+                <h2>Product page gallery</h2>
+              </div>
+              <div className="body">
+                <GalleryEditor
+                  items={content.gallery}
+                  automatic={automaticGallery}
+                  onChange={(gallery) => setContent((current) => ({ ...current, gallery }))}
+                  onBusy={setGalleryBusy}
+                />
+              </div>
+            </section>
+
+            <PageContentEditor value={content} onChange={setContent} tab={contentTab} onTab={setContentTab} error={contentError} onBusy={setDescriptionBusy} />
           </div>
 
           <aside>
@@ -254,8 +278,8 @@ function ProductForm({ initial, categories }: { initial: Product | null; categor
                   Published (visible in the shop)
                 </label>
                 <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-                  <button type="submit" className="btn primary" disabled={busy}>
-                    {busy ? "Saving…" : creating ? "Create product" : "Save changes"}
+                  <button type="submit" className="btn primary" disabled={busy || galleryBusy || descriptionBusy}>
+                    {busy ? "Saving…" : galleryBusy || descriptionBusy ? "Uploading…" : creating ? "Create product" : "Save changes"}
                   </button>
                   {!creating && initial.isActive && (
                     <a className="btn" href={`/product/${initial.slug}`} target="_blank" rel="noreferrer">
