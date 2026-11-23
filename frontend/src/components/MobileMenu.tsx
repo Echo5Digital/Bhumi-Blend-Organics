@@ -13,7 +13,7 @@ const links = [
   { label: "Skincare", href: "/product-category/face" },
   { label: "Bodycare", href: "/product-category/body" },
   { label: "Combo", href: "/product-category/combo" },
-  { label: "Our Story", href: "/our-story" },
+  { label: "Blog", href: "/blog" },
   { label: "Contact Us", href: "/contact-us" },
 ];
 

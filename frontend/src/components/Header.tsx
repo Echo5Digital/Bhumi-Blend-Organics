@@ -63,8 +63,8 @@ export function Header() {
           <Link href="/product-category/combo" className={navLinkClass}>
             Combo
           </Link>
-          <Link href="/our-story" className={navLinkClass}>
-            Our Story
+          <Link href="/blog" className={navLinkClass}>
+            Blog
           </Link>
           <Link href="/contact-us" className={navLinkClass}>
             Contact Us
