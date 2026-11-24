@@ -279,6 +279,69 @@ export const blogPosts: BlogPost[] = [
       "For centuries, Kerala has been celebrated as the land of Ayurveda, a place where nature’s remedies and holistic healing traditions have been carefully preserved. Today, as modern skincare science continues to evolve, people are rediscovering the value of age-old Ayurvedic practices. The blending of these two worlds is creating a new era in beauty and…",
     image: "/Where-Keralas-Timeless-Ayurvedic-Secrets-Meet-Modern-Skincare-Science-768x357.webp",
   },
+  {
+    slug: "how-to-manage-dryness-and-flaking-in-sensitive-skin",
+    title: "How to Manage Dryness and Flaking in Sensitive Skin",
+    date: "2025-07-24",
+    author: "allcitygroup@gmail.com",
+    excerpt:
+      "Dry, flaky skin isn’t just uncomfortable, it’s a sign that your skin’s natural barrier needs support. For those with sensitive skin, the issue is even more delicate. A sudden change in weather, using the wrong cleanser, or trying trendy activities can lead to irritation, redness, or peeling. But here’s the good news: with the right…",
+    image: "/Manage-Dryness-and-Flaking-in-Sensitive-Skin-1.webp",
+  },
+  {
+    slug: "best-skin-care-for-aging-skin",
+    title: "Skin Care For Aging Skin: Minimizing Age Spots, Wrinkles, & Undereye Bags",
+    date: "2025-07-14",
+    author: "BhumiBlend",
+    excerpt:
+      "Aging is a beautiful and inevitable part of life, but its visible signs on our skin can sometimes feel daunting. Whether it’s age spots that seem to appear overnight, fine lines that deepen over time, or persistent under-eye bags that make you look more tired than you feel, caring for aging skin requires a thoughtful,…",
+    image: "/Best-Skin-Care-For-Aging-Skin-2.jpg",
+  },
+  {
+    slug: "choosing-the-right-hair-oil-for-premature-greying",
+    title: "Choosing The Right Hair Oil For Premature Greying",
+    date: "2025-06-26",
+    author: "BhumiBlend",
+    excerpt:
+      "Say Goodbye to Early Greys: The Right Hair Oil Can Help Premature greying of hair is a concern that affects many, regardless of age or gender. It can be emotionally frustrating and sometimes even impact one’s confidence. While there are numerous commercial products and hair dyes available to mask the grey, more and more people…",
+    image: "/Best-Ayurvedic-Hair-Oil-For-Premature-Greying.jpg",
+  },
+  {
+    slug: "what-is-vegan-skincare-the-real-benefits-of-using-vegan-skincare-products",
+    title: "What Is Vegan Skincare – The Real Benefits of Using Vegan Skincare Products",
+    date: "2025-06-16",
+    author: "BhumiBlend",
+    excerpt:
+      "When you walk into the skincare aisle today, it’s easy to get overwhelmed by buzzwords like “organic,” “cruelty-free,” “clean beauty,” and “vegan.” But what does vegan skincare mean, and why does it matter? Let’s unpack this through the lens of Bhumi Blend, a brand that combines ancient Ayurvedic wisdom with modern vegan skincare formulations. What…",
+    image: "/Vegan-Skincare.jpg",
+  },
+  {
+    slug: "how-to-create-a-sustainable-skincare-routine",
+    title: "How To Create a Sustainable Skincare Routine",
+    date: "2025-05-28",
+    author: "BhumiBlend",
+    excerpt:
+      "Creating a sustainable skincare routine is not only beneficial for your skin but also for the environment. As more people become conscious of their impact on the planet, adopting eco-friendly habits in daily beauty routines is gaining importance. A sustainable skincare routine focuses on using minimal, clean, and ethically sourced products while reducing waste and…",
+    image: "/Skincare-Routine.jpg",
+  },
+  {
+    slug: "benefits-of-using-paraben-free-skincare-products",
+    title: "Benefits of Using Paraben-Free Skincare Products",
+    date: "2025-05-28",
+    author: "BhumiBlend",
+    excerpt:
+      "table of contents 1. What Are Parabens? 2. Why Are Parabens Harmful in Skincare? 3. Why Ayurvedic Products Offer More Than Just Being Paraben-Free 4. Key Benefits 5. How to Start Using Paraben-Free Skincare Products India 6. Best Ayurvedic Skin Care Products: Bhumi Blend’s Paraben-Free Favorites At Bhumi Blend, we strongly believe in providing our…",
+    image: "/Paraben-Free-Skincare-India.jpg",
+  },
+  {
+    slug: "why-is-it-important-to-have-cruelty-free-beauty-products-india",
+    title: "Why Is It Important To Have Cruelty-Free Beauty Products India",
+    date: "2025-05-28",
+    author: "BhumiBlend",
+    excerpt:
+      "table of contents 1. Promotes Ethical Beauty Choices 2. Better for Your Skin and Overall Health 3. Supports Sustainable and Eco-Friendly Practices 4. Reflects a Growing Conscious Consumer Movement in India 5. Empowers You to Make a Positive Impact 6. Clean Beauty Products In India: Where Clean Meets Compassion India’s beauty and skincare industry has…",
+    image: "/Beauty-Products-India.jpg",
+  },
 ];
 
 /** Posts per page of the blog list; page 1 is /blog, page 2 is /blog/page/2, and so on. */

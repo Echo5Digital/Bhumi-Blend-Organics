@@ -3,7 +3,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Footer } from "@/components/Footer";
+import { BlogCommentForm } from "@/components/BlogCommentForm";
+import { SimilarPosts } from "@/components/SimilarPosts";
 import { blogPosts } from "@/data/blog";
+import { relatedPosts } from "@/data/blogRelated";
 import { blogArticles, blogPostHref, type ArticleBlock } from "@/data/blogArticles";
 
 // One blog article: the post's photo, a white card overlapping its lower edge with the title and
@@ -33,11 +36,13 @@ export function blogArticleMetadata(slug: string): Metadata {
   return { title: `${post.title} | Bhumi Blend Organics`, description };
 }
 
-// In a paragraph or list item, "[[words]]" is a link and "**words**" is bold (see data/blogArticles.ts).
+// In a paragraph or list item, "[[words]]" is a link, "**words**" is bold, "__words__" is bold and
+// underlined (the "Try this:" lead-ins) and "{{words}}" is italic (the marks are listed at the top of
+// data/blogArticles.ts).
 function Inline({ text }: { text: string }) {
   return (
     <>
-      {text.split(/(\[\[.+?\]\]|\*\*.+?\*\*)/g).map((part, index) => {
+      {text.split(/(\[\[.+?\]\]|\*\*.+?\*\*|__.+?__|\{\{.+?\}\})/g).map((part, index) => {
         if (part.startsWith("[[")) {
           return (
             <Link
@@ -55,6 +60,16 @@ function Inline({ text }: { text: string }) {
               {part.slice(2, -2)}
             </strong>
           );
+        }
+        if (part.startsWith("__")) {
+          return (
+            <strong key={index} className="font-bold text-[#1f1812] underline underline-offset-[3px]">
+              {part.slice(2, -2)}
+            </strong>
+          );
+        }
+        if (part.startsWith("{{")) {
+          return <em key={index}>{part.slice(2, -2)}</em>;
         }
         return part;
       })}
@@ -99,6 +114,14 @@ const promises = [
   },
 ];
 
+// The address of a heading on its page ("What Are Parabens?" -> "what-are-parabens"), which a
+// "toc" block links to.
+const headingId = (text: string) =>
+  text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
 function Block({ block }: { block: ArticleBlock }) {
   switch (block.type) {
     case "p":
@@ -109,15 +132,52 @@ function Block({ block }: { block: ArticleBlock }) {
       );
     case "h2":
       return (
-        <h2 className="mt-12 font-serif text-[26px] leading-tight font-bold whitespace-pre-line text-brand-gold-dark sm:text-[32px]">
+        <h2
+          id={headingId(block.text)}
+          className="mt-12 font-serif text-[26px] leading-tight font-bold whitespace-pre-line text-brand-gold-dark sm:text-[32px]"
+        >
           {block.text}
         </h2>
       );
     case "h3":
       return (
-        <h3 className="mt-8 font-serif text-[20px] leading-snug font-bold text-[#8f6414] sm:text-[22px]">
+        <h3
+          id={headingId(block.text)}
+          className="mt-8 font-serif text-[20px] leading-snug font-bold text-[#8f6414] sm:text-[22px]"
+        >
           {block.text}
         </h3>
+      );
+    case "toc":
+      // A contents box: the title, then a numbered list whose items jump to the headings of the
+      // same text (the page already leaves room for the sticky header, so no extra offset here).
+      return (
+        <section className="mt-12">
+          <h2 className="font-serif text-[26px] leading-tight font-bold text-brand-gold-dark sm:text-[32px]">
+            {block.title}
+          </h2>
+          <nav aria-label={block.title}>
+            <ol className="mt-5 space-y-3.5 rounded-2xl bg-[#fff8ec] px-5 py-6 shadow-[0_18px_40px_-30px_rgba(120,85,20,0.55)] ring-1 ring-[#e9d9a8] sm:space-y-4 sm:px-9 sm:py-8">
+              {block.items.map((item, index) => {
+                // An item is the heading's own text, or { label, heading } when the heading it
+                // jumps to is written differently (e.g. with its number in front).
+                const label = typeof item === "string" ? item : item.label;
+                const heading = typeof item === "string" ? item : item.heading;
+                return (
+                  <li key={label} className="-indent-7 pl-7 font-system text-[16px] leading-snug sm:text-[17px]">
+                    <span className="font-bold text-brand-gold-dark">{index + 1}.</span>{" "}
+                    <a
+                      href={`#${headingId(heading)}`}
+                      className="font-semibold text-[#2f261b] underline decoration-brand-gold/0 underline-offset-[4px] transition-[color,text-decoration-color] duration-300 hover:text-brand-gold-dark hover:decoration-brand-gold"
+                    >
+                      {label}
+                    </a>
+                  </li>
+                );
+              })}
+            </ol>
+          </nav>
+        </section>
       );
     case "quote":
       return (
@@ -129,10 +189,11 @@ function Block({ block }: { block: ArticleBlock }) {
       );
     case "ul":
     case "ol": {
-      // Bullets, or numbered steps; the markers are gold either way.
+      // Bullets, or numbered steps (a numbered list may start at a later number); the markers are gold either way.
       const List = block.type;
       return (
         <List
+          {...(block.type === "ol" && block.start ? { start: block.start } : {})}
           className={`mt-6 space-y-3 pl-6 text-[17px] leading-[1.8] text-[#2f261b] marker:font-bold marker:text-brand-gold-dark sm:text-[18px] ${
             block.type === "ol" ? "list-decimal" : "list-disc"
           } ${bodyFont}`}
@@ -244,16 +305,33 @@ function Block({ block }: { block: ArticleBlock }) {
           <h2 className="font-serif text-[26px] leading-tight font-bold text-brand-gold-dark sm:text-[32px]">
             {block.title}
           </h2>
-          <div className="mt-5 divide-y divide-[#e8dfc9] border-y border-[#e8dfc9]">
-            {block.items.map((item) => (
-              <div key={item.question} className="py-6">
-                <h3 className="font-serif text-[18px] leading-snug font-bold text-[#8f6414] sm:text-[20px]">
-                  {item.question}
-                </h3>
-                <p className={`mt-3 text-[16px] leading-[1.8] text-[#2f261b] sm:text-[17px] ${bodyFont}`}>
+          {/* Dropdowns like the live site: the first one starts open and opening another closes it
+              (a native <details> group, so no script is needed). */}
+          <div className="mt-5 space-y-3">
+            {block.items.map((item, index) => (
+              <details
+                key={item.question}
+                name="article-faq"
+                open={index === 0}
+                className="group rounded-2xl bg-white ring-1 ring-[#e8dfc9] transition-[background-color,box-shadow] duration-300 open:bg-[#fffaf0] open:shadow-[0_14px_30px_-24px_rgba(120,85,20,0.55)] open:ring-brand-gold/55"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 select-none sm:px-6 sm:py-5 [&::-webkit-details-marker]:hidden">
+                  <h3 className="font-serif text-[18px] leading-snug font-bold text-[#8f6414] sm:text-[20px]">
+                    {item.question}
+                  </h3>
+                  {/* A plus that turns into a minus when the answer is open. */}
+                  <span
+                    aria-hidden="true"
+                    className="relative h-8 w-8 shrink-0 rounded-full bg-white text-brand-gold-dark ring-1 ring-[#C89B3C]/45"
+                  >
+                    <span className="absolute inset-0 m-auto h-[2px] w-3 rounded-full bg-current" />
+                    <span className="absolute inset-0 m-auto h-3 w-[2px] rounded-full bg-current transition-transform duration-300 group-open:scale-y-0" />
+                  </span>
+                </summary>
+                <p className={`px-5 pb-5 text-[16px] leading-[1.8] text-[#2f261b] sm:px-6 sm:pb-6 sm:text-[17px] ${bodyFont}`}>
                   {item.answer}
                 </p>
-              </div>
+              </details>
             ))}
           </div>
         </section>
@@ -268,6 +346,15 @@ export function BlogArticlePage({ slug }: { slug: string }) {
   const at = blogPosts.indexOf(post);
   const newer = blogPosts[at - 1];
   const older = blogPosts[at + 1];
+  // "Similar Posts" under the article: the six posts most like this one (different for each article).
+  const similar = relatedPosts(slug).map((item) => ({
+    href: blogPostHref(item.slug),
+    title: item.title,
+    image: item.image,
+    by: `By${item.author ? ` ${item.author}` : ""}`,
+    date: dateFormat.format(new Date(`${item.date}T00:00:00Z`)),
+    dateTime: item.date,
+  }));
 
   return (
     <>
@@ -296,7 +383,7 @@ export function BlogArticlePage({ slug }: { slug: string }) {
                   href="/blog"
                   className="font-system text-[12px] font-bold tracking-[1.5px] text-brand-gold-dark uppercase transition-colors duration-300 hover:text-[#8f6414]"
                 >
-                  Blog
+                  {post.category ?? "Blog"}
                 </Link>
                 <h1 className="mt-3 font-serif text-[28px] leading-[1.25] font-bold text-[#222] sm:text-[38px]">
                   {post.title}
@@ -332,6 +419,9 @@ export function BlogArticlePage({ slug }: { slug: string }) {
             </nav>
           </div>
         </article>
+
+        <SimilarPosts posts={similar} />
+        <BlogCommentForm slug={slug} />
       </main>
       <Footer />
     </>
