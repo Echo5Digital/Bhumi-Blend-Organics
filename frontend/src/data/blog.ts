@@ -249,7 +249,7 @@ export const blogPosts: BlogPost[] = [
     author: "BhumiBlend",
     excerpt:
       "Ayurveda, India’s 5,000-year-old healing system, has always emphasized radiant skin as a reflection of inner harmony. In modern Ayurvedic skincare in India, Vitamin C serum has earned a reputation for brightening dullness, fading pigmentation, and restoring balance; much like Ayurveda’s own holistic glow rituals. But here’s the interesting part: when used thoughtfully, Vitamin C…",
-    image: "/Organic-Vitamin-C-serum-with-Ayurvedic-ingredients-like-amla-and-turmeric-for-glowing-skin-–-Bhumi-Blend-skincare-India-768x357.webp",
+    image: "/Organic-Vitamin-C-serum-with-Ayurvedic-ingredients-like-amla-and-turmeric-for-glowing-skin-Bhumi-Blend-skincare-India-768x357.webp",
   },
   {
     slug: "spa-luxury-at-home-with-bhumi-blend",
