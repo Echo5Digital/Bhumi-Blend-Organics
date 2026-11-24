@@ -8,6 +8,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { Reveal } from "@/components/Reveal";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { CheckIcon, StarIcon } from "@/components/product/ProductIcons";
+import { ProductReviews } from "@/components/product/ProductReviews";
 import { ProductTabs } from "@/components/product/ProductTabs";
 import { PurchasePanel } from "@/components/product/PurchasePanel";
 import type { ProductDetail } from "@/data/productDetails";
@@ -647,29 +648,9 @@ async function ProductContent({
               {
                 id: "reviews",
                 label: `Reviews (${rating.count})`,
-                content: (
-                  <>
-                    <SectionTitle>Reviews</SectionTitle>
-                    <div className="mt-8 flex max-w-[760px] flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-[#eadcb6] bg-[#fbf8ef] px-6 py-6">
-                      <span
-                        role="img"
-                        aria-label={`Rated ${rating.value} out of 5`}
-                        className="flex gap-0.5 text-[#C89B3C]"
-                      >
-                        {[1, 2, 3, 4, 5].map((n) => (
-                          <span key={n} className={n <= rating.value ? "" : "text-[#e6dcc5]"}>
-                            <StarIcon />
-                          </span>
-                        ))}
-                      </span>
-                      <p className="font-system text-[16px] text-[#444]">
-                        {rating.count === 0
-                          ? "There are no reviews yet."
-                          : `Rated ${rating.value} out of 5 based on ${reviewLabel}.`}
-                      </p>
-                    </div>
-                  </>
-                ),
+                // The star summary and the approved reviews, and the "Add a review" form (new reviews
+                // wait for an admin's approval; see components/product/ProductReviews.tsx).
+                content: <ProductReviews key={product.slug} slug={product.slug} rating={rating} />,
               },
               // FAQ: only for products that have questions.
               ...(detail.faqs

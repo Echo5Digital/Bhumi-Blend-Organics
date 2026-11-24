@@ -11,11 +11,13 @@ import { Customers } from "./pages/Customers";
 import { EmailScreen, EmailsList } from "./pages/Emails";
 import { Home } from "./pages/Home";
 import { Login } from "./pages/Login";
+import { Messages } from "./pages/Messages";
 import { OrderPage } from "./pages/OrderPage";
 import { Orders } from "./pages/Orders";
 import { ProductEdit } from "./pages/ProductEdit";
 import { Products } from "./pages/Products";
 import { Reports } from "./pages/Reports";
+import { Reviews } from "./pages/Reviews";
 import { Settings } from "./pages/Settings";
 
 /** Everything except the login page needs a login. */
@@ -66,6 +68,8 @@ export function App() {
             <Route path="settings" element={<Settings />} />
             <Route path="settings/emails" element={<EmailsList />} />
             <Route path="settings/emails/:kind" element={<EmailScreen />} />
+            <Route path="reviews" element={<Reviews />} />
+            <Route path="messages" element={<Messages />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

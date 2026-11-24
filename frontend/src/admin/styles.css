@@ -2508,3 +2508,23 @@ table.items .num {
   display: flex;
   justify-content: flex-end;
 }
+
+/* Reviews screen: the stars, and the review text (kept to a readable width, long words wrap). */
+.review-stars {
+  display: inline-flex;
+  gap: 1px;
+  vertical-align: middle;
+}
+td.review-cell {
+  min-width: 260px;
+  max-width: 520px;
+}
+.review-text {
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+/* The "From" / "Author" column of the Messages and Reviews tables keeps room for a name and an email on a phone. */
+td.author-cell {
+  min-width: 170px;
+}

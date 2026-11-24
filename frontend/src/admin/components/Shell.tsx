@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router";
 import { useAuth } from "../lib/auth";
-import type { OrderList } from "../lib/types";
+import type { MessageList, OrderList, ReviewList } from "../lib/types";
 import { useApi } from "../lib/useApi";
 
 const icons = {
@@ -13,6 +13,8 @@ const icons = {
   reports: "M4 20V10M10 20V4M16 20v-8M22 20H2",
   settings: "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z",
   menu: "M4 7h16M4 12h16M4 17h16",
+  reviews: "M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9L12 3z",
+  messages: "M3.5 6h17v12h-17V6zM3.8 6.8L12 13l8.2-6.2",
 };
 
 function Icon({ name }: { name: keyof typeof icons }) {
@@ -35,6 +37,25 @@ export function Shell() {
   // The Orders menu item shows how many orders are waiting to be processed.
   const waiting = useApi<OrderList>("/admin/orders?status=processing&limit=1");
   const processing = waiting.data?.counts.processing ?? 0;
+
+  // The Reviews menu item shows how many reviews are waiting for approval; the Reviews screen
+  // announces every change so this number stays right without a page reload.
+  const pendingReviews = useApi<ReviewList>("/admin/reviews?status=pending&limit=1");
+  const reviewsWaiting = pendingReviews.data?.counts.pending ?? 0;
+  const reloadReviews = pendingReviews.reload;
+  useEffect(() => {
+    window.addEventListener("admin:reviews-changed", reloadReviews);
+    return () => window.removeEventListener("admin:reviews-changed", reloadReviews);
+  }, [reloadReviews]);
+
+  // Same for Messages: how many have not been read yet (from the blog's "Leave a Reply" form).
+  const newMessages = useApi<MessageList>("/admin/messages?status=new&limit=1");
+  const messagesNew = newMessages.data?.counts.new ?? 0;
+  const reloadMessages = newMessages.reload;
+  useEffect(() => {
+    window.addEventListener("admin:messages-changed", reloadMessages);
+    return () => window.removeEventListener("admin:messages-changed", reloadMessages);
+  }, [reloadMessages]);
 
   useEffect(() => setOpen(false), [location.pathname]);
 
@@ -65,6 +86,10 @@ export function Shell() {
         { label: "Emails", to: "/settings/emails" },
       ],
     },
+    // Customers' product reviews waiting to be approved...
+    { label: "Reviews", to: "/reviews", icon: "reviews", match: (path) => path.startsWith("/reviews"), badge: reviewsWaiting },
+    // ...and, last in the menu, the messages sent through the blog's "Leave a Reply" form.
+    { label: "Messages", to: "/messages", icon: "messages", match: (path) => path.startsWith("/messages"), badge: messagesNew },
   ];
 
   return (

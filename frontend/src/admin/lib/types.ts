@@ -144,3 +144,34 @@ export type SalesReport = {
 
 export type StockItem = { slug: string; name: string; sku?: string; stockQuantity?: number; inStock: boolean };
 export type StockReport = { lowStockThreshold: number; productsWithStockCount: number; low: StockItem[]; out: StockItem[]; most: StockItem[] };
+
+export type ReviewStatus = "pending" | "approved" | "rejected";
+/** A customer's review of a product, as the admin's Reviews screen lists it. */
+export type ReviewRow = {
+  id: string;
+  productSlug: string;
+  productName: string;
+  /** 1 to 5; missing when the reviewer only wrote text. */
+  rating?: number;
+  review: string;
+  name: string;
+  email: string;
+  status: ReviewStatus;
+  createdAt: string;
+};
+export type ReviewList = Paged<ReviewRow> & { counts: { all: number; pending: number; approved: number; rejected: number } };
+
+/** A message a visitor sent through the "Leave a Reply" form under a blog article. */
+export type MessageRow = {
+  id: string;
+  /** The article it was sent from: its address on the storefront. */
+  postSlug: string;
+  name: string;
+  email: string;
+  /** Empty when left blank. */
+  website: string;
+  comment: string;
+  isRead: boolean;
+  createdAt: string;
+};
+export type MessageList = Paged<MessageRow> & { counts: { all: number; new: number; read: number } };

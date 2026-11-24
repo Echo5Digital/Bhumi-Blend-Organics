@@ -11,16 +11,20 @@ import { adminCategoryRoutes } from "./routes/admin/categories.js";
 import { adminCouponRoutes } from "./routes/admin/coupons.js";
 import { adminCustomerRoutes } from "./routes/admin/customers.js";
 import { adminOrderRoutes } from "./routes/admin/orders.js";
+import { adminMessageRoutes } from "./routes/admin/messages.js";
 import { adminProductRoutes } from "./routes/admin/products.js";
 import { adminReportRoutes } from "./routes/admin/reports.js";
+import { adminReviewRoutes } from "./routes/admin/reviews.js";
 import { adminEmailRoutes } from "./routes/admin/emails.js";
 import { adminSettingsRoutes } from "./routes/admin/settings.js";
 import { adminStatsRoutes } from "./routes/admin/stats.js";
 import { adminSystemRoutes } from "./routes/admin/system.js";
 import { adminUploadRoutes } from "./routes/admin/uploads.js";
 import { accountRoutes } from "./routes/account.js";
+import { blogCommentRoutes } from "./routes/blogComments.js";
 import { catalogRoutes } from "./routes/catalog.js";
 import { orderRoutes } from "./routes/orders.js";
+import { reviewRoutes } from "./routes/reviews.js";
 import { razorpayWebhook } from "./routes/webhooks.js";
 import { createCloudinaryStore, type ImageStore } from "./services/images.js";
 import { createMailer, type Mailer } from "./services/mailer.js";
@@ -87,6 +91,11 @@ export function createApp({
 
   const couponLimiter = createLimiter(env, { windowMinutes: 15, max: 60, message: "Too many coupon checks. Please try again later." });
   app.use("/api/coupons", couponLimiter);
+  // "Leave a Reply" under the blog articles: a few comments an hour per visitor is plenty.
+  const commentLimiter = createLimiter(env, { windowMinutes: 60, max: 8, message: "You have sent several comments just now. Please try again a little later." });
+  app.use("/api/blog-comments", commentLimiter, blogCommentRoutes());
+  // The reviews on a product page (read the approved ones, send a new one). Before the catalogue routes: same /products/<slug> address.
+  app.use("/api/products/:slug/reviews", reviewRoutes({ env }));
   app.use("/api/account", accountRoutes({ env, mailer, onRegistered: createWelcomeNotifier({ env, mailer }) }));
   app.use("/api", catalogRoutes());
   app.use("/api", orderRoutes({ env, gateway: payments, notifier, onPlaced: newOrderEmail }));
@@ -103,6 +112,8 @@ export function createApp({
   admin.use("/stats", adminStatsRoutes());
   admin.use("/customers", adminCustomerRoutes());
   admin.use("/reports", adminReportRoutes());
+  admin.use("/reviews", adminReviewRoutes(notifier));
+  admin.use("/messages", adminMessageRoutes());
   admin.use("/settings", adminSettingsRoutes(notifier));
   admin.use("/emails", adminEmailRoutes({ env, mailer }));
   admin.use("/system", adminSystemRoutes({ env, payments, images, mailer }));

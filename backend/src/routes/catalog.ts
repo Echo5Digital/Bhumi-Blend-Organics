@@ -8,6 +8,7 @@ import { Category } from "../models/Category.js";
 import { Product } from "../models/Product.js";
 import { getSettings } from "../models/Setting.js";
 import { cartItemsSchema, evaluateCoupon, priceCart } from "../services/pricing.js";
+import { approvedTotals, combineRating, type RatingSummary } from "../services/reviews.js";
 
 // The public, read-only side of the shop: categories, products and coupon checks.
 
@@ -119,7 +120,10 @@ export function catalogRoutes(): Router {
       return card ? [{ product: card, quantity: item.quantity }] : [];
     });
 
-    res.json(productDetail(product, related, bundle));
+    // Reviews approved on this website count towards the page's star rating, on top of the old one.
+    const totals = await approvedTotals(product.slug);
+    const detail = productDetail(product, related, bundle);
+    res.json(totals ? { ...detail, details: { ...(product.details ?? {}), rating: combineRating((product.details as { rating?: RatingSummary } | null)?.rating, totals) } } : detail);
   });
 
   // POST /api/coupons/validate  { code, items: [{ slug, qty }] }
