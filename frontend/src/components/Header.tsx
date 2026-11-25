@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { CategoryMenu } from "@/components/CategoryMenu";
 import { HeaderActions } from "@/components/HeaderActions";
+import { HomeLink } from "@/components/HomeLink";
 import { MobileMenu } from "@/components/MobileMenu";
 import { navLinkClass } from "@/components/navLinkClass";
 import { getMenuCategories } from "@/lib/catalog";
@@ -31,8 +32,7 @@ export function Header() {
           <MobileMenuWithMore />
         </Suspense>
 
-        <Link
-          href="/"
+        <HomeLink
           aria-label="Bhumi Blend Organics – home"
           className="col-start-2 justify-self-center pt-[13px] pb-[19px] md:col-start-1 md:justify-self-start md:py-2 lg:pt-[13px] lg:pb-[19px]"
         >
@@ -44,16 +44,14 @@ export function Header() {
             loading="eager"
             className="h-auto w-[100px] md:w-16 lg:w-[100px]"
           />
-        </Link>
+        </HomeLink>
 
         {/* `relative` so the Category dropdown can sit right under the nav. */}
         <nav
           aria-label="Primary"
           className="relative col-start-2 hidden items-center md:flex"
         >
-          <Link href="/" className={navLinkClass}>
-            Home
-          </Link>
+          <HomeLink className={navLinkClass}>Home</HomeLink>
           <Link href="/shop" className={navLinkClass}>
             Shop
           </Link>
