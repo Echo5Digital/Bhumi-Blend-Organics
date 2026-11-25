@@ -20,7 +20,7 @@ const columns = [
     title: "About Us",
     links: [
       { label: "Our Story", href: "/our-story" },
-      { label: "Our Formula", href: "#" },
+      { label: "Our Formula", href: "/our-formula" },
       { label: "Ingredients", href: "/ingredients-benefits" },
     ],
   },
@@ -28,9 +28,9 @@ const columns = [
     title: "Support",
     links: [
       { label: "Contact Us", href: "/contact-us" },
-      { label: "Shipping Policy", href: "#" },
-      { label: "Refund Policy", href: "#" },
-      { label: "Privacy Policy", href: "#" },
+      { label: "Shipping Policy", href: "/shipping-and-delivery-policy" },
+      { label: "Refund Policy", href: "/cancellation-and-refund-policy" },
+      { label: "Privacy Policy", href: "/privacy-policy" },
     ],
   },
 ];
