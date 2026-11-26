@@ -81,6 +81,11 @@ export const blogArticles: Record<string, ArticleBlock[]> = {
       type: "p",
       text: "An oil-free moisturizer prevents that heavy, greasy layer from forming on your face. Fast absorption is equally important because a product that sits on the surface will mix with sweat and sebum throughout the day, leading to shine and potential breakouts.",
     },
+    { type: "h3", text: "Natural, Soothing Ingredients" },
+    {
+      type: "p",
+      text: "Ingredients like aloe vera, hyaluronic acid, and niacinamide are excellent for oily skin. They hydrate, calm irritation, and help regulate oil production without adding unnecessary chemicals. Fragrance-free options are ideal for those with sensitive oily skin, though naturally derived scents like jasmine can offer gentle aromatherapy benefits without irritating the skin.",
+    },
 
     { type: "h2", text: "Ingredients That Work Best for Oily, Acne-Prone Skin" },
     {
@@ -105,8 +110,10 @@ export const blogArticles: Record<string, ArticleBlock[]> = {
     { type: "h3", text: "Niacinamide" },
     {
       type: "p",
-      text: "Niacinamide helps regulate sebum production, minimizes the appearance of pores, and strengthens the skin barrier.",
+      text: "Niacinamide helps regulate sebum production, minimizes the appearance of pores, and strengthens the skin barrier. It pairs well with other lightweight ingredients and is commonly found in pore-minimizing moisturizers.",
     },
+
+    { type: "h2", text: "How Bhumi Blend Original Aloe Vera Gel Fits the Bill" },
     {
       type: "p",
       text: "If you are looking for a summer moisturizer for oily skin that checks every box, Bhumi Blend’s Original Aloe Vera Gel is worth your attention.",
@@ -170,6 +177,16 @@ export const blogArticles: Record<string, ArticleBlock[]> = {
       type: "p",
       text: "Give your skin what it actually needs this summer. Keep it simple, keep it natural, and let your skin breathe.",
     },
+    {
+      type: "ul",
+      items: [
+        "Cleanse your face with a gentle, sulfate-free cleanser.",
+        "Pat your skin dry with a soft towel. Do not rub.",
+        "Apply a thin layer of gel moisturizer while your skin is still slightly damp. This helps lock in hydration.",
+        "Use upward, circular motions to help the product absorb evenly.",
+        "Wait two to three minutes before applying sunscreen or makeup.",
+      ],
+    },
 
     {
       type: "faq",
@@ -192,7 +209,7 @@ export const blogArticles: Record<string, ArticleBlock[]> = {
         },
       ],
     },
-    { type: "cta", plain: true },
+    { type: "cta" },
     { type: "promises" },
   ],
 
