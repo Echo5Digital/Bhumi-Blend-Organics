@@ -14,6 +14,7 @@ export type PolicySection = {
 // live pages:
 // `gapAfterList` / `gapAfterText` are the space between a bulleted block / a plain line (or the
 // opening paragraph) and the next heading; they differ a little from page to page there.
+// `gapAfterIntro` is the space under the opening paragraph, when that differs from `gapAfterText`.
 // `bigTitle` is the large title the privacy page has.
 export function PolicyPage({
   title,
@@ -21,6 +22,7 @@ export function PolicyPage({
   sections,
   gapAfterList = 54,
   gapAfterText = 31,
+  gapAfterIntro,
   bigTitle = false,
 }: {
   title: string;
@@ -28,6 +30,7 @@ export function PolicyPage({
   sections: PolicySection[];
   gapAfterList?: number;
   gapAfterText?: number;
+  gapAfterIntro?: number;
   bigTitle?: boolean;
 }) {
   return (
@@ -69,7 +72,11 @@ export function PolicyPage({
                     ? undefined
                     : {
                         marginTop:
-                          index > 0 && sections[index - 1].items ? gapAfterList : gapAfterText,
+                          index === 0
+                            ? (gapAfterIntro ?? gapAfterText)
+                            : sections[index - 1].items
+                              ? gapAfterList
+                              : gapAfterText,
                       }
                 }
               >
