@@ -35,8 +35,9 @@ export async function generateMetadata({
   if (!detail || !product) return {};
 
   return {
-    title: `Buy ${product.name} | Bhumi Blend Organics`,
-    description: detail.description[0] ?? detail.summary,
+    // A title and description set for this product, else the standard ones.
+    title: detail.seoTitle?.trim() || `Buy ${product.name} | Bhumi Blend Organics`,
+    description: detail.seoDescription?.trim() || (detail.description[0] ?? detail.summary),
   };
 }
 

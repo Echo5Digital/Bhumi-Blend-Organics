@@ -10,6 +10,10 @@ import { shopProducts, skinCareEssentials, type Product } from "@/data/products"
 
 export type ProductDetail = {
   slug: string;
+  /** The page's title in the browser tab and search results. Without it: "Buy <name> | Bhumi Blend Organics". */
+  seoTitle?: string;
+  /** The page's description for search results. Without it: the first paragraph of the description. */
+  seoDescription?: string;
   /** Shown in the small print under the page; left out when the live page has none. */
   sku?: string;
   categories: string[];
@@ -168,6 +172,9 @@ export const productDetails: ProductDetail[] = [
   },
   {
     slug: "best-organic-body-lotion-for-dry-skin",
+    seoTitle: "Best Organic Body Lotion For Dry Skin - Bhumi Blend",
+    seoDescription:
+      "Bhumi Blend Best Organic Body Lotion For Dry Skin, enriched with almond butter and natural extracts to deeply hydrate and nourish skin.",
     sku: "BB-BBC-NABHBL-450",
     categories: ["Body"],
     weight: "450ml",
